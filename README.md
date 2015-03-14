@@ -11,4 +11,4 @@ SWT/ISWT Stationary Wavelet Transform. It works only for signal lengths that are
 
 MODWT/IMODWT Maximal Overlap Discrete Wavelet Transform is another undecimated transform. It is implemented for signals of any length but only orthogonal wavelets (Daubechies, Symlets and Coiflets) can be deployed. This implementation is based on the method laid out in "Wavelet Methods For Wavelet Analysis" by Donald Percival and Andrew Walden. 
 
-Documentation Available at - https://code.google.com/p/wavelib/
+Documentation Available at - https://github.com/rafat/wavelib/wiki
