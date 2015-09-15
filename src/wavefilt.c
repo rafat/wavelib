@@ -78,6 +78,9 @@ int filtlength(char* name) {
 	}
 
 	else if (!strcmp(name,"bior3.1")){
+		return 4;
+	}
+	else if (!strcmp(name,"bior3.3")){
 		return 8;
 	}
 	else if (!strcmp(name,"bior3.5")){
