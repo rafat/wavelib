@@ -1,0 +1,116 @@
+/*!
+ * Start Bootstrap - Modern Business HTML Template (http://startbootstrap.com)
+ * Code licensed under the Apache License v2.0.
+ * For details, see http://www.apache.org/licenses/LICENSE-2.0.
+ */
+
+/* Global Styles */
+
+/*
+    This website uses a modified bootstrap template provided by
+    http://startbootstrap.com under Apache License v2.0
+    See Above
+     */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    padding-top: 50px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+}
+
+.navbar-inverse .navbar-brand {
+    color: #c0dff5;
+}
+
+.nav.navbar-nav.navbar-right li a {
+    color: #c0dff5;
+}
+
+/* 404 Page Styles */
+
+.error-404 {
+    font-size: 100px;
+}
+
+/* Pricing Page Styles */
+
+.price {
+    display: block;
+    font-size: 50px;
+    line-height: 50px;
+}
+
+.price sup {
+    top: -20px;
+    left: 2px;
+    font-size: 20px;
+}
+
+.period {
+    display: block;
+    font-style: italic;
+}
+
+/* Footer Styles */
+
+footer {
+    margin: 50px 0;
+}
+/*
+.panel-default > .panel-heading {
+    background-color: #c0dff5;
+    border-color: #c0dff5;
+}
+
+.panel-body > .btn.btn-primary {
+    background-color: #c0dff5;
+    border-color: #c0dff5;
+    color: #000;
+}
+    */
+/**/
+
+#tabletext {
+    font-family: Lucida Console,Verdana;
+    font-size: large;
+}
+
+/* Responsive Styles */
+
+@media(max-width:991px) {
+    .customer-img,
+    .img-related {
+        margin-bottom: 30px;
+    }
+}
+
+@media(max-width:767px) {
+    .img-portfolio {
+        margin-bottom: 15px;
+    }
+
+    header.carousel .carousel {
+        height: 70%;
+    }
+}
+
+/*Following code is taken from http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/*/
+/*
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+ */
