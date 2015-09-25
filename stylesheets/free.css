@@ -35,24 +35,7 @@ body {
     font-size: 100px;
 }
 
-/* Pricing Page Styles */
 
-.price {
-    display: block;
-    font-size: 50px;
-    line-height: 50px;
-}
-
-.price sup {
-    top: -20px;
-    left: 2px;
-    font-size: 20px;
-}
-
-.period {
-    display: block;
-    font-style: italic;
-}
 
 /* Footer Styles */
 
@@ -98,7 +81,13 @@ footer {
 }
 
 /*Following code is taken from http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/*/
-/*
+
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+
+
 .btn-file input[type=file] {
   position: absolute;
   top: 0;
@@ -113,4 +102,13 @@ footer {
   cursor: inherit;
   display: block;
 }
- */
+
+.large-Modal .modal-dialog{
+  width:400px;
+  height: 400px;
+  position: absolute;
+  top:0; bottom: 0; left: 0; right: 0;
+  margin: auto;
+  overflow: scroll;
+}
+ 

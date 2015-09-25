@@ -1,4 +1,4 @@
-var app = angular.module('ngmain', ['ngRoute']);
+var app = angular.module('ngmain', ['ngRoute','ui.bootstrap']);
 
 app.config(function($routeProvider){
   $routeProvider
@@ -10,6 +10,10 @@ app.config(function($routeProvider){
     .when('/display', {
       templateUrl: 'display.html',
       controller: 'displayController'
+    })
+    .when('/report', {
+      templateUrl: 'report.html',
+      controller: 'reportController'
     })
     .when('/about', {
       templateUrl: 'about.html',
@@ -53,13 +57,26 @@ app.controller('mainController', function ($scope, $http, wave) {
 
     $scope.dataInput = function () {
         var x = $scope.inp1.valueOf().split(/[\s,;\t\r\n]+/);
-        wave.sigData = new Float64Array(x.length);
-        wave.sigLength = x.length;
-        //console.log(wave.sigLength);
-
         var i;
-        for (i = 0; i < x.length; i++) {
-            wave.sigData[i] = parseFloat(x[i]);
+        var j = 0;
+
+        for (var i = 0; i < x.length; i++) {
+            if (!isNaN(parseFloat(x[i]))) {
+                j = j + 1;
+            }
+        }
+
+        wave.sigLength = j;
+        wave.sigData = new Float64Array(j);
+
+        j = 0;
+
+        for (var i = 0; i < x.length; i++) {
+            temp = parseFloat(x[i]);
+            if (!isNaN(temp)) {
+                wave.sigData[j] = temp;
+                j = j + 1;
+            }
         }
         //alert(wave.sigData[0]);
         location.href = '#/display';
@@ -70,23 +87,38 @@ app.controller('mainController', function ($scope, $http, wave) {
         var finp1 = fileinput.files[0];
         var reader = new FileReader();
         var temp = 3.14159;
-        
+
 
         reader.onload = function (e) {
             var x = reader.result.split(/[\s,;\t\r\n]+/);
-            wave.sigData = new Float64Array(x.length);
 
-            var i;
             var j = 0;
 
-            for (i = 0; i < x.length; i++) {
+            for (var i = 0; i < x.length; i++) {
+                if (!isNaN(parseFloat(x[i]))) {
+                    j = j + 1;
+                }
+            }
+
+            wave.sigLength = j;
+            wave.sigData = new Float64Array(j);
+
+            j = 0;
+
+            for (var i = 0; i < x.length; i++) {
                 temp = parseFloat(x[i]);
                 if (!isNaN(temp)) {
                     wave.sigData[j] = temp;
                     j = j + 1;
                 }
             }
-            wave.sigLength = j;
+
+            /*
+            var rm = x.length - j;
+            if (rm > 0) {
+            wave.sigData.splice(j, rm);
+            }
+            */
             location.href = '#/display';
         }
 
@@ -124,12 +156,20 @@ app.controller('mainController', function ($scope, $http, wave) {
             data = response.data;
 
             var x = data.split(/[\s,;\t\r\n]+/);
-            wave.sigData = new Float64Array(x.length);
-            
-            var i;
             var j = 0;
 
-            for (i = 0; i < x.length; i++) {
+            for (var i = 0; i < x.length; i++) {
+                if (!isNaN(parseFloat(x[i]))) {
+                    j = j + 1;
+                }
+            }
+
+            wave.sigLength = j;
+            wave.sigData = new Float64Array(j);
+
+            j = 0;
+
+            for (var i = 0; i < x.length; i++) {
                 temp = parseFloat(x[i]);
                 if (!isNaN(temp)) {
                     wave.sigData[j] = temp;
@@ -137,8 +177,12 @@ app.controller('mainController', function ($scope, $http, wave) {
                 }
             }
 
-            wave.sigLength = j;
-
+            /*
+            var rm = x.length - j;
+            if (rm > 0) {
+            wave.sigData.splice(j, rm);
+            }
+            */
             location.href = '#/display';
         }, function (response) {
             $scope.data = response.data || "Request failed";
@@ -152,17 +196,13 @@ app.controller('siteController', function ($scope) {
 
 });
 
-app.controller('frontController', function ($scope) {
-
-});
-
-app.controller('displayController', function ($scope, $http, wave) {
+app.controller('displayController', function ($scope, $http, $modal, wave) {
     //console.log(wave.sigLength);
     var lbl = [];
     $scope.MaxIter = 0;
     $scope.selected = {};
     $scope.wdisplays = [];
-    for (i = 0; i < wave.sigLength; ++i) {
+    for (var i = 0; i < wave.sigLength; ++i) {
         lbl[i] = [i, wave.sigData[i]];
         //console.log(lbl[i]);
     }
@@ -289,6 +329,7 @@ app.controller('displayController', function ($scope, $http, wave) {
     $scope.waveTest = function () {
         var method;
         var ext = "NULL";
+
         if ($scope.selected.method.id == "0") {
             method = "dwt";
             ext = "sym";
@@ -297,19 +338,38 @@ app.controller('displayController', function ($scope, $http, wave) {
             ext = "per";
         } else if ($scope.selected.method.id == "2") {
             method = "swt";
+            ext = "per";
         } else if ($scope.selected.method.id == "3") {
             method = "modwt";
+            ext = "per";
+        }
+        //console.log($scope.selected.family.family);
+        if ($scope.selected.family.family == "biorthogonal" && method == "modwt") {
+            alert("the Method MODWT is not implemented for biorthogonal wavelets");
+            return;
         }
 
-        console.log(method);
+        //console.log(wave.sigData);
 
         var N = wave.sigLength;
         var flength = $scope.selected.wavelet.filtlength;
         var J = $scope.selected.level;
+        //console.log(N,J);
+
+        if (method == "swt") {
+            var div = parseInt(Math.pow(2, J));
+            if ((N % div) != 0) {
+                alert("In SWT the data length should be divisible by 2^(Number of Decomposition Levels)");
+                return;
+            }
+        }
 
         wave.length = new Int32Array(J + 2);
         wave.lenlength = J + 2;
+        wave.filtlength = flength;
         wave.J = J;
+        wave.method = method;
+        wave.ext = ext;
         //wave.output = [];
         //wave.filters = [];
         wave.wname = $scope.selected.wavelet.wavelet;
@@ -351,10 +411,10 @@ app.controller('displayController', function ($scope, $http, wave) {
         wave_transform(inpHeap.byteOffset, N, wave.wname, method, J, ext, outHeap.byteOffset, lenHeap.byteOffset, filtHeap.byteOffset);
 
         wave.output = new Float64Array(outHeap.buffer, outHeap.byteOffset, outlength);
-        wave.filter = new Float64Array(filtHeap.buffer, filtHeap.byteOffset, 4 * length);
+        wave.filter = new Float64Array(filtHeap.buffer, filtHeap.byteOffset, 4 * flength);
         wave.length = new Int32Array(lenHeap.buffer, lenHeap.byteOffset, J + 2);
-
-        console.log(wave.length);
+        //console.log(wave.filter);
+        //console.log(wave.length);
 
         Module._free(inpHeap.byteOffset);
         Module._free(outHeap.byteOffset);
@@ -381,14 +441,16 @@ app.controller('displayController', function ($scope, $http, wave) {
                      legend: 'always',
                      color: '#3399ff',
                      animatedZooms: true,
-                     title: 'Input'
+                     title: 'Full Decomposition'
                  }
         );
+
+        document.getElementById("reportButton").disabled = false;
 
     }
 
     $scope.updateGraph = function () {
-        console.log($scope.selected.wdisplay);
+        //console.log($scope.selected.wdisplay);
         var lbl = [];
         if ($scope.selected.wdisplay == 0) {
             for (var i = 0; i < wave.sigLength; ++i) {
@@ -420,11 +482,117 @@ app.controller('displayController', function ($scope, $http, wave) {
                      legend: 'always',
                      color: '#3399ff',
                      animatedZooms: true,
-                     title: 'Input'
+                     title: $scope.wdisplays[parseInt($scope.selected.wdisplay)]
                  }
         );
     }
 
+    $scope.items = ['item1', 'item2', 'item3'];
+
+    $scope.viewReport = function () {
+        //window.open('#/report', '_blank');
+        var modalInstance = $modal.open({
+            templateUrl: 'myModalContent.html',
+            controller: 'reportController',
+            windowClass: 'large-Modal',
+            resolve: {
+                items: function () {
+                    return $scope.items;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+        });
+
+    }
 
 
+
+
+});
+
+app.controller('reportController', function ($scope, $modalInstance, items, wave) {
+    //$scope.wname = wave.wname;
+    $scope.wname = wave.wname;
+    if (wave.method == "dwt") {
+        $scope.method = "Discrete Wavelet Transform";
+        if (wave.ext == "sym") {
+            $scope.ext = "Symmetric Extension";
+        } else {
+            $scope.ext = "Periodic Extension";
+        }
+    } else if (wave.method == "swt") {
+        $scope.method = "Stationary Wavelet Transform";
+        $scope.ext = "Periodic Extension";
+    } else if (wave.method == "modwt") {
+        $scope.method = "Maximal Overlap Discrete Wavelet Transform";
+        $scope.ext = "Periodic Extension";
+    }
+
+    $scope.flength = wave.filtlength;
+    var fval = parseInt($scope.flength);
+    $scope.J = wave.J;
+    var J = parseInt(wave.J);
+
+    $scope.lpd = [];
+    $scope.hpd = [];
+    $scope.lpr = [];
+    $scope.hpr = [];
+
+    for (var i = 0; i < fval; i++) {
+        $scope.lpd[i] = wave.filter[i];
+        $scope.hpd[i] = wave.filter[i + fval];
+        $scope.lpr[i] = wave.filter[i + 2 * fval];
+        $scope.hpr[i] = wave.filter[i + 3 * fval];
+        //console.log(i + $scope.flength, i);
+    }
+    //console.log(wave.filter);
+
+    $scope.length = wave.length;
+    $scope.outlength = wave.outLength;
+    $scope.appx = [];
+    $scope.det = [];
+
+    for (var i = 0; i < $scope.length[0]; i++) {
+        $scope.appx[i] = wave.output[i];
+    }
+
+    for (var i = $scope.length[0]; i < wave.outLength; i++) {
+        $scope.det[i - parseInt($scope.length[0])] = wave.output[i];
+    }
+
+    $scope.iter = [];
+    var detlen = wave.outLength - parseInt($scope.length[0]);
+    $scope.liter = [];
+
+    $scope.liter[i] = 0;
+    var i2 = 0;
+
+    for (var i = 0; i < J; i++) {
+        $scope.iter[i] = i;
+        i2 += wave.output[i + 1];
+        $scope.liter[i+1] = i2;
+    }
+
+    function chunk(array,start,end) {
+        var newarr = [];
+        for(var i = start; i < end;i++) {
+            
+        }
+    }
+
+    $scope.items = items;
+    $scope.selected = {
+        item: $scope.items[0]
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selected.item);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 });

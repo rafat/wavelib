@@ -43,6 +43,33 @@
     </div>
     <div class="col-md-6">
         <button class="btn btn-primary btn-block" data-ng-click="waveTest()">
-                        <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>GO</button>
+               <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>GO</button>
     </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-block" id="reportButton" data-ng-click="viewReport()" disabled>
+               <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>View Report</button>
+    </div>
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title" style="font-family:Lucida Console;color:black;font-size:large">Wavelet Transform Output</h3>
+        </div>
+        <div class="modal-body" style="font-family:Lucida Console;color:blue;font-size:small">
+            <p>Method : {{method}} ({{ext}})</p>
+            <p>Wavelet : {{wname}}</p>
+            <p>Wavelet Filters :</p>
+            <p>LPD : [<span data-ng-repeat="lp1 in lpd track by $index">{{lp1}} {{$last ? '' : ', '}}</span>]</p>
+            <p>HPD : [<span data-ng-repeat="hp1 in hpd track by $index">{{hp1}} {{$last ? '' : ', '}}</span>]</p>
+            <p>LPR : [<span data-ng-repeat="lp2 in lpr track by $index">{{lp2}} {{$last ? '' : ', '}}</span>]</p>
+            <p>HPR : [<span data-ng-repeat="hp2 in hpr track by $index">{{hp2}} {{$last ? '' : ', '}}</span>]</p>
+            <p>Decomposition Levels : {{J}}</p>
+            <p>APPX{{J}} : [<span data-ng-repeat="a1 in appx track by $index">{{a1}} {{$last ? '' : ', '}}</span>]</p>
+            <div data-ng-repeat="j in iter">
+                <p>DET{{j}} : [<span data-ng-repeat="a2 in det.slice(0,0)">{{a2}} {{$last ? '' : ', '}}</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()" disabled>OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
 </div>
