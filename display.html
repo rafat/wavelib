@@ -19,25 +19,25 @@
 <div class="row marketing">
     <div class="col-md-6">
         <select class="wide-control form-control default" data-ng-model="selected.family"
-            data-ng-options="a.family for a in wavedb">
+            data-ng-options="a.family for a in wavedb" required>
             <option value=""> Wavelet Family </option>
         </select>
     </div>
     <div class="col-md-6">
         <select class="wide-control form-control default" data-ng-model="selected.wavelet"
-            data-ng-options="b.wavelet for b in selected.family.wavelets" data-ng-change="getMaxIter()">
+            data-ng-options="b.wavelet for b in selected.family.wavelets" data-ng-change="getMaxIter()" required>
         <option value=""> Wavelet </option>
     </select>
     </div>
     <div class="col-md-6">
         <select class="wide-control form-control default" data-ng-model="selected.method"
-            data-ng-options="c.method for c in methods">
+            data-ng-options="c.method for c in methods" required>
         <option value=""> Wavelet Methods </option>
     </select>
     </div>
     <div class="col-md-6">
         <select class="wide-control form-control default" data-ng-model="selected.level"
-            data-ng-options="d for d in levels">
+            data-ng-options="d for d in levels" required>
         <option value=""> Decomposition Levels </option>
     </select>
     </div>
@@ -63,12 +63,12 @@
             <p>HPR : [<span data-ng-repeat="hp2 in hpr track by $index">{{hp2}} {{$last ? '' : ', '}}</span>]</p>
             <p>Decomposition Levels : {{J}}</p>
             <p>APPX{{J}} : [<span data-ng-repeat="a1 in appx track by $index">{{a1}} {{$last ? '' : ', '}}</span>]</p>
-            <div data-ng-repeat="j in iter">
-                <p>DET{{j}} : [<span data-ng-repeat="a2 in det.slice(0,0)">{{a2}} {{$last ? '' : ', '}}</p>
+            <div data-ng-repeat="detail in details">
+                <p>DET : [<span data-ng-repeat="a2 in detail track by $index">{{a2}} {{$last ? '' : ', '}}</span>]</p>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" type="button" ng-click="ok()" disabled>OK</button>
+            <!--button class="btn btn-primary" type="button" ng-click="ok()" disabled>OK</button-->
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>

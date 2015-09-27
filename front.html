@@ -4,6 +4,43 @@
 
       
         <div class="row marketing">
+            
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4> Test Signals</h4>
+                    </div>
+                    <div class="panel-body">
+                        <button class="btn btn-primary btn-block"><span class="glyphicon glyphicon-hand-down pull-left" data-position="left">
+                        </span>Select Example</button>
+                                    <select class="wide-control form-control default" data-ng-model="tvalue" data-ng-change="testInput()" id="testsig1">
+                                        <option value=""> SELECT INPUT </option>
+                                        <option>ECG</option>
+                                        <option>Heavisine</option>
+                                        <option>Piecewise Regular 256</option>
+                                        <option>Piecewise Regular 2048</option>
+                                        <option>Piecewise Polynomial</option>
+                                        <option>Noisy Bumps</option>
+                                        <option>Noisy Heavisine</option>
+                                    </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4>Data Input</h4>
+                    </div>
+                    <div class="panel-body">
+                        <input class="wide-control form-control default" type="text" data-ng-model="inp1" placeholder="Copy and Paste Data Vector">
+                                
+                        <button class="btn btn-primary btn-block" data-ng-click="dataInput()">
+                        <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>GO</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -18,39 +55,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4>Data Input</h4>
-                    </div>
-                    <div class="panel-body">
-                        <input class="wide-control form-control default" type="text" data-ng-model="inp1" placeholder="Copy and Paste Data Here">
-                                
-                        <button class="btn btn-primary btn-block" data-ng-click="dataInput()">
-                        <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>GO</button>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4> Test Signals</h4>
-                    </div>
-                    <div class="panel-body">
-                        <button class="btn btn-primary btn-block"><span class="glyphicon glyphicon-hand-down pull-left" data-position="left">
-                        </span>Select Example</button>
-                                    <select class="wide-control form-control default" data-ng-model="tvalue" data-ng-change="testInput()" id="testsig1">
-                                        <option></option>
-                                        <option>ECG</option>
-                                        <option>Heavisine</option>
-                                        <option>Piecewise Regular 256</option>
-                                        <option>Piecewise Regular 2048</option>
-                                        <option>Piecewise Polynomial</option>
-                                        <option>Noisy Bumps</option>
-                                        <option>Noisy Heavisine</option>
-                                    </select>
-                    </div>
-                </div>
-            </div>
+
+
         </div>

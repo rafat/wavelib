@@ -11,10 +11,6 @@ app.config(function($routeProvider){
       templateUrl: 'display.html',
       controller: 'displayController'
     })
-    .when('/report', {
-      templateUrl: 'report.html',
-      controller: 'reportController'
-    })
     .when('/about', {
       templateUrl: 'about.html',
       controller: 'mainController'
@@ -56,6 +52,12 @@ app.controller('mainController', function ($scope, $http, wave) {
 
 
     $scope.dataInput = function () {
+
+        if (typeof $scope.inp1 == 'undefined') {
+            alert("Please input a valid Data Vector.");
+            return;
+        }
+
         var x = $scope.inp1.valueOf().split(/[\s,;\t\r\n]+/);
         var i;
         var j = 0;
@@ -84,9 +86,29 @@ app.controller('mainController', function ($scope, $http, wave) {
 
     $scope.fileInput = function () {
         var fileinput = document.getElementById('finp1');
+
         var finp1 = fileinput.files[0];
         var reader = new FileReader();
         var temp = 3.14159;
+
+        if (typeof finp1 == 'undefined') {
+            alert("Please input a valid Data File. ");
+            return;
+        }
+
+        reader.onerror = function (e) {
+            switch (e.target.error.code) {
+                case e.target.error.NOT_FOUND_ERR:
+                    alert('File Not Found!');
+                    break;
+                case e.target.error.NOT_READABLE_ERR:
+                    alert('File is not readable');
+                    break;
+                default:
+                    alert('An error occurred reading this file.');
+            };
+            return;
+        }
 
 
         reader.onload = function (e) {
@@ -330,6 +352,12 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
         var method;
         var ext = "NULL";
 
+        if (typeof $scope.selected.family == 'undefined' || typeof $scope.selected.wavelet == 'undefined' ||
+        typeof $scope.selected.method == 'undefined' || typeof $scope.selected.level == 'undefined') {
+            alert("Please Selct All Values : Family, Wavelet, Method and Levels");
+            return;
+        }
+
         if ($scope.selected.method.id == "0") {
             method = "dwt";
             ext = "sym";
@@ -549,50 +577,44 @@ app.controller('reportController', function ($scope, $modalInstance, items, wave
         //console.log(i + $scope.flength, i);
     }
     //console.log(wave.filter);
-
+    //console.log(wave.length);
     $scope.length = wave.length;
     $scope.outlength = wave.outLength;
     $scope.appx = [];
-    $scope.det = [];
+    $scope.details = [];
 
     for (var i = 0; i < $scope.length[0]; i++) {
         $scope.appx[i] = wave.output[i];
     }
+    var start = $scope.length[0];
+    var end = start + $scope.length[1];
+    for (var j = 0; j < J; j++) {
+        var det = [];
 
-    for (var i = $scope.length[0]; i < wave.outLength; i++) {
-        $scope.det[i - parseInt($scope.length[0])] = wave.output[i];
-    }
-
-    $scope.iter = [];
-    var detlen = wave.outLength - parseInt($scope.length[0]);
-    $scope.liter = [];
-
-    $scope.liter[i] = 0;
-    var i2 = 0;
-
-    for (var i = 0; i < J; i++) {
-        $scope.iter[i] = i;
-        i2 += wave.output[i + 1];
-        $scope.liter[i+1] = i2;
-    }
-
-    function chunk(array,start,end) {
-        var newarr = [];
-        for(var i = start; i < end;i++) {
-            
+        for (i = start; i < end; i++) {
+            det[i - start] = wave.output[i];
         }
+        start = end;
+        end = start + $scope.length[j + 2];
+        $scope.details.push(det);
     }
+
+    //console.log($scope.details);
 
     $scope.items = items;
     $scope.selected = {
         item: $scope.items[0]
     };
-
+    /*
     $scope.ok = function () {
         $modalInstance.close($scope.selected.item);
     };
-
+    */
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+});
+
+app.controller("TabsController", function ($scope, $window) {
+
 });
