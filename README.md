@@ -13,6 +13,8 @@ MODWT/IMODWT Maximal Overlap Discrete Wavelet Transform is another undecimated t
 
 Documentation Available at - https://github.com/rafat/wavelib/wiki
 
+Live Demo (Emscripten) - http://rafat.github.io/wavelib/
+
 License - BSD 3-Clause
 
 Contace - rafat.hsn@gmail.com
