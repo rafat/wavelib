@@ -35,7 +35,7 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 	wt_object obj = NULL;
 
 	size = wave->filtlength;
-	
+
 	if (J > 100) {
 		printf("\n The Decomposition Iterations Cannot Exceed 100. Exiting \n");
 		exit(-1);
@@ -63,13 +63,13 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 			printf("\n For SWT the signal length must be a multiple of 2^J. \n");
 			exit(-1);
 		}
-		
+
 		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
 		obj->outlength = siglength * (J + 1); // Default
 		strcpy(obj->ext, "per"); // Default
 	}
 	else if (!strcmp(method, "modwt") || !strcmp(method, "MODWT")) {
-		
+
 		if (!strstr(wave->wname,"db")) {
 			if (!strstr(wave->wname, "sym")) {
 				if (!strstr(wave->wname, "coif")) {
@@ -159,9 +159,19 @@ static void dwt_per(wt_object wt, double *inp, int N, double *cA, int len_cA, do
 				cA[i] += wt->wave->lpd[l] * inp[t - l];
 				cD[i] += wt->wave->hpd[l] * inp[t - l];
 			}
-			else if ((t - l) < 0) {
+			else if ((t - l) < 0 && isodd == 0) {
 				cA[i] += wt->wave->lpd[l] * inp[t - l + N];
 				cD[i] += wt->wave->hpd[l] * inp[t - l + N];
+			}
+			else if ((t - l) < 0 && isodd == 1) {
+				if ((t - l) != -1) {
+					cA[i] += wt->wave->lpd[l] * inp[t - l + N + 1];
+					cD[i] += wt->wave->hpd[l] * inp[t - l + N + 1];
+				}
+				else {
+					cA[i] += wt->wave->lpd[l] * inp[N - 1];
+					cD[i] += wt->wave->hpd[l] * inp[N - 1];
+				}
 			}
 			else if ((t - l) >= N && isodd == 0) {
 				cA[i] += wt->wave->lpd[l] * inp[t - l - N];
@@ -297,6 +307,10 @@ void dwt(wt_object wt,double *inp) {
 	J = wt->J;
 	wt->length[J + 1] = temp_len;
 	wt->outlength = 0;
+	wt->zpad = 0;
+	orig = (double*)malloc(sizeof(double)* temp_len);
+	orig2 = (double*)malloc(sizeof(double)* temp_len);
+	/*
 	if ((temp_len % 2) == 0) {
 		wt->zpad = 0;
 		orig = (double*)malloc(sizeof(double)* temp_len);
@@ -308,6 +322,7 @@ void dwt(wt_object wt,double *inp) {
 		orig = (double*)malloc(sizeof(double)* temp_len);
 		orig2 = (double*)malloc(sizeof(double)* temp_len);
 	}
+	*/
 
 	for (i = 0; i < wt->siglength; ++i) {
 		orig[i] = inp[i];
@@ -561,12 +576,12 @@ void idwt(wt_object wt, double *dwtop) {
 		for (i = 0; i < J; ++i) {
 
 			//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
-			
+
 			idwt_per(wt,out, det_len, wt->output + iter, det_len, X_lp);
 			for (k = lf/2 - 1; k < 2 * det_len + lf/2 - 1; ++k) {
 			out[k - lf/2 + 1] = X_lp[k];
 			}
-			
+
 			iter += det_len;
 			det_len = wt->length[i + 2];
 		}
@@ -763,7 +778,7 @@ static void swt_fft(wt_object wt, double *inp) {
 		}
 
 		//swt_per(wt,M, wt->params, temp_len, cA, temp_len, cD,temp_len);
-		
+
 		per_ext(wt->params, temp_len, N / 2, sig);
 
 		if (wt->wave->lpd_len == wt->wave->hpd_len && (!strcmp(wt->cmethod, "fft") || !strcmp(wt->cmethod, "FFT"))) {
@@ -784,7 +799,7 @@ static void swt_fft(wt_object wt, double *inp) {
 			free_conv(wt->cobj);
 			wt->cfftset = 0;
 		}
-		
+
 		for (i = 0; i < temp_len; ++i) {
 			wt->params[i] = cA[N + i];
 			wt->params[lenacc + i] = cD[N + i];
@@ -1038,7 +1053,7 @@ static void modwt_per(wt_object wt, int M, double *inp, int N, double *cA, int l
 			while (t < 0) {
 				t += len_cA;
 			}
-			
+
 			cA[i] += filt[l] * inp[t];
 			cD[i] += filt[len_avg + l] * inp[t];
 
@@ -1262,7 +1277,7 @@ void wt_summary(wt_object wt) {
 		t += wt->length[i+1];
 	}
 	printf("\n");
-	
+
 }
 
 void wave_free(wave_object object) {
