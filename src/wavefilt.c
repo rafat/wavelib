@@ -165,10 +165,10 @@ int filtlength(char* name) {
 int filtcoef(char* name, double *lp1, double *hp1, double *lp2, double *hp2) {
 	int i;
 	if (!strcmp(name,"haar") || !strcmp(name,"db1")) {
-		double lp1_a[] = { 0.7071, 0.7071 };
-		double hp1_a[] = { -0.7071, 0.7071 };
-		double lp2_a[] = { 0.7071, 0.7071 };
-		double hp2_a[] = { 0.7071, -0.7071 };
+		double lp1_a[] = { 0.7071067811865475, 0.7071067811865475 };
+		double hp1_a[] = { -0.7071067811865475, 0.7071067811865475 };
+		double lp2_a[] = { 0.7071067811865475, 0.7071067811865475 };
+		double hp2_a[] = { 0.7071067811865475, -0.7071067811865475 };
 		for (i = 0; i < 2; ++i) {
 			lp1[i] = lp1_a[i];
 			hp1[i] = hp1_a[i];
