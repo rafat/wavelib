@@ -23,6 +23,8 @@ int testSWTlength(int N, int J);
 
 int wmaxiter(int sig_len, int filt_len);
 
+double costfunc(double *x, int N, char *entropy, double p);
+
 #ifdef __cplusplus
 }
 #endif

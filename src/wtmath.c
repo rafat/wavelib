@@ -237,3 +237,94 @@ int wmaxiter(int sig_len, int filt_len) {
 
 	return lev;
 }
+
+static double entropy_s(double *x,int N) {
+  int i;
+  double val,x2;
+
+  val = 0.0;
+
+  for(i = 0; i < N; ++i) {
+    if (x[i] != 0) {
+      x2 = x[i] * x[i];
+      val -= x2 * log(x2);
+    }
+  }
+  return val;
+}
+
+static double entropy_t(double *x,int N, double t) {
+  int i;
+  double val,x2;
+  if (t < 0) {
+    printf("Threshold value must be >= 0");
+    exit(1);
+  }
+  val = 0.0;
+
+  for(i = 0; i < N; ++i) {
+    x2 = fabs(x[i]);
+    if (x2 > t) {
+      val += 1;
+    }
+
+  }
+
+  return val;
+
+}
+
+static double entropy_n(double *x,int N,double p) {
+  int i;
+  double val,x2;
+  if (p < 1) {
+    printf("Norm power value must be >= 1");
+    exit(1);
+  }
+  val = 0.0;
+  for(i = 0; i < N; ++i) {
+    x2 = fabs(x[i]);
+    val += pow(x2,(double)p);
+
+  }
+
+  return val;
+}
+
+static double entropy_l(double *x,int N) {
+  int i;
+  double val,x2;
+
+  val = 0.0;
+
+  for(i = 0; i < N; ++i) {
+    if (x[i] != 0) {
+      x2 = x[i] * x[i];
+      val += log(x2);
+    }
+  }
+  return val;
+}
+
+double costfunc(double *x, int N ,char *entropy,double p) {
+	double val;
+
+	if (!strcmp(entropy, "shannon")) {
+		val = entropy_s(x, N);
+	}
+	else if (!strcmp(entropy, "threshold")) {
+		val = entropy_t(x, N,p);
+	}
+	else if (!strcmp(entropy, "norm")) {
+		val = entropy_n(x, N,p);
+	}
+	else if (!strcmp(entropy, "logenergy") || !strcmp(entropy, "log energy") || !strcmp(entropy, "energy")) {
+		val = entropy_l(x, N);
+	}
+	else {
+		printf("Entropy must be one of shannon, threshold, norm or energy");
+		exit(-1);
+	}
+
+	return val;
+}

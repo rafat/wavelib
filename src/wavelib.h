@@ -42,17 +42,80 @@ struct wt_set{
 	char ext[10];// Type of Extension used - "per" or "sym"
 	char cmethod[10]; // Convolution Method - "direct" or "FFT"
 
-	int N; // 
-	int cfftset; 
+	int N; //
+	int cfftset;
 	int zpad;
 	int length[102];
 	double *output;
 	double params[0];
 };
 
+typedef struct wtree_set* wtree_object;
+
+wtree_object wtree_init(wave_object wave, int siglength, int J);
+
+struct wtree_set{
+	wave_object wave;
+	conv_object cobj;
+	char method[10];
+	int siglength;// Length of the original signal.
+	int outlength;// Length of the output DWT vector
+	int lenlength;// Length of the Output Dimension Vector "length"
+	int J; // Number of decomposition Levels
+	int MaxIter;// Maximum Iterations J <= MaxIter
+	int even;// even = 1 if signal is of even length. even = 0 otherwise
+	char ext[10];// Type of Extension used - "per" or "sym"
+
+	int N; //
+	int nodes;
+	int cfftset;
+	int zpad;
+	int length[102];
+	double *output;
+	int *nodelength;
+	int *coeflength;
+	double params[0];
+};
+
+typedef struct wpt_set* wpt_object;
+
+wpt_object wpt_init(wave_object wave, int siglength, int J);
+
+struct wpt_set{
+	wave_object wave;
+	conv_object cobj;
+	int siglength;// Length of the original signal.
+	int outlength;// Length of the output DWT vector
+	int lenlength;// Length of the Output Dimension Vector "length"
+	int J; // Number of decomposition Levels
+	int MaxIter;// Maximum Iterations J <= MaxIter
+	int even;// even = 1 if signal is of even length. even = 0 otherwise
+	char ext[10];// Type of Extension used - "per" or "sym"
+	char entropy[20];
+	double eparam;
+
+	int N; //
+	int nodes;
+	int length[102];
+	double *output;
+	double *costvalues;
+	double *basisvector;
+	int *nodeindex;
+	int *numnodeslevel;
+	int *coeflength;
+	double params[0];
+};
+
+
 void dwt(wt_object wt, double *inp);
 
 void idwt(wt_object wt, double *dwtop);
+
+void wtree(wtree_object wt, double *inp);
+
+void dwpt(wpt_object wt, double *inp);
+
+void idwpt(wpt_object wt, double *dwtop);
 
 void swt(wt_object wt, double *inp);
 
@@ -64,15 +127,37 @@ void imodwt(wt_object wt, double *dwtop);
 
 void setDWTExtension(wt_object wt, char *extension);
 
+void setWTREEExtension(wtree_object wt, char *extension);
+
+void setDWPTExtension(wpt_object wt, char *extension);
+
+void setDWPTEntropy(wpt_object wt, char *entropy, double eparam);
+
 void setWTConv(wt_object wt, char *cmethod);
+
+int getWTREENodelength(wtree_object wt, int X);
+
+void getWTREECoeffs(wtree_object wt, int X, int Y, double *coeffs, int N);
+
+int getDWPTNodelength(wpt_object wt, int X);
+
+void getDWPTCoeffs(wpt_object wt, int X, int Y, double *coeffs, int N);
 
 void wave_summary(wave_object obj);
 
 void wt_summary(wt_object wt);
 
+void wtree_summary(wtree_object wt);
+
+void wpt_summary(wpt_object wt);
+
 void wave_free(wave_object object);
 
 void wt_free(wt_object object);
+
+void wtree_free(wtree_object object);
+
+void wpt_free(wpt_object object);
 
 
 #ifdef __cplusplus
@@ -81,5 +166,3 @@ void wt_free(wt_object object);
 
 
 #endif /* WAVELIB_H_ */
-
-
