@@ -24,7 +24,7 @@ struct wave_set{
 	double *hpd;
 	double *lpr;
 	double *hpr;
-	double params[0];
+	double *params;
 };
 
 typedef struct fft_t {
@@ -88,7 +88,7 @@ struct wt_set{
 	int zpad;
 	int length[102];
 	double *output;
-	double params[0];
+	double *params;
 };
 
 typedef struct wtree_set* wtree_object;
@@ -115,7 +115,7 @@ struct wtree_set{
 	double *output;
 	int *nodelength;
 	int *coeflength;
-	double params[0];
+	double *params;
 };
 
 typedef struct wpt_set* wpt_object;
@@ -144,7 +144,7 @@ struct wpt_set{
 	int *nodeindex;
 	int *numnodeslevel;
 	int *coeflength;
-	double params[0];
+	double *params;
 };
 
 

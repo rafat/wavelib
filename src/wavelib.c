@@ -15,7 +15,8 @@ wave_object wave_init(char* wname) {
 		//strcopy(obj->wname, wname);
 	}
 
-	obj = (wave_object)malloc(sizeof(struct wave_set) + sizeof(double)* 4 * retval);
+	obj = (wave_object)malloc(sizeof(struct wave_set));
+    obj->params = (double*)malloc(sizeof(double) * 4 * retval);
 
 	obj->filtlength = retval;
 	obj->lpd_len = obj->hpd_len = obj->lpr_len = obj->hpr_len = obj->filtlength;
@@ -49,12 +50,14 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 	}
 
 	if (method == NULL) {
-		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength +  2 * J * (size+1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set));
+        obj->params = (double*)malloc(sizeof(double)* (siglength + 2 * J * (size + 1)));
 		obj->outlength = siglength + 2 * J * (size + 1); // Default
 		strcpy(obj->ext, "sym"); // Default
 	}
 	else if (!strcmp(method, "dwt") || !strcmp(method, "DWT")) {
-		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength + 2 * J * (size + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set));
+        obj->params = (double*)malloc(sizeof(double)* (siglength + 2 * J * (size + 1)));
 		obj->outlength = siglength + 2 * J * (size + 1); // Default
 		strcpy(obj->ext, "sym"); // Default
 	}
@@ -64,7 +67,8 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 			exit(-1);
 		}
 
-		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set));
+        obj->params = (double*)malloc(sizeof(double)* (siglength * (J + 1)));
 		obj->outlength = siglength * (J + 1); // Default
 		strcpy(obj->ext, "per"); // Default
 	}
@@ -79,7 +83,8 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 			}
 		}
 
-		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set));
+        obj->params = (double*)malloc(sizeof(double)* (siglength * (J + 1)));
 		obj->outlength = siglength * (J + 1); // Default
 		strcpy(obj->ext, "per"); // Default
 	}
@@ -145,7 +150,8 @@ wtree_object wtree_init(wave_object wave, int siglength,int J) {
 	  elength += temp2;
 	}
 
-	obj = (wtree_object)malloc(sizeof(struct wtree_set) + sizeof(double)* (siglength * (J + 1) + elength + nodes + J + 1));
+	obj = (wtree_object)malloc(sizeof(struct wtree_set));
+    obj->params = (double*)malloc(sizeof(double)* (siglength * (J + 1) + elength + nodes + J + 1));
 	obj->outlength = siglength * (J + 1) + elength;
 	strcpy(obj->ext, "sym");
 
@@ -218,7 +224,8 @@ wpt_object wpt_init(wave_object wave, int siglength, int J) {
 	}
 	//printf("elength %d", elength);
 
-	obj = (wpt_object)malloc(sizeof(struct wpt_set) + sizeof(double)* (elength + 4 * nodes + 2 * J + 6));
+	obj = (wpt_object)malloc(sizeof(struct wpt_set));
+    obj->params = (double*)malloc(sizeof(double)* (elength + 4 * nodes + 2 * J + 6));
 	obj->outlength = siglength + 2 * (J + 1) * (size + 1);
 	strcpy(obj->ext, "sym");
 	strcpy(obj->entropy, "shannon");
@@ -2530,17 +2537,21 @@ void wpt_summary(wpt_object wt) {
 }
 
 void wave_free(wave_object object) {
+    free(object->params);
 	free(object);
 }
 
 void wt_free(wt_object object) {
+    free(object->params);
 	free(object);
 }
 
 void wtree_free(wtree_object object) {
+    free(object->params);
 	free(object);
 }
 
 void wpt_free(wpt_object object) {
+    free(object->params);
 	free(object);
 }
