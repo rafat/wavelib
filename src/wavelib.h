@@ -1,3 +1,6 @@
+/*
+Copyright (c) 2014, Rafat Hussain
+*/
 #ifndef WAVELIB_H_
 #define WAVELIB_H_
 
