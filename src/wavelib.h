@@ -1,3 +1,6 @@
+/*
+Copyright (c) 2014, Rafat Hussain
+*/
 #ifndef WAVELIB_H_
 #define WAVELIB_H_
 
@@ -22,7 +25,7 @@ struct wave_set{
 	double *hpd;
 	double *lpr;
 	double *hpr;
-	double params[0];
+    double params[0];
 };
 
 typedef struct wt_set* wt_object;
@@ -47,7 +50,7 @@ struct wt_set{
 	int zpad;
 	int length[102];
 	double *output;
-	double params[0];
+    double params[0];
 };
 
 typedef struct wtree_set* wtree_object;
@@ -74,7 +77,7 @@ struct wtree_set{
 	double *output;
 	int *nodelength;
 	int *coeflength;
-	double params[0];
+    double params[0];
 };
 
 typedef struct wpt_set* wpt_object;
@@ -103,7 +106,7 @@ struct wpt_set{
 	int *nodeindex;
 	int *numnodeslevel;
 	int *coeflength;
-	double params[0];
+    double params[0];
 };
 
 
