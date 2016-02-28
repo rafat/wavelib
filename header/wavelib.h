@@ -5,6 +5,11 @@
 extern "C" {
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(disable : 4200)
+#pragma warning(disable : 4996)
+#endif
+
 #ifndef fft_type
 #define fft_type double
 #endif
@@ -24,7 +29,7 @@ struct wave_set{
 	double *hpd;
 	double *lpr;
 	double *hpr;
-	double *params;
+	double params[0];
 };
 
 typedef struct fft_t {
@@ -88,7 +93,7 @@ struct wt_set{
 	int zpad;
 	int length[102];
 	double *output;
-	double *params;
+	double params[0];
 };
 
 typedef struct wtree_set* wtree_object;
@@ -115,7 +120,7 @@ struct wtree_set{
 	double *output;
 	int *nodelength;
 	int *coeflength;
-	double *params;
+	double params[0];
 };
 
 typedef struct wpt_set* wpt_object;
@@ -144,7 +149,7 @@ struct wpt_set{
 	int *nodeindex;
 	int *numnodeslevel;
 	int *coeflength;
-	double *params;
+	double params[0];
 };
 
 

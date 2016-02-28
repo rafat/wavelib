@@ -3,10 +3,6 @@
 */
 
 #include "wavelib.h"
-#if defined(_MSC_VER)
-#pragma warning(disable : 4200)
-#pragma warning(disable : 4996)
-#endif
 
 wave_object wave_init(char* wname) {
 	wave_object obj = NULL;

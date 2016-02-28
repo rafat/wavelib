@@ -10,6 +10,11 @@ Copyright (c) 2014, Rafat Hussain
 extern "C" {
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(disable : 4200)
+#pragma warning(disable : 4996)
+#endif
+
 typedef struct wave_set* wave_object;
 
 wave_object wave_init(char* wname);
