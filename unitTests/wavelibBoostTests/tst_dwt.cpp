@@ -78,6 +78,15 @@ double sum5(double *array, int N,int m) {
     return sum;
 }
 
+double RMS_Error(double *data, double *rec, int N) {
+    int i;
+    double sum = 0;
+    for (i = 0; i < N; ++i) {
+        sum += (data[i] - rec[i])*(data[i] - rec[i]);
+    }
+    return sqrt(sum/((double)N-1));
+}
+
 BOOST_AUTO_TEST_SUITE(DWTTests)
 
 BOOST_AUTO_TEST_CASE(ReconstructionTest)
@@ -87,13 +96,13 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 	wt_object wt;
 	double *inp,*out,*diff;
 	int N, i,J;
-
+    double epsilon = 1e-15;
 	FILE *ifp;
     double temp[79926];
 
 
-	//ifp = fopen("s1.txt", "r");
-    ifp = fopen("signal.txt", "r");
+	ifp = fopen("s1.txt", "r");
+    //ifp = fopen("signal.txt", "r");
 	i = 0;
 	BOOST_REQUIRE(ifp);
 
@@ -101,24 +110,64 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 		fscanf(ifp, "%lf \n", &temp[i]);
 		i++;
 	}
-    //N = 79926;
+    N = 79926;
     
-    N = 256;
+    //N = 256;
 
 	inp = (double*)malloc(sizeof(double)* N);
 	out = (double*)malloc(sizeof(double)* N);
-	diff = (double*)malloc(sizeof(double)* N);
 	//wmean = mean(temp, N);
 
 	for (i = 0; i < N; ++i) {
 		inp[i] = temp[i];
 	}
     std::vector<std::string > waveletNames;
-    waveletNames.resize(15);
-    for (unsigned int j = 0; j < waveletNames.size(); j++)
+
+    for (unsigned int j = 0; j < 36; j++)
     {
-        waveletNames[j] = std::string("db") + std::to_string(j+1);
+        waveletNames.push_back(std::string("db") + std::to_string(j + 1));
     }
+    for (unsigned int j = 0; j < 17; j++)
+    {
+        waveletNames.push_back(std::string("coif") + std::to_string(j + 1));
+    }
+    for (unsigned int j = 1; j < 20; j++)
+    {
+        waveletNames.push_back(std::string("sym") + std::to_string(j + 1));
+    }
+    
+    waveletNames.push_back("bior1.1");
+    waveletNames.push_back("bior1.3");
+    waveletNames.push_back("bior1.5");
+    waveletNames.push_back("bior2.2");
+    waveletNames.push_back("bior2.4");
+    waveletNames.push_back("bior2.6");
+    waveletNames.push_back("bior2.8");
+    waveletNames.push_back("bior3.1");
+    waveletNames.push_back("bior3.3");
+    waveletNames.push_back("bior3.5");
+    waveletNames.push_back("bior3.7");
+    waveletNames.push_back("bior3.9");
+    waveletNames.push_back("bior4.4");
+    waveletNames.push_back("bior5.5");
+    waveletNames.push_back("bior6.8");
+    
+    waveletNames.push_back("rbior1.1");
+    waveletNames.push_back("rbior1.3");
+    waveletNames.push_back("rbior1.5");
+    waveletNames.push_back("rbior2.2");
+    waveletNames.push_back("rbior2.4");
+    waveletNames.push_back("rbior2.6");
+    waveletNames.push_back("rbior2.8");
+    waveletNames.push_back("rbior3.1");
+    waveletNames.push_back("rbior3.3");
+    waveletNames.push_back("rbior3.5");
+    waveletNames.push_back("rbior3.7");
+    waveletNames.push_back("rbior3.9");
+    waveletNames.push_back("rbior4.4");
+    waveletNames.push_back("rbior5.5");
+    waveletNames.push_back("rbior6.8");
+
     for (unsigned int direct_fft = 0; direct_fft < 2; direct_fft++)
     {
         for (unsigned int sym_per = 0; sym_per < 2; sym_per++)
@@ -128,7 +177,7 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
                 char * name = new char[waveletNames[j].size() + 1];
                 memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
                 obj = wave_init(name);// Initialize the wavelet
-                for (J = 1; J < 4; J++)
+                for (J = 1; J < 2; J++)
                 {
                     //J = 3;
 
@@ -146,13 +195,13 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 
                     idwt(wt, out);// Perform IDWT (if needed)
                     // Test Reconstruction
-                    for (i = 0; i < wt->siglength; ++i) {
-                        diff[i] = out[i] - inp[i];
-                    }
+
                     if (direct_fft == 0)
-                        BOOST_CHECK_SMALL(absmax(diff, wt->siglength), 1e-12); // If Reconstruction succeeded then the output should be a small value.
+                        epsilon = 1e-8;
                     else
-                        BOOST_CHECK_SMALL(absmax(diff, wt->siglength), 1e-8);
+                        epsilon = 1e-10;
+                    BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
+
 
                     wt_free(wt);
                 }
@@ -162,7 +211,6 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
     }
 
 	free(out);
-	free(diff);
     free(inp);
 }
 
@@ -191,5 +239,132 @@ BOOST_AUTO_TEST_CASE(DBCoefTests)
         wave_free(obj);
     }
 }
+
+
+BOOST_AUTO_TEST_CASE(CoifCoefTests)
+{
+    wave_object obj;
+    double epsilon = 1e-15;
+    std::vector<std::string > waveletNames;
+    waveletNames.resize(17);
+    for (unsigned int i = 0; i < waveletNames.size(); i++)
+    {
+        waveletNames[i] = std::string("coif") + std::to_string(i + 1);
+    }
+
+    for (unsigned int j = 0; j < waveletNames.size(); j++)
+    {
+        char * name = new char[waveletNames[j].size() + 1];
+        memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+        obj = wave_init(name);// Initialize the wavelet
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
+        for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
+            BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
+        wave_free(obj);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(SymCoefTests)
+{
+    wave_object obj;
+    double epsilon = 1e-10;
+    std::vector<std::string > waveletNames;
+    for (unsigned int i = 1; i < 20; i++)
+    {
+        waveletNames.push_back(std::string("sym") + std::to_string(i + 1));
+    }
+
+    for (unsigned int j = 0; j < waveletNames.size(); j++)
+    {
+        char * name = new char[waveletNames[j].size() + 1];
+        memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+        obj = wave_init(name);// Initialize the wavelet
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
+        for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
+            BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
+        wave_free(obj);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(BiorCoefTests)
+{
+    wave_object obj;
+    double epsilon = 1e-10;
+    std::vector<std::string > waveletNames;
+    waveletNames.push_back("bior1.1");
+    waveletNames.push_back("bior1.3");
+    waveletNames.push_back("bior1.5");
+    waveletNames.push_back("bior2.2");
+    waveletNames.push_back("bior2.4");
+    waveletNames.push_back("bior2.6");
+    waveletNames.push_back("bior2.8");
+    waveletNames.push_back("bior3.1");
+    waveletNames.push_back("bior3.3");
+    waveletNames.push_back("bior3.5");
+    waveletNames.push_back("bior3.7");
+    waveletNames.push_back("bior3.9");
+    waveletNames.push_back("bior4.4");
+    waveletNames.push_back("bior5.5");
+    waveletNames.push_back("bior6.8");
+
+    for (unsigned int j = 0; j < waveletNames.size(); j++)
+    {
+        char * name = new char[waveletNames[j].size() + 1];
+        memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+        obj = wave_init(name);// Initialize the wavelet
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+        wave_free(obj);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(RBiorCoefTests)
+{
+    wave_object obj;
+    double epsilon = 1e-10;
+    std::vector<std::string > waveletNames;
+    waveletNames.push_back("rbior1.1");
+    waveletNames.push_back("rbior1.3");
+    waveletNames.push_back("rbior1.5");
+    waveletNames.push_back("rbior2.2");
+    waveletNames.push_back("rbior2.4");
+    waveletNames.push_back("rbior2.6");
+    waveletNames.push_back("rbior2.8");
+    waveletNames.push_back("rbior3.1");
+    waveletNames.push_back("rbior3.3");
+    waveletNames.push_back("rbior3.5");
+    waveletNames.push_back("rbior3.7");
+    waveletNames.push_back("rbior3.9");
+    waveletNames.push_back("rbior4.4");
+    waveletNames.push_back("rbior5.5");
+    waveletNames.push_back("rbior6.8");
+
+    for (unsigned int j = 0; j < waveletNames.size(); j++)
+    {
+        char * name = new char[waveletNames[j].size() + 1];
+        memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+        obj = wave_init(name);// Initialize the wavelet
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+        wave_free(obj);
+    }
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
