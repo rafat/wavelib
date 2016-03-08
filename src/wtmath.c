@@ -1,3 +1,6 @@
+/*
+Copyright (c) 2014, Rafat Hussain
+*/
 #include "wtmath.h"
 
 int upsamp(double *x, int lenx, int M, double *y) {

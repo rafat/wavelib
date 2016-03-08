@@ -5,6 +5,11 @@
 extern "C" {
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(disable : 4200)
+#pragma warning(disable : 4996)
+#endif
+
 #ifndef fft_type
 #define fft_type double
 #endif
