@@ -10,7 +10,7 @@
 #include <string>
 #include <cmath>
 #include <iostream>
-#include "../../src/wavelib.h"
+#include "../../header/wavelib.h"
 #include<vector>
 
 
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE(BiorCoefTests)
         delete[] name;
     }
 }
-*/
+
 BOOST_AUTO_TEST_CASE(RBiorCoefTests)
 {
     wave_object obj;
