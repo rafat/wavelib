@@ -5,11 +5,24 @@
 #include "BoostTest.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
+
+#include <sstream>
+#include <string>
+#include <cmath>
+#include <iostream>
 #include "../../src/wavelib.h"
 #include<vector>
 
+
+namespace patch
+{
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+}
 
 double absmax(double *array, int N) {
 	double max;
@@ -125,15 +138,15 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 
     for (unsigned int j = 0; j < 36; j++)
     {
-        waveletNames.push_back(std::string("db") + std::to_string(j + 1));
+        waveletNames.push_back(std::string("db") + patch::to_string(j + 1));
     }
     for (unsigned int j = 0; j < 17; j++)
     {
-        waveletNames.push_back(std::string("coif") + std::to_string(j + 1));
+        waveletNames.push_back(std::string("coif") + patch::to_string(j + 1));
     }
     for (unsigned int j = 1; j < 20; j++)
     {
-        waveletNames.push_back(std::string("sym") + std::to_string(j + 1));
+        waveletNames.push_back(std::string("sym") + patch::to_string(j + 1));
     }
     
     waveletNames.push_back("bior1.1");
@@ -206,13 +219,17 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
                     wt_free(wt);
                 }
                 wave_free(obj);
+                delete[] name;
             }
         }
     }
-
+    
+	fclose(ifp);
 	free(out);
     free(inp);
 }
+
+
 
 BOOST_AUTO_TEST_CASE(DBCoefTests)
 {
@@ -222,7 +239,7 @@ BOOST_AUTO_TEST_CASE(DBCoefTests)
     waveletNames.resize(38);
     for (unsigned int i = 0; i < waveletNames.size();i++)
     {
-        waveletNames[i] = std::string("db") + std::to_string(i+1);
+        waveletNames[i] = std::string("db") + patch::to_string(i+1);
     }
 
     for (unsigned int j = 0; j < waveletNames.size(); j++)
@@ -237,6 +254,7 @@ BOOST_AUTO_TEST_CASE(DBCoefTests)
         for (int m = 1; m < (obj->lpr_len / 2) - 1;m++)
             BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
         wave_free(obj);
+        delete[] name;
     }
 }
 
@@ -249,7 +267,7 @@ BOOST_AUTO_TEST_CASE(CoifCoefTests)
     waveletNames.resize(17);
     for (unsigned int i = 0; i < waveletNames.size(); i++)
     {
-        waveletNames[i] = std::string("coif") + std::to_string(i + 1);
+        waveletNames[i] = std::string("coif") + patch::to_string(i + 1);
     }
 
     for (unsigned int j = 0; j < waveletNames.size(); j++)
@@ -264,6 +282,7 @@ BOOST_AUTO_TEST_CASE(CoifCoefTests)
         for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
             BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
         wave_free(obj);
+        delete[] name;
     }
 }
 
@@ -274,7 +293,7 @@ BOOST_AUTO_TEST_CASE(SymCoefTests)
     std::vector<std::string > waveletNames;
     for (unsigned int i = 1; i < 20; i++)
     {
-        waveletNames.push_back(std::string("sym") + std::to_string(i + 1));
+        waveletNames.push_back(std::string("sym") + patch::to_string(i + 1));
     }
 
     for (unsigned int j = 0; j < waveletNames.size(); j++)
@@ -289,6 +308,7 @@ BOOST_AUTO_TEST_CASE(SymCoefTests)
         for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
             BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
         wave_free(obj);
+        delete[] name;
     }
 }
 
@@ -326,9 +346,10 @@ BOOST_AUTO_TEST_CASE(BiorCoefTests)
         BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
         BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
         wave_free(obj);
+        delete[] name;
     }
 }
-
+*/
 BOOST_AUTO_TEST_CASE(RBiorCoefTests)
 {
     wave_object obj;
@@ -363,6 +384,7 @@ BOOST_AUTO_TEST_CASE(RBiorCoefTests)
         BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
         BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
         wave_free(obj);
+        delete[] name;
     }
 }
 

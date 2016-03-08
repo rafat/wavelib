@@ -3038,7 +3038,7 @@ int filtlength(const char* name) {
 	}
     else if (len > 2 && strstr(name, "db") != NULL)
     {
-        new_str = malloc(sizeof(char)*(len-2 + 1));
+        new_str = (char*)malloc(sizeof(char)*(len-2 + 1));
         for (i = 2; i < len + 1; i++)
             new_str[i - 2] = name[i];
 
@@ -3158,7 +3158,7 @@ int filtlength(const char* name) {
     }
     else if (len > 4 && strstr(name, "coif") != NULL)
     {
-        new_str = malloc(sizeof(char)*(len - 4 + 1));
+        new_str = (char*)malloc(sizeof(char)*(len - 4 + 1));
         for (i = 4; i < len + 1; i++)
             new_str[i - 4] = name[i];
 
@@ -3174,7 +3174,7 @@ int filtlength(const char* name) {
     }
     else if (len > 3 && strstr(name, "sym") != NULL)
     {
-        new_str = malloc(sizeof(char)*(len - 3 + 1));
+        new_str = (char*)malloc(sizeof(char)*(len - 3 + 1));
         for (i = 3; i < len + 1; i++)
             new_str[i - 3] = name[i];
 
@@ -3206,7 +3206,7 @@ void qmf_wrev(const double *in, int N, double *out)
 {
     int count = 0;
     double *sigOutTemp;
-    sigOutTemp = malloc(N*sizeof(double));
+    sigOutTemp = (double*)malloc(N*sizeof(double));
 
     qmf_even(in, N, sigOutTemp);
     copy_reverse(sigOutTemp, N, out);
@@ -3764,7 +3764,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
 	else if (!strcmp(name,"coif1")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif1, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3781,7 +3781,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
 	}
 	else if (!strcmp(name,"coif2")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif2, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3798,7 +3798,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
 	}
 	else if (!strcmp(name,"coif3")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif3, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3815,7 +3815,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
 	}
 	else if (!strcmp(name,"coif4")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif4, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3832,7 +3832,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
 	}
 	else if (!strcmp(name,"coif5")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif5, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3849,7 +3849,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
 	}
     else if (!strcmp(name, "coif6")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif6, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3866,7 +3866,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif7")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif7, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3883,7 +3883,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif8")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif8, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3900,7 +3900,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif9")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif9, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3917,7 +3917,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif10")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif10, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3934,7 +3934,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif11")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif11, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3951,7 +3951,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif12")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif12, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3968,7 +3968,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif13")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif13, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -3985,7 +3985,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif14")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif14, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -4002,7 +4002,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif15")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif15, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -4019,7 +4019,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif16")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif16, N, coeffTemp);
         for (i = 0; i < N; ++i) {
@@ -4036,7 +4036,7 @@ int filtcoef(const char* name, double *lp1, double *hp1, double *lp2, double *hp
     }
     else if (!strcmp(name, "coif17")){
         double *coeffTemp;
-        coeffTemp = malloc(N*sizeof(double));
+        coeffTemp = (double*)malloc(N*sizeof(double));
 
         copy(coif17, N, coeffTemp);
         for (i = 0; i < N; ++i) {

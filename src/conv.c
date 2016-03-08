@@ -204,5 +204,7 @@ void conv_fft(const conv_object obj,fft_type *inp1,fft_type *inp2,fft_type *oup)
 
 
 void free_conv(conv_object object) {
+	free_real_fft(object->fobj);
+	free_real_fft(object->iobj);
 	free(object);
 }
