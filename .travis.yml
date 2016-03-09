@@ -3,10 +3,7 @@ language: cpp
 os:
     - linux
     - osx
-cache:
-    directories:
-        - compiler/.cabal-sandbox
-        - cs/packages
+
 env:
     - LANG=cpp-clang
     - LANG=cpp-gcc
@@ -18,18 +15,7 @@ addons:
     packages:
         - g++-4.8
         - libboost1.55-all-dev
-matrix:
-  exclude:
-    # linux VM is too small to build C++ unit tests with g++
-    - os: linux
-      env: LANG=cpp-gcc
-    # linux C++ build/test already includes Python
-    - os: linux
-      env: LANG=cpp-clang
-    - os: osx
-      env: LANG=cpp-gcc
-    - os: osx
-      env: LANG=cpp-clang
+
 
 before_install:
     # select C++ compiler
