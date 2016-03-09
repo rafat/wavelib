@@ -106,6 +106,7 @@ void fft_c2r_exec(fft_real_object obj,fft_data *inp,fft_type *oup) {
 }
 
 void free_real_fft(fft_real_object object) {
+	free_fft(object->cobj);
 	free(object);
 }
 
