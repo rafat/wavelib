@@ -28,7 +28,7 @@ matrix:
     - compiler: clang
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libboost-dev ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libboost-all-dev ; fi
 install:
 
 before_script:
