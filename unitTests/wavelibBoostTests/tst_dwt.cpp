@@ -8,8 +8,6 @@
 
 #include <string.h>
 #include <math.h>
-#include <cmath>
-#include <iostream>
 #include "wavelib.h"
 
 #include<vector>
