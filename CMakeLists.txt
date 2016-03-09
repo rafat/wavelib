@@ -53,23 +53,6 @@ if(BUILD_UT)
     include(CTest)
     enable_testing()
     add_subdirectory(unitTests)
-
-	add_custom_target(CopyDataFiles
-
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/signal.txt         ${COMMON_BIN_PATH}/Debug
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/signal.txt         ${COMMON_BIN_PATH}/Release
-
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/x1.txt         ${COMMON_BIN_PATH}/Debug
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/x1.txt         ${COMMON_BIN_PATH}/Release
-
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/x2.txt         ${COMMON_BIN_PATH}/Debug
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/x2.txt         ${COMMON_BIN_PATH}/Release
-
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/s1.txt         ${COMMON_BIN_PATH}/Debug
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/s1.txt         ${COMMON_BIN_PATH}/Release
-  )
-
-	add_dependencies(wavelibLibTests CopyDataFiles)
 endif()
 
 add_subdirectory(src)

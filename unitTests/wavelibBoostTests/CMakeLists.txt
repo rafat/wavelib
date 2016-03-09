@@ -14,7 +14,7 @@ set(HEADER_FILES
 
 add_executable(wavelibLibTests ${SOURCE_FILES} ${HEADER_FILES})
 
-add_test(NAME wavelibTests WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}  COMMAND wavelibTests)
+add_test(NAME wavelibLibTests WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/test  COMMAND wavelibLibTests)
 
 include_directories(${BOOST_DIR})
 add_dependencies(wavelibLibTests wavelib)
