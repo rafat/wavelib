@@ -1,5 +1,3 @@
-enable_testing()
-
                                 
 set(SOURCE_FILES
 		tst_dwt.cpp
