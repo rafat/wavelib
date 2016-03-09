@@ -230,9 +230,9 @@ BOOST_AUTO_TEST_CASE(DBCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
         BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
         for (int m = 1; m < (obj->lpr_len / 2) - 1;m++)
             BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
@@ -257,9 +257,9 @@ BOOST_AUTO_TEST_CASE(CoifCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
         BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
         for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
             BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
@@ -282,9 +282,9 @@ BOOST_AUTO_TEST_CASE(SymCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
         BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
         for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
             BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
@@ -318,13 +318,13 @@ BOOST_AUTO_TEST_CASE(BiorCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
 
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
         wave_free(obj);
     }
 }
@@ -355,13 +355,13 @@ BOOST_AUTO_TEST_CASE(RBiorCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
 
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / std::sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / std::sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
+        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
         wave_free(obj);
     }
 }
