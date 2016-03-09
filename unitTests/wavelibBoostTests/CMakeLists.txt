@@ -16,7 +16,7 @@ set(HEADER_FILES
 
 add_executable(wavelibLibTests ${SOURCE_FILES} ${HEADER_FILES})
 
-add_test(NAME wavelibTests COMMAND wavelibTests)
+add_test(NAME wavelibTests WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}  COMMAND wavelibTests)
 
 include_directories(${BOOST_DIR})
 add_dependencies(wavelibLibTests wavelib)
