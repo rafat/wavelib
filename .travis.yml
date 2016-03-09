@@ -13,6 +13,7 @@ addons:
 language: cpp
 
 os:
+  - linux
   - osx
 
 compiler:

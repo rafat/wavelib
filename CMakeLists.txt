@@ -35,17 +35,15 @@ include_directories(${PROJECT_WIDE_INCLUDE})
 
 # TODO: need to handle this with option
 set(Boost_USE_MULTITHREADED ON)
-#set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-if (Boost_FOUND)
+
     # disable autolinking feature
-    add_definitions(-DBOOST_ALL_NO_LIB)
-    include_directories(${Boost_INCLUDE_DIRS})
-else()
-    message(FATAL_ERROR "Boost >= 1.35 required for testing wavelib")
-endif()
+add_definitions(-DBOOST_ALL_NO_LIB)
+include_directories(${Boost_INCLUDE_DIRS})
+
 
 include_directories(${COMMON_BIN_PATH})
 
