@@ -9,7 +9,7 @@ environment:
 build_script: 
   - mkdir build 
   - cd build 
-  - cmake -G "Visual Studio 14 2015 Win64" ..
+  - cmake -G "Visual Studio 14 2015 Win64" -DUSE_STATIC_BOOST=NO  ..
   - cmake --build . --config Debug
 
 test_script: 
