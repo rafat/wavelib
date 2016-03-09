@@ -1,0 +1,42 @@
+sudo: false
+
+addons:
+  apt:
+    sources:
+    - kalakris-cmake
+    - kubuntu-backports
+    - boost-latest
+    packages:
+    - cmake
+    - libboost1.55-all-dev
+
+language: cpp
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  - BUILD_CONFIG=Release
+  - BUILD_CONFIG=Debug
+
+matrix:
+  allow_failures:
+    - compiler: clang
+
+before_install:
+
+install:
+
+before_script:
+  - mkdir build.ci
+  - cd build.ci
+  - cmake .. -DBUILD_UT=ON -DCMAKE_BUILD_TYPE=$BUILD_CONFIG
+
+script:
+  - cmake --build .
+  - ctest -VV
