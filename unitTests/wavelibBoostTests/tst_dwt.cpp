@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../../src/wavelib.h"
+#include "wavelib.h"
 #include<vector>
-
+#include <random>
 
 double absmax(double *array, int N) {
 	double max;
@@ -94,22 +94,14 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 
 	wave_object obj;
 	wt_object wt;
-	double *inp,*out,*diff;
+	double *inp,*out;
 	int N, i,J;
     double epsilon = 1e-15;
-	FILE *ifp;
-    double temp[79926];
+    std::mt19937_64 rng;
+    rng.seed(1234);
+    // initialize a uniform distribution between 0 and 1
+    std::uniform_real_distribution<double> unif(0, 1);
 
-
-	ifp = fopen("s1.txt", "r");
-    //ifp = fopen("signal.txt", "r");
-	i = 0;
-	BOOST_REQUIRE(ifp);
-
-	while (!feof(ifp)) {
-		fscanf(ifp, "%lf \n", &temp[i]);
-		i++;
-	}
     N = 79926;
     
     //N = 256;
@@ -119,7 +111,7 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 	//wmean = mean(temp, N);
 
 	for (i = 0; i < N; ++i) {
-		inp[i] = temp[i];
+        inp[i] = unif(rng);
 	}
     std::vector<std::string > waveletNames;
 
