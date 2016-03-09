@@ -30,5 +30,9 @@ target_include_directories(wavelibLibTests PUBLIC
                             
 target_compile_definitions(wavelibLibTests PUBLIC BOOST_ALL_NO_LIB UNIT_TEST)
 
-file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Debug")
-file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Release")
+
+install(TARGETS wavelibLibTests
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION tests
+    ARCHIVE DESTINATION tests
+    )

@@ -32,12 +32,14 @@ else()
     message(FATAL_ERROR "Boost >= 1.35 required for testing wavelib")
 endif()
 
+
 if(BUILD_UT)
     include(CTest)
     enable_testing()
     add_subdirectory(unitTests)
+
 	add_custom_target(CopyDataFiles
-  
+
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/signal.txt         ${COMMON_BIN_PATH}/Debug
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/signal.txt         ${COMMON_BIN_PATH}/Release
 
