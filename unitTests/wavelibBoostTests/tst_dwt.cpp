@@ -109,10 +109,6 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 	double *inp,*out;
 	int N, i,J;
     double epsilon = 1e-15;
-    std::mt19937_64 rng;
-    rng.seed(1234);
-    // initialize a uniform distribution between 0 and 1
-    std::uniform_real_distribution<double> unif(0, 1);
 
     N = 79926;
     
@@ -123,7 +119,7 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 	//wmean = mean(temp, N);
 
 	for (i = 0; i < N; ++i) {
-        inp[i] = unif(rng);
+        inp[i] = (rand() / (double)(RAND_MAX + 1));
 	}
     std::vector<std::string > waveletNames;
 
