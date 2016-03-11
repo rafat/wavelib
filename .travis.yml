@@ -1,0 +1,36 @@
+sudo: false
+language: cpp
+os:
+    - linux
+    - osx
+
+compiler:
+  - gcc
+  - clang
+ 
+addons:
+  apt:
+    sources:
+        - boost-latest
+        - ubuntu-toolchain-r-test
+    packages:
+        - libboost1.55-all-dev
+
+matrix:
+  allow_failures:
+    - compiler: clang
+
+before_install:
+    # linux prereqisite packages
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then wget --no-check-certificate https://www.cmake.org/files/v3.2/cmake-3.2.3-Linux-x86_64.tar.gz; fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar -xzvf cmake-3.2.3-Linux-x86_64.tar.gz; fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=$PWD/cmake-3.2.3-Linux-x86_64/bin:$PATH; fi
+
+before_script:
+
+
+script:
+    - mkdir build.ci && cd build.ci
+    - cmake .. -DBUILD_UT=ON -DCMAKE_BUILD_TYPE=$BUILD_CONFIG -DUSE_STATIC_BOOST=YES 
+    - cmake --build .
+    - ctest -VV
