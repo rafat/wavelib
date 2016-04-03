@@ -1,12 +1,12 @@
 #Folders Ignore
-Bin
-Testing
+Bin/
+Testing/
 
 #cmake ignore
 CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Makefile
+CMakeFiles/
+CMakeScripts/
+Makefile/
 cmake_install.cmake
 install_manifest.txt
 
