@@ -33,24 +33,7 @@ endif()
 set(PROJECT_WIDE_INCLUDE ${WAVELIB_SRC_ROOT}/include)
 include_directories(${PROJECT_WIDE_INCLUDE})
 
-# TODO: need to handle this with option
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
 
-set(Boost_USE_STATIC_LIBS ${USE_STATIC_BOOST})
-set(Boost_USE_MULTITHREADED ON)
-unset(Boost_INCLUDE_DIR CACHE)
-unset(Boost_LIBRARY_DIRS CACHE)
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-if(USE_STATIC_BOOST)
-   message(STATUS "Linking against boost static libraries")
-else(USE_STATIC_BOOST)
-   message(STATUS "Linking against boost dynamic libraries")
-endif(USE_STATIC_BOOST)
-
-    # disable autolinking feature
-add_definitions(-DBOOST_ALL_NO_LIB)
-include_directories(${Boost_INCLUDE_DIRS})
 
 
 include_directories(${COMMON_BIN_PATH})

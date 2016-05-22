@@ -12,3 +12,11 @@ install_manifest.txt
 
 #yml
 *.yml
+
+#Compiled
+*.a
+*.o
+*.lib
+*.so
+*.exe
+*.dll

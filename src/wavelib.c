@@ -1562,242 +1562,251 @@ void idwpt(wpt_object wt, double *dwtop) {
 	llb = 1;
 	index2 = xlen / p;
 	indexp = 0;
-	for (i = 0; i < J; ++i) {
-		llb *= 2;
-		n1 += llb;
-	}
-
-	for (i = 0; i < xlen; ++i) {
-		X[i] = 0.0;
-	}
-
-	for (i = 0; i < llb; ++i) {
-		prep[i] = (int) wt->basisvector[n1 - llb + i];
-		ptemp[i] = 0;
-	}
-
-	if (!strcmp(wt->ext, "per")) {
-		app_len = wt->length[0];
-		det_len = wt->length[1];
-		index = 0;
-
-
-		for (i = 0; i < J; ++i) {
-			p = ipow2(J - i - 1);
-			det_len = wt->length[i + 1];
-			index2 *= 2;
-			index3 = 0;
-			index4 = 0;
-			//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
-			n1 -= llb;
-			for (l = 0; l < llb; ++l) {
-				if (ptemp[l] != 2) {
-					prep[l] = (int) wt->basisvector[n1 + l];
-				}
-				else {
-					prep[l] = ptemp[l];
-				}
-				ptemp[l] = 0;
-			}
-
-
-			for (l = 0; l < p; ++l) {
-				if (prep[2 * l] == 1 && prep[2 * l + 1] == 1) {
-					for (k = 0; k < det_len; ++k) {
-						out[k] = wt->output[index + k];
-						out2[k] = wt->output[index + det_len + k];
-					}
-					idwpt_per(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
-						X[index3 + k - lf / 2 + 1] = X_lp[k];
-					}
-					index += 2 * det_len;
-					index3 += index2;
-					index4 += 2 * indexp;
-					ptemp[l] = 2;
-				}
-				else if (prep[2 * l] == 1 && prep[2 * l + 1] == 2) {
-					index4 += indexp;
-					for (k = 0; k < det_len; ++k) {
-						out[k] = wt->output[index + k];
-						out2[k] = X[index4 + k];
-					}
-					idwpt_per(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
-						X[index3 + k - lf / 2 + 1] = X_lp[k];
-					}
-					index += det_len;
-					index3 += index2;
-					index4 += indexp;
-					ptemp[l] = 2;
-				}
-				else if (prep[2 * l] == 2 && prep[2 * l + 1] == 1) {
-					for (k = 0; k < det_len; ++k) {
-						out[k] = X[index4 + k];
-						out2[k] = wt->output[index + k];
-					}
-					idwpt_per(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
-						X[index3 + k - lf / 2 + 1] = X_lp[k];
-					}
-					index += det_len;
-					index3 += index2;
-					index4 += 2 * indexp;
-					ptemp[l] = 2;
-				}
-				else if (prep[2 * l] == 2 && prep[2 * l + 1] == 2) {
-					for (k = 0; k < det_len; ++k) {
-						out[k] = X[index4 + k];
-						out2[k] = X[index4 + indexp + k];
-					}
-					idwpt_per(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
-						X[index3 + k - lf / 2 + 1] = X_lp[k];
-					}
-					index4 += 2 * indexp;
-					index3 += index2;
-					ptemp[l] = 2;
-				}
-				else {
-					index3 += index2;
-					index4 += 2 * indexp;
-				}
-
-			}
-
-
-			/*
-			idwt_per(wt, out, det_len, wt->output + iter, det_len, X_lp);
-			for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
-				out[k - lf / 2 + 1] = X_lp[k];
-			}
-
-			iter += det_len;
-			det_len = wt->length[i + 2];
-			*/
-			llb /= 2;
-			indexp = index2;
+	
+	if (wt->basisvector[0] == 1) {
+		for (i = 0; i < wt->siglength; ++i) {
+			dwtop[i] = wt->output[i];
 		}
-
-		//free(X_lp);
-
-	}
-	else if (!strcmp(wt->ext, "sym")) {
-		app_len = wt->length[0];
-		det_len = wt->length[1];
-		N = 2 * wt->length[J] - 1;
-
-		//X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
-		index = 0;
-
+		
+	} else {
 		for (i = 0; i < J; ++i) {
-			p = ipow2(J - i - 1);
-			det_len = wt->length[i + 1];
-			index2 *= 2;
-			index3 = 0;
-			index4 = 0;
-			//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
-			n1 -= llb;
-			for (l = 0; l < llb; ++l) {
-				if (ptemp[l] != 2) {
-					prep[l] = (int) wt->basisvector[n1 + l];
-				}
-				else {
-					prep[l] = ptemp[l];
-				}
-				ptemp[l] = 0;
-			}
-
-
-			for (l = 0; l < p; ++l) {
-				if (prep[2 * l] == 1 && prep[2 * l + 1] == 1) {
-					for (k = 0; k < det_len; ++k) {
-						out[k] = wt->output[index + k];
-						out2[k] = wt->output[index + det_len + k];
-					}
-					idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf - 2; k < 2 * det_len; ++k) {
-						X[index3 + k - lf + 2] = X_lp[k];
-					}
-					index += 2 * det_len;
-					index3 += index2;
-					index4 += 2 * indexp;
-					ptemp[l] = 2;
-				}
-				else if (prep[2 * l] == 1 && prep[2 * l + 1] == 2) {
-					index4 += indexp;
-					for (k = 0; k < det_len; ++k) {
-						out[k] = wt->output[index + k];
-						out2[k] = X[index4 + k];
-					}
-					idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf - 2; k < 2 * det_len; ++k) {
-						X[index3 + k - lf + 2] = X_lp[k];
-					}
-					index += det_len;
-					index3 += index2;
-					index4 += indexp;
-					ptemp[l] = 2;
-				}
-				else if (prep[2 * l] == 2 && prep[2 * l + 1] == 1) {
-					for (k = 0; k < det_len; ++k) {
-						out[k] = X[index4 + k];
-						out2[k] = wt->output[index + k];
-					}
-					idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf - 2; k < 2 * det_len; ++k) {
-						X[index3 + k - lf + 2] = X_lp[k];
-					}
-					index += det_len;
-					index3 += index2;
-					index4 += 2 * indexp;
-					ptemp[l] = 2;
-				}
-				else if (prep[2 * l] == 2 && prep[2 * l + 1] == 2) {
-					for (k = 0; k < det_len; ++k) {
-						out[k] = X[index4 + k];
-						out2[k] = X[index4 + indexp + k];
-					}
-					idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
-					for (k = lf - 2; k < 2 * det_len; ++k) {
-						X[index3 + k - lf + 2] = X_lp[k];
-					}
-					index4 += 2 * indexp;
-					index3 += index2;
-					ptemp[l] = 2;
-				}
-				else {
-					index3 += index2;
-					index4 += 2 * indexp;
-				}
-
-			}
-
-			//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
-			/*
-			idwpt_sym(wt, out, det_len, wt->output + iter, det_len, X_lp);
-			for (k = lf - 2; k < 2 * det_len; ++k) {
-				out[k - lf + 2] = X_lp[k];
-			}
-
-			iter += det_len;
-			det_len = wt->length[i + 2];
-			*/
-			llb /= 2;
-			indexp = index2;
+			llb *= 2;
+			n1 += llb;
 		}
-
-		//free(X_lp);
-
-	}
-	else {
-		printf("Signal extension can be either per or sym");
-		exit(-1);
-	}
-
-	for (i = 0; i < wt->siglength; ++i) {
-		//printf("%g ", X[i]);
-		dwtop[i] = X[i];
+	
+		for (i = 0; i < xlen; ++i) {
+			X[i] = 0.0;
+		}
+	
+		for (i = 0; i < llb; ++i) {
+			prep[i] = (int) wt->basisvector[n1 - llb + i];
+			ptemp[i] = 0;
+		}
+	
+		if (!strcmp(wt->ext, "per")) {
+			app_len = wt->length[0];
+			det_len = wt->length[1];
+			index = 0;
+	
+	
+			for (i = 0; i < J; ++i) {
+				p = ipow2(J - i - 1);
+				det_len = wt->length[i + 1];
+				index2 *= 2;
+				index3 = 0;
+				index4 = 0;
+				//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
+				n1 -= llb;
+				for (l = 0; l < llb; ++l) {
+					if (ptemp[l] != 2) {
+						prep[l] = (int) wt->basisvector[n1 + l];
+					}
+					else {
+						prep[l] = ptemp[l];
+					}
+					ptemp[l] = 0;
+				}
+	
+	
+				for (l = 0; l < p; ++l) {
+					if (prep[2 * l] == 1 && prep[2 * l + 1] == 1) {
+						for (k = 0; k < det_len; ++k) {
+							out[k] = wt->output[index + k];
+							out2[k] = wt->output[index + det_len + k];
+						}
+						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
+							X[index3 + k - lf / 2 + 1] = X_lp[k];
+						}
+						index += 2 * det_len;
+						index3 += index2;
+						index4 += 2 * indexp;
+						ptemp[l] = 2;
+					}
+					else if (prep[2 * l] == 1 && prep[2 * l + 1] == 2) {
+						index4 += indexp;
+						for (k = 0; k < det_len; ++k) {
+							out[k] = wt->output[index + k];
+							out2[k] = X[index4 + k];
+						}
+						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
+							X[index3 + k - lf / 2 + 1] = X_lp[k];
+						}
+						index += det_len;
+						index3 += index2;
+						index4 += indexp;
+						ptemp[l] = 2;
+					}
+					else if (prep[2 * l] == 2 && prep[2 * l + 1] == 1) {
+						for (k = 0; k < det_len; ++k) {
+							out[k] = X[index4 + k];
+							out2[k] = wt->output[index + k];
+						}
+						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
+							X[index3 + k - lf / 2 + 1] = X_lp[k];
+						}
+						index += det_len;
+						index3 += index2;
+						index4 += 2 * indexp;
+						ptemp[l] = 2;
+					}
+					else if (prep[2 * l] == 2 && prep[2 * l + 1] == 2) {
+						for (k = 0; k < det_len; ++k) {
+							out[k] = X[index4 + k];
+							out2[k] = X[index4 + indexp + k];
+						}
+						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
+							X[index3 + k - lf / 2 + 1] = X_lp[k];
+						}
+						index4 += 2 * indexp;
+						index3 += index2;
+						ptemp[l] = 2;
+					}
+					else {
+						index3 += index2;
+						index4 += 2 * indexp;
+					}
+	
+				}
+	
+	
+				/*
+				idwt_per(wt, out, det_len, wt->output + iter, det_len, X_lp);
+				for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
+					out[k - lf / 2 + 1] = X_lp[k];
+				}
+	
+				iter += det_len;
+				det_len = wt->length[i + 2];
+				*/
+				llb /= 2;
+				indexp = index2;
+			}
+	
+			//free(X_lp);
+	
+		}
+		else if (!strcmp(wt->ext, "sym")) {
+			app_len = wt->length[0];
+			det_len = wt->length[1];
+			N = 2 * wt->length[J] - 1;
+	
+			//X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
+			index = 0;
+	
+			for (i = 0; i < J; ++i) {
+				p = ipow2(J - i - 1);
+				det_len = wt->length[i + 1];
+				index2 *= 2;
+				index3 = 0;
+				index4 = 0;
+				//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
+				n1 -= llb;
+				for (l = 0; l < llb; ++l) {
+					if (ptemp[l] != 2) {
+						prep[l] = (int) wt->basisvector[n1 + l];
+					}
+					else {
+						prep[l] = ptemp[l];
+					}
+					ptemp[l] = 0;
+				}
+	
+	
+				for (l = 0; l < p; ++l) {
+					if (prep[2 * l] == 1 && prep[2 * l + 1] == 1) {
+						for (k = 0; k < det_len; ++k) {
+							out[k] = wt->output[index + k];
+							out2[k] = wt->output[index + det_len + k];
+						}
+						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf - 2; k < 2 * det_len; ++k) {
+							X[index3 + k - lf + 2] = X_lp[k];
+						}
+						index += 2 * det_len;
+						index3 += index2;
+						index4 += 2 * indexp;
+						ptemp[l] = 2;
+					}
+					else if (prep[2 * l] == 1 && prep[2 * l + 1] == 2) {
+						index4 += indexp;
+						for (k = 0; k < det_len; ++k) {
+							out[k] = wt->output[index + k];
+							out2[k] = X[index4 + k];
+						}
+						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf - 2; k < 2 * det_len; ++k) {
+							X[index3 + k - lf + 2] = X_lp[k];
+						}
+						index += det_len;
+						index3 += index2;
+						index4 += indexp;
+						ptemp[l] = 2;
+					}
+					else if (prep[2 * l] == 2 && prep[2 * l + 1] == 1) {
+						for (k = 0; k < det_len; ++k) {
+							out[k] = X[index4 + k];
+							out2[k] = wt->output[index + k];
+						}
+						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf - 2; k < 2 * det_len; ++k) {
+							X[index3 + k - lf + 2] = X_lp[k];
+						}
+						index += det_len;
+						index3 += index2;
+						index4 += 2 * indexp;
+						ptemp[l] = 2;
+					}
+					else if (prep[2 * l] == 2 && prep[2 * l + 1] == 2) {
+						for (k = 0; k < det_len; ++k) {
+							out[k] = X[index4 + k];
+							out2[k] = X[index4 + indexp + k];
+						}
+						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						for (k = lf - 2; k < 2 * det_len; ++k) {
+							X[index3 + k - lf + 2] = X_lp[k];
+						}
+						index4 += 2 * indexp;
+						index3 += index2;
+						ptemp[l] = 2;
+					}
+					else {
+						index3 += index2;
+						index4 += 2 * indexp;
+					}
+	
+				}
+	
+				//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
+				/*
+				idwpt_sym(wt, out, det_len, wt->output + iter, det_len, X_lp);
+				for (k = lf - 2; k < 2 * det_len; ++k) {
+					out[k - lf + 2] = X_lp[k];
+				}
+	
+				iter += det_len;
+				det_len = wt->length[i + 2];
+				*/
+				llb /= 2;
+				indexp = index2;
+			}
+	
+			//free(X_lp);
+	
+		}
+		else {
+			printf("Signal extension can be either per or sym");
+			exit(-1);
+		}
+	
+		for (i = 0; i < wt->siglength; ++i) {
+			//printf("%g ", X[i]);
+			dwtop[i] = X[i];
+		}
+	
 	}
 
 

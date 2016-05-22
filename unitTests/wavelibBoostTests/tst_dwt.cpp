@@ -2,12 +2,12 @@
  * Copyright (c) 2016 Holger Nahrstaedt (TU Berlin)
  */
 
-#include "BoostTest.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <sstream>
+#include <iostream>
+#include <cstdlib>
 
-#include <string.h>
-#include <math.h>
+#include <string>
+#include <cmath>
 #include "wavelib.h"
 
 #include<vector>
@@ -98,9 +98,7 @@ double RMS_Error(double *data, double *rec, int N) {
     return sqrt(sum/((double)N-1));
 }
 
-BOOST_AUTO_TEST_SUITE(DWTTests)
-
-BOOST_AUTO_TEST_CASE(ReconstructionTest)
+void ReconstructionTest()
 {
 
 	wave_object obj;
@@ -108,6 +106,7 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 	double *inp,*out;
 	int N, i,J;
     double epsilon = 1e-15;
+    char *type = (char*) "dwt";
 
     N = 79926;
     
@@ -118,7 +117,7 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
 	//wmean = mean(temp, N);
 
 	for (i = 0; i < N; ++i) {
-        inp[i] = (rand() / (double)(RAND_MAX + 1));
+        inp[i] = (rand() / (double)(RAND_MAX));
 	}
     std::vector<std::string > waveletNames;
 
@@ -176,19 +175,19 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
                 char * name = new char[waveletNames[j].size() + 1];
                 memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
                 obj = wave_init(name);// Initialize the wavelet
-                for (J = 1; J < 2; J++)
+                for (J = 1; J < 3; J++)
                 {
                     //J = 3;
 
-                    wt = wt_init(obj, "dwt", N, J);// Initialize the wavelet transform object
+                    wt = wt_init(obj,(char*) "dwt", N, J);// Initialize the wavelet transform object
                     if (sym_per == 0)
-                        setDWTExtension(wt, "sym");// Options are "per" and "sym". Symmetric is the default option
+                        setDWTExtension(wt, (char*) "sym");// Options are "per" and "sym". Symmetric is the default option
                     else
-                        setDWTExtension(wt, "per");
+                        setDWTExtension(wt, (char*) "per");
                     if (direct_fft == 0)
-                        setWTConv(wt, "direct");
+                        setWTConv(wt, (char*) "direct");
                     else
-                        setWTConv(wt, "fft");
+                        setWTConv(wt, (char*) "fft");
 
                     dwt(wt, inp);// Perform DWT
 
@@ -199,9 +198,13 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
                         epsilon = 1e-8;
                     else
                         epsilon = 1e-10;
-                    BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
-
-
+                    //BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
+                    
+					//printf("%g ",RMS_Error(out, inp, wt->siglength));
+					if (RMS_Error(out, inp, wt->siglength) > epsilon) {
+						printf("\n ERROR : DWT Reconstruction Unit Test Failed. Exiting. \n");
+						exit(-1);
+					}
                     wt_free(wt);
                 }
                 wave_free(obj);
@@ -214,12 +217,129 @@ BOOST_AUTO_TEST_CASE(ReconstructionTest)
     free(inp);
 }
 
+void DWPTReconstructionTest()
+{
+
+	wave_object obj;
+	wpt_object wt;
+	double *inp,*out;
+	int N, i,J;
+    double epsilon = 1e-8;
+
+    N = 79926;
+    
+    //N = 256;
+
+	inp = (double*)malloc(sizeof(double)* N);
+	out = (double*)malloc(sizeof(double)* N);
+	//wmean = mean(temp, N);
+
+	for (i = 0; i < N; ++i) {
+        inp[i] = (rand() / (double)(RAND_MAX));
+	}
+    std::vector<std::string > waveletNames;
+
+    for (unsigned int j = 0; j < 36; j++)
+    {
+        waveletNames.push_back(std::string("db") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 0; j < 17; j++)
+    {
+        waveletNames.push_back(std::string("coif") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 1; j < 20; j++)
+    {
+        waveletNames.push_back(std::string("sym") + patch::to_string(j + 1));
+    }
+    
+    waveletNames.push_back("bior1.1");
+    waveletNames.push_back("bior1.3");
+    waveletNames.push_back("bior1.5");
+    waveletNames.push_back("bior2.2");
+    waveletNames.push_back("bior2.4");
+    waveletNames.push_back("bior2.6");
+    waveletNames.push_back("bior2.8");
+    waveletNames.push_back("bior3.1");
+    waveletNames.push_back("bior3.3");
+    waveletNames.push_back("bior3.5");
+    waveletNames.push_back("bior3.7");
+    waveletNames.push_back("bior3.9");
+    waveletNames.push_back("bior4.4");
+    waveletNames.push_back("bior5.5");
+    waveletNames.push_back("bior6.8");
+    
+    waveletNames.push_back("rbior1.1");
+    waveletNames.push_back("rbior1.3");
+    waveletNames.push_back("rbior1.5");
+    waveletNames.push_back("rbior2.2");
+    waveletNames.push_back("rbior2.4");
+    waveletNames.push_back("rbior2.6");
+    waveletNames.push_back("rbior2.8");
+    waveletNames.push_back("rbior3.1");
+    waveletNames.push_back("rbior3.3");
+    waveletNames.push_back("rbior3.5");
+    waveletNames.push_back("rbior3.7");
+    waveletNames.push_back("rbior3.9");
+    waveletNames.push_back("rbior4.4");
+    waveletNames.push_back("rbior5.5");
+    waveletNames.push_back("rbior6.8");
+
+    for (unsigned int ent = 0; ent < 2; ent++)
+    {
+        for (unsigned int sym_per = 0; sym_per < 2; sym_per++)
+        {
+            for (unsigned int j = 0; j < waveletNames.size(); j++)
+            {
+                char * name = new char[waveletNames[j].size() + 1];
+                memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+                obj = wave_init(name);// Initialize the wavelet
+                for (J = 1; J < 3; J++)
+                {
+                    //J = 3;
+
+                    wt = wpt_init(obj, N, J);// Initialize the wavelet transform object
+                    if (sym_per == 0)
+                        setDWPTExtension(wt, (char*) "sym");// Options are "per" and "sym". Symmetric is the default option
+                    else
+                        setDWPTExtension(wt, (char*) "per");
+                        
+                    if (ent == 0)
+                        setDWPTEntropy(wt, (char*) "shannon",0);
+                    else
+                        setDWPTEntropy(wt, (char*) "logenergy",0);
+
+                    dwpt(wt, inp);// Perform DWT
+
+                    idwpt(wt, out);// Perform IDWT (if needed)
+                    // Test Reconstruction
+
+                    
+                    //BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
+                    
+					//printf("%s %g \n",name,RMS_Error(out, inp, wt->siglength));
+					
+					if (RMS_Error(out, inp, wt->siglength) > epsilon) {
+						printf("\n ERROR : DWPT Reconstruction Unit Test Failed. Exiting. \n");
+						exit(-1);
+					}
+                    wpt_free(wt);
+                }
+                wave_free(obj);
+                delete[] name;
+            }
+        }
+    }
+    
+	free(out);
+    free(inp);
+}
 
 
-BOOST_AUTO_TEST_CASE(DBCoefTests)
+void DBCoefTests()
 {
     wave_object obj;
     double epsilon = 1e-15;
+    double t1,t2,t3,t4,t5;
     std::vector<std::string > waveletNames;
     waveletNames.resize(38);
     for (unsigned int i = 0; i < waveletNames.size();i++)
@@ -232,22 +352,34 @@ BOOST_AUTO_TEST_CASE(DBCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
-        for (int m = 1; m < (obj->lpr_len / 2) - 1;m++)
-            BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
+        t1 = sum1(obj->lpr, obj->lpr_len) - sqrt(2.0);
+        t2 = sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t3 = sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t4 = sum4(obj->lpr, obj->lpr_len) - 1.;
+        
+        if (fabs(t1) > epsilon || fabs(t2) > epsilon || fabs(t3) > epsilon || fabs(t4) > epsilon) {
+			printf("\n ERROR : DB Coefficients Unit Test Failed. Exiting. \n");
+			exit(-1);
+		}
+        
+        for (int m = 1; m < (obj->lpr_len / 2) - 1;m++) {
+			t5 = sum5(obj->lpr, obj->lpr_len, m);
+            if (fabs(t5) > epsilon) {
+				printf("\n ERROR : DB Coefficients Unit Test Failed. Exiting. \n");
+				exit(-1);
+			}
+		}
         wave_free(obj);
         delete[] name;
     }
 }
 
 
-BOOST_AUTO_TEST_CASE(CoifCoefTests)
+void CoifCoefTests()
 {
     wave_object obj;
     double epsilon = 1e-15;
+    double t1,t2,t3,t4,t5;
     std::vector<std::string > waveletNames;
     waveletNames.resize(17);
     for (unsigned int i = 0; i < waveletNames.size(); i++)
@@ -260,21 +392,33 @@ BOOST_AUTO_TEST_CASE(CoifCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
-        for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
-            BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
+        t1 = sum1(obj->lpr, obj->lpr_len) - sqrt(2.0);
+        t2 = sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t3 = sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t4 = sum4(obj->lpr, obj->lpr_len) - 1.;
+        
+        if (fabs(t1) > epsilon || fabs(t2) > epsilon || fabs(t3) > epsilon || fabs(t4) > epsilon) {
+			printf("\n ERROR : Coif Coefficients Unit Test Failed. Exiting. \n");
+			exit(-1);
+		}
+        
+        for (int m = 1; m < (obj->lpr_len / 2) - 1;m++) {
+			t5 = sum5(obj->lpr, obj->lpr_len, m);
+            if (fabs(t5) > epsilon) {
+				printf("\n ERROR : Coif Coefficients Unit Test Failed. Exiting. \n");
+				exit(-1);
+			}
+		}
         wave_free(obj);
         delete[] name;
     }
 }
 
-BOOST_AUTO_TEST_CASE(SymCoefTests)
+void SymCoefTests()
 {
     wave_object obj;
     double epsilon = 1e-10;
+    double t1,t2,t3,t4,t5;
     std::vector<std::string > waveletNames;
     for (unsigned int i = 1; i < 20; i++)
     {
@@ -286,21 +430,33 @@ BOOST_AUTO_TEST_CASE(SymCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum4(obj->lpr, obj->lpr_len) - 1., epsilon);
-        for (int m = 1; m < (obj->lpr_len / 2) - 1; m++)
-            BOOST_CHECK_SMALL(sum5(obj->lpr, obj->lpr_len, m), epsilon);
+        t1 = sum1(obj->lpr, obj->lpr_len) - sqrt(2.0);
+        t2 = sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t3 = sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t4 = sum4(obj->lpr, obj->lpr_len) - 1.;
+        
+        if (fabs(t1) > epsilon || fabs(t2) > epsilon || fabs(t3) > epsilon || fabs(t4) > epsilon) {
+			printf("\n ERROR : Sym Coefficients Unit Test Failed. Exiting. \n");
+			exit(-1);
+		}
+        
+        for (int m = 1; m < (obj->lpr_len / 2) - 1;m++) {
+			t5 = sum5(obj->lpr, obj->lpr_len, m);
+            if (fabs(t5) > epsilon) {
+				printf("\n ERROR : Sym Coefficients Unit Test Failed. Exiting. \n");
+				exit(-1);
+			}
+		}
         wave_free(obj);
         delete[] name;
     }
 }
 
-BOOST_AUTO_TEST_CASE(BiorCoefTests)
+void BiorCoefTests()
 {
     wave_object obj;
     double epsilon = 1e-10;
+    double t1,t2,t3,t4,t5,t6;
     std::vector<std::string > waveletNames;
     waveletNames.push_back("bior1.1");
     waveletNames.push_back("bior1.3");
@@ -323,22 +479,32 @@ BOOST_AUTO_TEST_CASE(BiorCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
-
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
+        
+        t1 = sum1(obj->lpr, obj->lpr_len) - sqrt(2.0);
+        t2 = sum1(obj->lpd, obj->lpd_len) - sqrt(2.0);
+        
+        t3 = sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t4 = sum2(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0);
+        
+        t5 = sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t6 = sum3(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0);
+        
+        if (fabs(t1) > epsilon || fabs(t2) > epsilon || fabs(t3) > epsilon || fabs(t4) > epsilon || fabs(t5) > epsilon || fabs(t6) > epsilon ) {
+			printf("\n ERROR : Bior Coefficients Unit Test Failed. Exiting. \n");
+			exit(-1);
+		}
+        
+        
         wave_free(obj);
         delete[] name;
     }
 }
 
-BOOST_AUTO_TEST_CASE(RBiorCoefTests)
+void RBiorCoefTests()
 {
     wave_object obj;
     double epsilon = 1e-10;
+    double t1,t2,t3,t4,t5,t6;
     std::vector<std::string > waveletNames;
     waveletNames.push_back("rbior1.1");
     waveletNames.push_back("rbior1.3");
@@ -361,17 +527,50 @@ BOOST_AUTO_TEST_CASE(RBiorCoefTests)
         char * name = new char[waveletNames[j].size() + 1];
         memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
         obj = wave_init(name);// Initialize the wavelet
-        BOOST_CHECK_SMALL(sum1(obj->lpr, obj->lpr_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum1(obj->lpd, obj->lpd_len) - sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum2(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
-
-        BOOST_CHECK_SMALL(sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0), epsilon);
-        BOOST_CHECK_SMALL(sum3(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0), epsilon);
+        
+        t1 = sum1(obj->lpr, obj->lpr_len) - sqrt(2.0);
+        t2 = sum1(obj->lpd, obj->lpd_len) - sqrt(2.0);
+        
+        t3 = sum2(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t4 = sum2(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0);
+        
+        t5 = sum3(obj->lpr, obj->lpr_len) - 1. / sqrt(2.0);
+        t6 = sum3(obj->lpd, obj->lpd_len) - 1. / sqrt(2.0);
+        
+        if (fabs(t1) > epsilon || fabs(t2) > epsilon || fabs(t3) > epsilon || fabs(t4) > epsilon || fabs(t5) > epsilon || fabs(t6) > epsilon ) {
+			printf("\n ERROR : RBior Coefficients Unit Test Failed. Exiting. \n");
+			exit(-1);
+		}
         wave_free(obj);
         delete[] name;
     }
 }
 
+int main() {
+	printf("Running Unit Tests : \n \n");
+	printf("Running DBCoefTests ... ");
+	DBCoefTests();
+	printf("DONE \n");
+	printf("Running CoifCoefTests ... ");
+	CoifCoefTests();
+	printf("DONE \n");
+	printf("Running SymCoefTests ... ");
+	SymCoefTests();
+	printf("DONE \n");
+	printf("Running BiorCoefTests ... ");
+	BiorCoefTests();
+	printf("DONE \n");
+	printf("Running RBiorCoefTests ... ");
+	RBiorCoefTests();
+	printf("DONE \n");
+	printf("Running DWT ReconstructionTests ... ");
+	ReconstructionTest();
+	printf("DONE \n");
+	printf("Running DWPT ReconstructionTests ... ");
+	DWPTReconstructionTest();
+	printf("DONE \n");
+	printf("\n\nUnit Tests Successful\n\n");
+	return 0;
+	
+}
 
-BOOST_AUTO_TEST_SUITE_END()
