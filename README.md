@@ -1,7 +1,7 @@
 wavelib
 =======
 
-C Implementation of Wavelet Transform (DWT,SWT and MODWT) and Packet Transform ( Full Tree Decomposition and Best Basis DWPT).
+C Implementation of Discrete Wavelet Transform (DWT,SWT and MODWT), Continuous Wavelet transform (CWT) and Discrete Packet Transform ( Full Tree Decomposition and Best Basis DWPT).
 
 Discrete Wavelet Transform Methods Implemented
 
@@ -16,6 +16,8 @@ Discrete Wavelet Packet Transform Methods Implemented
 WTREE A Fully Decimated Wavelet Tree Decomposition. This is a highly redundant transform and retains all coefficients at each node. This is not recommended for compression and denoising applications.
 
 DWPT/IDWPT Is a derivative of WTREE method which retains coefficients based on entropy methods. This is a non-redundant transform and output length is of the same order as the input.
+
+CWT/ICWT C translation ( with some modifications) of Continuous Wavelet  Transform Software provided by C. Torrence and G. Compo, and is available at URL: http://atoc.colorado.edu/research/wavelets/'. A generalized Inverse Transform with approximate reconstruction is also added.
 
 Documentation Available at - https://github.com/rafat/wavelib/wiki
 
