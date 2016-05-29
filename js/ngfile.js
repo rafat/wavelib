@@ -4,6 +4,10 @@ app.config(function($routeProvider){
   $routeProvider
     //the timeline display
     .when('/', {
+      templateUrl: 'method.html',
+      controller: 'mainController'
+    })
+    .when('/front', {
       templateUrl: 'front.html',
       controller: 'mainController'
     })
@@ -11,45 +15,39 @@ app.config(function($routeProvider){
       templateUrl: 'display.html',
       controller: 'displayController'
     })
+    .when('/cdisplay', {
+      templateUrl: 'cdisplay.html',
+      controller: 'cdisplayController'
+    })
     .when('/about', {
       templateUrl: 'about.html',
       controller: 'mainController'
     })
-    .when('/demos', {
-      templateUrl: 'demos.html',
-      controller: 'mainController'
-    })
-    
-   
+
 });
 
 app.factory('wave', function () {
     var wave = {};
-    
+
     return wave;
 });
 
-/*
-app.directive("fileread", [function () {
-    return {
-        scope: {
-            fileread: "="
-        },
-        link: function (scope, element, attributes) {
-            element.bind("change", function (changeEvent) {
-                var reader = new FileReader();
-                reader.onload = function (loadEvent) {
-                    scope.$apply(function () {
-                        scope.fileread = loadEvent.target.result;
-                    });
-                }
-                reader.readAsDataURL(changeEvent.target.files[0]);
-            });
-        }
-    }
-}]);*/
 app.controller('mainController', function ($scope, $http, wave) {
+    $scope.setTransform = function () {
+        var value = $scope.transform;
+        wave.transform = 0;
 
+        if (value == "Discrete Wavelet Transform") {
+            wave.transform = 1;
+        } else if (value == "Continuous Wavelet Transform") {
+            wave.transform = 2;
+        } else if (value == "Wavelet Packet Transform") {
+            wave.transform = 3;
+        }
+
+        location.href = '#/front';
+
+    }
 
     $scope.dataInput = function () {
 
@@ -81,7 +79,11 @@ app.controller('mainController', function ($scope, $http, wave) {
             }
         }
         //alert(wave.sigData[0]);
-        location.href = '#/display';
+        if (wave.transform == 1) {
+          location.href = '#/display';
+        } else if (wave.transform == 2) {
+          location.href = '#/cdisplay';
+        }
     }
 
     $scope.fileInput = function () {
@@ -141,7 +143,11 @@ app.controller('mainController', function ($scope, $http, wave) {
             wave.sigData.splice(j, rm);
             }
             */
-            location.href = '#/display';
+            if (wave.transform == 1) {
+              location.href = '#/display';
+            } else if (wave.transform == 2) {
+              location.href = '#/cdisplay';
+            }
         }
 
         reader.readAsText(finp1);
@@ -167,6 +173,8 @@ app.controller('mainController', function ($scope, $http, wave) {
             urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisybumps.txt";
         } else if (value == "Noisy Heavisine") {
             urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisyheavisine.txt";
+        } else if (value == "El Nino Data") {
+            urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/sst_nino3.dat";
         } else {
             alert("Please Select A Signal To Proceed.");
         }
@@ -205,31 +213,32 @@ app.controller('mainController', function ($scope, $http, wave) {
             wave.sigData.splice(j, rm);
             }
             */
-            location.href = '#/display';
+            if (wave.transform == 1) {
+              location.href = '#/display';
+            } else if (wave.transform == 2) {
+              location.href = '#/cdisplay';
+            }
         }, function (response) {
             $scope.data = response.data || "Request failed";
             $scope.status = response.status;
         });
     }
-
-});
-
-app.controller('siteController', function ($scope) {
-
 });
 
 app.controller('displayController', function ($scope, $http, $modal, wave) {
     //console.log(wave.sigLength);
     var lbl = [];
+    var sigData = [];
     $scope.MaxIter = 0;
     $scope.selected = {};
     $scope.wdisplays = [];
     for (var i = 0; i < wave.sigLength; ++i) {
-        lbl[i] = [i, wave.sigData[i]];
+        lbl[i] = i;
+        sigData[i] = wave.sigData[i];
         //console.log(lbl[i]);
     }
 
-    g = new Dygraph(document.getElementById("graph1"),
+    /*    g = new Dygraph(document.getElementById("graph1"),
                     lbl,
                  {
                      legend: 'always',
@@ -238,6 +247,16 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
                      title: 'Input'
                  }
     );
+    */
+    var g = {
+      x: lbl,
+      y: sigData,
+      type: 'scatter'
+    }
+
+    var gdata = [g];
+
+    Plotly.newPlot('graph1',gdata);
     /*
     $http.get('data/wavedb.json').success(function (data) {
     $scope.wavedb = data;
@@ -459,10 +478,22 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
         }
 
         var lbl = [];
+        var sigData = [];
         for (var i = 0; i < wave.outLength; ++i) {
-            lbl[i] = [i, wave.output[i]];
+            lbl[i] = i;
+            sigData[i] = wave.output[i];
         }
 
+        var g = {
+          x: lbl,
+          y: sigData,
+          type: 'scatter'
+        }
+
+        var gdata = [g];
+
+        Plotly.newPlot('graph1',gdata);
+/*
         g = new Dygraph(document.getElementById("graph1"),
                     lbl,
                  {
@@ -472,7 +503,7 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
                      title: 'Full Decomposition'
                  }
         );
-
+*/
         document.getElementById("reportButton").disabled = false;
 
     }
@@ -480,17 +511,21 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
     $scope.updateGraph = function () {
         //console.log($scope.selected.wdisplay);
         var lbl = [];
+        var sigData = [];
         if ($scope.selected.wdisplay == 0) {
             for (var i = 0; i < wave.sigLength; ++i) {
-                lbl[i] = [i, wave.sigData[i]];
+                lbl[i] = i ;
+                sigData[i] = wave.sigData[i];
             }
         } else if ($scope.selected.wdisplay == 1) {
             for (var i = 0; i < wave.outLength; ++i) {
-                lbl[i] = [i, wave.output[i]];
+                lbl[i] = i;
+                sigData[i] = wave.output[i];
             }
         } else if ($scope.selected.wdisplay == 2) {
             for (var i = 0; i < wave.length[0]; ++i) {
-                lbl[i] = [i, wave.output[i]];
+                lbl[i] = i;
+                sigData[i] = wave.output[i];
             }
         } else {
             var k = parseInt($scope.selected.wdisplay) - 2;
@@ -500,10 +535,21 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
             }
             var end_index = start_index + wave.length[k];
             for (var i = 0; i < end_index - start_index; ++i) {
-                lbl[i] = [i, wave.output[start_index + i]];
+                lbl[i] = i;
+                sigData[i] = wave.output[start_index + i];
             }
         }
 
+        var g = {
+          x: lbl,
+          y: sigData,
+          type: 'scatter'
+        }
+
+        var gdata = [g];
+
+        Plotly.newPlot('graph1',gdata);
+/*
         g = new Dygraph(document.getElementById("graph1"),
                     lbl,
                  {
@@ -513,6 +559,7 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
                      title: $scope.wdisplays[parseInt($scope.selected.wdisplay)]
                  }
         );
+        */
     }
 
     $scope.items = ['item1', 'item2', 'item3'];
@@ -535,8 +582,6 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
         });
 
     }
-
-
 
 
 });
@@ -614,6 +659,336 @@ app.controller('reportController', function ($scope, $modalInstance, items, wave
         $modalInstance.dismiss('cancel');
     };
 });
+
+app.controller('cdisplayController', function ($scope, $http, wave) {
+    //console.log(wave.sigLength);
+    var lbl = [];
+    var sigData = [];
+    $scope.MaxIter = 0;
+    $scope.selected = {};
+    $scope.wdisplays = [];
+    for (var i = 0; i < wave.sigLength; ++i) {
+        lbl[i] = i;
+        sigData[i] = wave.sigData[i];
+        //console.log(lbl[i]);
+    }
+
+    /*    g = new Dygraph(document.getElementById("graph1"),
+                    lbl,
+                 {
+                     legend: 'always',
+                     color: '#3399ff',
+                     animatedZooms: true,
+                     title: 'Input'
+                 }
+    );
+    */
+    var g = {
+      x: lbl,
+      y: sigData,
+      type: 'scatter'
+    }
+
+    var gdata = [g];
+
+    Plotly.newPlot('graph1',gdata);
+
+    $scope.cwavedb = [
+        {
+            "id": "0",
+            "family": "Morlet"
+        }, {
+            "id": "1",
+            "family": "Paul"
+        }, {
+            "id": "2",
+            "family": "Dog",
+        }
+
+    ];
+
+
+    $scope.stype = [
+        {
+            "id": "0",
+            "type": "Power of 2"
+        }, {
+            "id": "1",
+            "type": "Linear"
+        }
+
+    ];
+
+    $scope.cmap = [
+        {
+            "id": "0",
+            "cscale": "RdBu"
+        }, {
+            "id": "1",
+            "cscale": "Earth"
+        }, {
+            "id": "2",
+            "cscale": "Blackbody",
+        }, {
+            "id": "3",
+            "cscale": "YIOrRd",
+        }, {
+            "id": "4",
+            "cscale": "YIGnBu",
+        }, {
+            "id": "5",
+            "cscale": "Bluered",
+        }, {
+            "id": "6",
+            "cscale": "Portland",
+        }, {
+            "id": "7",
+            "cscale": "Electric",
+        }, {
+            "id": "8",
+            "cscale": "Jet",
+        }, {
+            "id": "9",
+            "cscale": "Hot",
+        }, {
+            "id": "10",
+            "cscale": "Greys",
+        }, {
+            "id": "11",
+            "cscale": "Greens",
+        }, {
+            "id": "12",
+            "cscale": "Picnic",
+        }
+
+    ];
+
+    $scope.caxis = [
+        {
+            "id": "0",
+            "yaxis": "Scale"
+        }, {
+            "id": "1",
+            "yaxis": "Period"
+        }, {
+            "id": "2",
+            "yaxis": "Frequency"
+        }
+
+    ];
+
+
+
+    $scope.cwaveTest = function () {
+
+        if (typeof $scope.selected.family == 'undefined' || typeof $scope.selected.type == 'undefined' || typeof $scope.selected.cscale == 'undefined'
+      || typeof $scope.selected.yaxis == 'undefined') {
+            alert("Please Selct All Values : Wavelet, ColorMap, Y Axis and Scale Type");
+            return;
+        }
+
+        if (isNaN($scope.dt) || isNaN($scope.jtot) || isNaN($scope.dj) || isNaN($scope.s0) || isNaN($scope.param)) {
+          alert("Sampling Period, Parameter and Scale Settings only accept numerical values");
+        }
+
+        if ($scope.dt <= 0 || $scope.jtot <= 0 || $scope.dj <= 0 || $scope.s0 <= 0 || $scope.param <= 0) {
+          alert("Sampling Period, Parameter and Scale Settings only accept positive values");
+        }
+
+        if ($scope.selected.family.id == 0 ) {
+          wave.wname = "morlet";
+        }
+
+        if ($scope.selected.family.id == 1 ) {
+          var prm = $scope.param;
+          if (parseInt(prm,10) != prm || prm > 20) {
+            alert("Paul Wavelet only accepts integer values <= 20")
+          }
+          wave.wname = "paul";
+        }
+        if ($scope.selected.family.id == 2 ) {
+          var prm = ($scope.param) / 2;
+          if (parseInt(prm,10) != prm ) {
+            alert("Derivative of Gaussian Wavelet only accepts even integer values")
+          }
+          wave.wname = "dgauss";
+        }
+
+        if ($scope.selected.type.id == 0) {
+          wave.type = "power";
+        } else {
+          wave.type = "linear";
+        }
+
+        wave.param = $scope.param;
+        wave.dt = $scope.dt;
+        wave.J = $scope.jtot;
+        wave.dj = $scope.dj;
+        wave.s0 = $scope.s0;
+
+        var N = wave.sigLength;
+        var power = 2;
+        var npflag = 1;
+        var outlength = wave.sigLength * wave.J;
+
+        var cwave_transform = Module.cwrap('cwave_transform', 'null', ['string', 'number', 'number', 'number','number',
+        'number', 'number', 'number','string','number','number','number','number','number','number','number']);
+
+        //input signal on heap
+        var inpdata = wave.sigLength * wave.sigData.BYTES_PER_ELEMENT;
+        var inpPtr = Module._malloc(inpdata);
+        var inpHeap = new Uint8Array(Module.HEAPU8.buffer, inpPtr, inpdata);
+        inpHeap.set(new Uint8Array(wave.sigData.buffer));
+
+        //output (Absolute Magnitude) on heap
+        var outputdata = outlength * wave.sigData.BYTES_PER_ELEMENT;
+        var outputPtr = Module._malloc(outputdata);
+        var outputHeap = new Uint8Array(Module.HEAPU8.buffer, outputPtr, outputdata);
+
+        //Scale vector on heap
+        var scaledata = wave.J * wave.sigData.BYTES_PER_ELEMENT;
+        var scalePtr = Module._malloc(scaledata);
+        var scaleHeap = new Uint8Array(Module.HEAPU8.buffer, scalePtr, scaledata);
+
+        //Period vector on heap
+        var perioddata = wave.J * wave.sigData.BYTES_PER_ELEMENT;
+        var periodPtr = Module._malloc(perioddata);
+        var periodHeap = new Uint8Array(Module.HEAPU8.buffer, periodPtr, perioddata);
+
+        //COI vector on heap
+        var coidata = wave.sigLength * wave.sigData.BYTES_PER_ELEMENT;
+        var coiPtr = Module._malloc(coidata);
+        var coiHeap = new Uint8Array(Module.HEAPU8.buffer, coiPtr, coidata);
+
+        /*
+        void cwave_transform(char* wave, double param, double *inp, int N,double dt, int J,double s0, double dj, char *type, int power,
+        int npflag, double *oupre, double *oupim,double *scale, double *period, double *coi)
+        */
+
+        cwave_transform(wave.wname,wave.param,inpHeap.byteOffset,wave.sigLength,wave.dt,wave.J,wave.s0,wave.dj,wave.type,power,
+          npflag,outputHeap.byteOffset,scaleHeap.byteOffset,periodHeap.byteOffset,coiHeap.byteOffset);
+
+        wave.output = new Float64Array(outputHeap.buffer, outputHeap.byteOffset, outlength);
+        wave.scale = new Float64Array(scaleHeap.buffer, scaleHeap.byteOffset, wave.J);
+        wave.period = new Float64Array(periodHeap.buffer, periodHeap.byteOffset, wave.J);
+        wave.coi = new Float64Array(coiHeap.buffer, coiHeap.byteOffset, wave.sigLength);
+
+        //console.log(wave.filter);
+        //console.log(wave.scale);
+
+        Module._free(inpHeap.byteOffset);
+        Module._free(outputHeap.byteOffset);
+        Module._free(scaleHeap.byteOffset);
+        Module._free(periodHeap.byteOffset);
+        Module._free(coiHeap.byteOffset);
+
+        $scope.wdisplays = new Array(2);
+        $scope.wdisplays[0] = "Input Signal";
+        $scope.wdisplays[1] = "CWT Decomposition";
+
+        $scope.x = new Array(wave.sigLength), $scope.y = new Array(wave.J);
+        $scope.z = new Array(wave.J, $scope.tval = new Array(wave.J));
+        var i, j,iter;
+        if ($scope.selected.yaxis.id == 0) {
+          $scope.yaxis = 'Scale';
+          for (i = 0; i < wave.J; ++i) {
+            $scope.y[i] = wave.scale[i];
+            $scope.z[i] = new Array(wave.sigLength);
+          }
+        } else if ($scope.selected.yaxis.id == 1) {
+          $scope.yaxis = 'Period';
+          for (i = 0; i < wave.J; ++i) {
+            $scope.y[i] = wave.period[i];
+            $scope.z[i] = new Array(wave.sigLength);
+          }
+        } else if ($scope.selected.yaxis.id == 2) {
+          $scope.yaxis = 'Frequency';
+          for (i = 0; i < wave.J; ++i) {
+            $scope.y[i] = 1.0 / wave.period[i];
+            $scope.z[i] = new Array(wave.sigLength);
+          }
+        }
+
+        for(i = 0; i < wave.sigLength;++i) {
+          $scope.x[i] = i;
+        }
+        for (i = 0; i < wave.J; ++i) {
+          iter = i * wave.sigLength;
+          for(j = 0; j < wave.sigLength;++j) {
+            $scope.z[i][j] = wave.output[iter+j] ;
+          }
+        }
+
+        $scope.setColormap();
+
+    }
+
+    $scope.setDefault = function() {
+
+    }
+
+    $scope.setColormap = function() {
+
+      var gdata = [ {
+          z: $scope.z,
+          x: $scope.x,
+          y: $scope.y,
+          colorscale: $scope.selected.cscale.cscale,
+          zsmooth: 'best',
+          type: 'heatmap'
+         }
+       ];
+       if (typeof $scope.selected.type != 'undefined') {
+          if ($scope.selected.type.id == 0) {
+            var layout = {
+              title : 'Power Spectrum',
+              yaxis : {
+                title : $scope.yaxis,
+                type : 'log',
+                dtick : 0.30102999566
+              }
+            }
+          } else {
+            var layout = {
+              title : 'Power Spectrum',
+              yaxis : {
+                title : $scope.yaxis
+              }
+            }
+          }
+        }
+
+       Plotly.newPlot('graph1', gdata,layout);
+    }
+
+    $scope.updateGraph = function () {
+        //console.log($scope.selected.wdisplay);
+        var lbl = [];
+        var sigData = [];
+        var sc = [];
+        if ($scope.selected.wdisplay == 0) {
+            for (var i = 0; i < wave.sigLength; ++i) {
+                lbl[i] = i ;
+                sigData[i] = wave.sigData[i];
+            }
+            var g = {
+              x: lbl,
+              y: sigData,
+              type: 'scatter'
+            }
+
+            var gdata = [g];
+
+            Plotly.newPlot('graph1',gdata);
+        } else if ($scope.selected.wdisplay == 1) {
+
+            $scope.setColormap();
+
+        }
+
+    }
+
+  });
 
 app.controller("TabsController", function ($scope, $window) {
 

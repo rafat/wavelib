@@ -1,0 +1,110 @@
+<div class="row marketing">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 col-sm-12">
+        <select class="wide-control form-control default" data-ng-model="selected.wdisplay"
+            data-ng-options="wdisplays.indexOf(e) as e for e in wdisplays" data-ng-change="updateGraph()">
+            <option value=""> Select Outputs </option>
+        </select>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 col-sm-12">
+        <div id="graph1" style="width:100%"></div>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-3"></div>
+    <div class="col-md-3 col-sm-6">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Color Scale </button>
+      <select class="wide-control form-control default" data-ng-model="selected.cscale"
+          data-ng-options="a.cscale for a in cmap" required>
+          <option value=""> Select Colorscale </option>
+      </select>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Y Axis </button>
+      <select class="wide-control form-control default" data-ng-model="selected.yaxis"
+          data-ng-options="a.yaxis for a in caxis" required>
+          <option value=""> Select Y Axis </option>
+      </select>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 col-sm-12">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Sampling Period (dt)</button>
+        <input class="form-control default" type="text" data-ng-model="dt">
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-6 col-sm-12">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Wavelet</button>
+      <select class="wide-control form-control default" data-ng-model="selected.family"
+          data-ng-options="a.family for a in cwavedb" required>
+          <option value=""> Select Wavelet </option>
+      </select>
+    </div>
+    <div class="col-md-6 col-sm-12">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Parameter</button>
+        <input class="form-control default" type="text" data-ng-model="param">
+    </div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-12 col-sm-12">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Scale Settings</button>
+    </div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-3">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Type</button>
+      <select class="wide-control form-control default" data-ng-model="selected.type"
+          data-ng-options="a.type for a in stype" required>
+          <option value=""> Scale Type </option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Number of Scales (J)</button>
+      <input class="form-control default" type="text" data-ng-model="jtot">
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Min (s0)</button>
+      <input class="form-control default" type="text" data-ng-model="s0">
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-primary btn-block"><span  data-position="right">
+      </span>Spacing (dj)</button>
+      <input class="form-control default" type="text" data-ng-model="dj">
+    </div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-block" data-ng-click="cwaveTest()">
+               <span class="glyphicon glyphicon-share-alt pull-left" data-position="right"></span>GO</button>
+    </div>
+    <div class="col-md-3">
+    </div>
+
+</div>
