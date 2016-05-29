@@ -98,6 +98,17 @@ double RMS_Error(double *data, double *rec, int N) {
     return sqrt(sum/((double)N-1));
 }
 
+double REL_Error(double *data, double *rec, int N) {
+    int i;
+    double sum1 = 0;
+    double sum2 = 0;
+    for (i = 0; i < N; ++i) {
+        sum1 += (data[i] - rec[i])*(data[i] - rec[i]);
+        sum2 += data[i] * data[i];
+    }
+    return sqrt(sum1)/sqrt(sum2);
+}
+
 void ReconstructionTest()
 {
 
@@ -334,6 +345,77 @@ void DWPTReconstructionTest()
     free(inp);
 }
 
+void CWTReconstructionTest() {
+	int i, j,N, J,subscale,a0,iter;
+	double *inp,*oup;
+	double dt, dj,s0, pi,t;
+	double val, epsilon;
+	int it1,it2;
+	cwt_object wt;
+	
+
+	char *wave[3];
+	wave[0] = (char*) "morl";
+	wave[1] =(char*) "paul";
+	wave[2] = (char*) "dog";
+	double param[30] = {4.5,5,5.5,6,6.5,8,10,13,17,20,
+		4,5,7,8,10,12,13,14,17,20,2,4,6,8,10,12,14,16,18,20};
+	char *type = (char*) "pow";
+	
+	epsilon = 0.01;
+	N = 2048;
+	dt = 0.000125;
+	subscale = 20;
+	dj = 1.0 / (double) subscale;
+	s0 = dt/32;	
+	J = 32 * subscale;
+	a0 = 2;//power
+	
+
+	inp = (double*)malloc(sizeof(double)* N);
+	oup = (double*)malloc(sizeof(double)* N);
+	
+	pi = 4.0 * atan(1.0);
+
+
+	for (i = 0; i < N; ++i) {
+		t = dt * i;
+		inp[i] = sin(2 * pi * 500 * t) + sin(2 * pi * 1000 * t) + 0.1 * sin(2 * pi * 8 * t);
+		if (i == 1200 || i ==1232) {
+			inp[i] += 5.0;
+		}
+	}
+	
+	for(it1 = 0; it1 < 3;++it1) {
+		for(it2 = 0; it2 < 10;++it2) {
+	
+			wt = cwt_init(wave[it1], param[it1*10+it2], N,dt, J);
+
+			setCWTScales(wt, s0, dj, type, a0);
+
+			cwt(wt, inp);
+
+
+			icwt(wt, oup);
+
+
+			//printf("\nWavelet : %s Parameter %g Error %g \n", wave[it1],param[it1*10+it2],REL_Error(inp,oup, wt->siglength));
+			if (REL_Error(inp,oup, wt->siglength) > epsilon) {
+				printf("\n ERROR : DWPT Reconstruction Unit Test Failed. Exiting. \n");
+				exit(-1);
+			}
+	
+			cwt_free(wt);
+		}
+	}
+	
+
+
+	free(inp);
+	free(oup);
+	
+}
+
 
 void DBCoefTests()
 {
@@ -568,6 +650,9 @@ int main() {
 	printf("DONE \n");
 	printf("Running DWPT ReconstructionTests ... ");
 	DWPTReconstructionTest();
+	printf("DONE \n");
+	printf("Running CWT ReconstructionTests ... ");
+	CWTReconstructionTest();
 	printf("DONE \n");
 	printf("\n\nUnit Tests Successful\n\n");
 	return 0;

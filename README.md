@@ -1,7 +1,7 @@
 wavelib
 =======
 
-C Implementation of Wavelet Transform (DWT,SWT and MODWT) and Packet Transform ( Full Tree Decomposition and Best Basis DPWT).
+C Implementation of Wavelet Transform (DWT,SWT and MODWT) and Packet Transform ( Full Tree Decomposition and Best Basis DWPT).
 
 Discrete Wavelet Transform Methods Implemented
 

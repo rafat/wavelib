@@ -15,7 +15,7 @@ wave_object wave_init(char* wname) {
 		//strcopy(obj->wname, wname);
 	}
 
-    obj = (wave_object)malloc(sizeof(struct wave_set) + sizeof(double) * 4 * retval);
+	obj = (wave_object)malloc(sizeof(struct wave_set) + sizeof(double)* 4 * retval);
 
 	obj->filtlength = retval;
 	obj->lpd_len = obj->hpd_len = obj->lpr_len = obj->hpr_len = obj->filtlength;
@@ -49,12 +49,12 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 	}
 
 	if (method == NULL) {
-        obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength + 2 * J * (size + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength +  2 * J * (size+1)));
 		obj->outlength = siglength + 2 * J * (size + 1); // Default
 		strcpy(obj->ext, "sym"); // Default
 	}
 	else if (!strcmp(method, "dwt") || !strcmp(method, "DWT")) {
-        obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength + 2 * J * (size + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength + 2 * J * (size + 1)));
 		obj->outlength = siglength + 2 * J * (size + 1); // Default
 		strcpy(obj->ext, "sym"); // Default
 	}
@@ -64,7 +64,7 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 			exit(-1);
 		}
 
-        obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
 		obj->outlength = siglength * (J + 1); // Default
 		strcpy(obj->ext, "per"); // Default
 	}
@@ -79,7 +79,7 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 			}
 		}
 
-        obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
 		obj->outlength = siglength * (J + 1); // Default
 		strcpy(obj->ext, "per"); // Default
 	}
@@ -145,7 +145,7 @@ wtree_object wtree_init(wave_object wave, int siglength,int J) {
 	  elength += temp2;
 	}
 
-    obj = (wtree_object)malloc(sizeof(struct wtree_set) + sizeof(double)* (siglength * (J + 1) + elength + nodes + J + 1));
+	obj = (wtree_object)malloc(sizeof(struct wtree_set) + sizeof(double)* (siglength * (J + 1) + elength + nodes + J + 1));
 	obj->outlength = siglength * (J + 1) + elength;
 	strcpy(obj->ext, "sym");
 
@@ -218,7 +218,7 @@ wpt_object wpt_init(wave_object wave, int siglength, int J) {
 	}
 	//printf("elength %d", elength);
 
-    obj = (wpt_object)malloc(sizeof(struct wpt_set) + sizeof(double)* (elength + 4 * nodes + 2 * J + 6));
+	obj = (wpt_object)malloc(sizeof(struct wpt_set) + sizeof(double)* (elength + 4 * nodes + 2 * J + 6));
 	obj->outlength = siglength + 2 * (J + 1) * (size + 1);
 	strcpy(obj->ext, "sym");
 	strcpy(obj->entropy, "shannon");
@@ -252,6 +252,96 @@ wpt_object wpt_init(wave_object wave, int siglength, int J) {
 	}
 
 	//wave_summary(obj->wave);
+
+	return obj;
+}
+
+cwt_object cwt_init(char* wave, double param,int siglength, double dt, int J) {
+	cwt_object obj = NULL;
+	int N, i,nj2,ibase2,mother;
+	double s0, dj;
+	double t1;
+	int m, odd;
+	char *pdefault = "pow";
+
+	m = (int)param;
+	odd = 1;
+	if (2 * (m / 2) == m) {
+		odd = 0;
+	}
+
+	N = siglength;
+	nj2 = 2 * N * J;
+	obj = (cwt_object)malloc(sizeof(struct cwt_set) + sizeof(double)* (nj2 + 2 * J + N));
+
+	if (!strcmp(wave, "morlet") || !strcmp(wave, "morl")) {
+		s0 = 2 * dt;
+		dj = 0.4875;
+		mother = 0;
+		if (param < 0.0) {
+			printf("\n Morlet Wavelet Parameter should be >= 0 \n");
+			exit(-1);
+		}
+		if (param == 0) {
+			param = 6.0;
+		}
+		strcpy(obj->wave,"morlet");
+		
+	}
+	else if (!strcmp(wave, "paul")) {
+		s0 = 2 * dt;
+		dj = 0.4875;
+		mother = 1;
+		if (param < 0 || param > 20) {
+			printf("\n Paul Wavelet Parameter should be > 0 and <= 20 \n");
+			exit(-1);
+		}
+		if (param == 0) {
+			param = 4.0;
+		}
+		strcpy(obj->wave,"paul");
+	
+	}
+	else if (!strcmp(wave, "dgauss") || !strcmp(wave, "dog")) {
+		s0 = 2 * dt;
+		dj = 0.4875;
+		mother = 2;
+		if (param < 0 || odd == 1) {
+			printf("\n DOG Wavelet Parameter should be > 0 and even \n");
+			exit(-1);
+		}
+		if (param == 0) {
+			param = 2.0;
+		}
+		strcpy(obj->wave,"dog");
+	}
+
+	obj->pow = 2;
+	strcpy(obj->type, pdefault);
+
+	obj->s0 = s0;
+	obj->dj = dj;
+	obj->dt = dt;
+	obj->J = J;
+	obj->siglength = siglength;
+	obj->sflag = 0;
+	obj->pflag = 1;
+	obj->mother = mother;
+	obj->m = param;
+
+	t1 = 0.499999 + log((double)N) / log(2.0);
+	ibase2 = 1 + (int)t1;
+
+	obj->npad = (int)pow(2.0, (double)ibase2);
+
+	obj->output = (cplx_data*) &obj->params[0];
+	obj->scale = &obj->params[nj2];
+	obj->period = &obj->params[nj2 + J];
+	obj->coi = &obj->params[nj2 + 2*J];
+
+	for (i = 0; i < nj2 + 2 * J + N; ++i) {
+		obj->params[i] = 0.0;
+	}
 
 	return obj;
 }
@@ -1173,8 +1263,8 @@ void getWTREECoeffs(wtree_object wt, int X,int Y,double *coeffs,int N) {
 }
 
 void getDWPTCoeffs(wpt_object wt, int X, int Y, double *coeffs, int N) {
-	int ymax, i, t, t2;
-	int np,nds,citer;
+	int ymax, i;
+	int np,citer;
 	int flag;
 
 	if (X <= 0 || X > wt->J) {
@@ -1221,6 +1311,119 @@ void getDWPTCoeffs(wpt_object wt, int X, int Y, double *coeffs, int N) {
 		coeffs[i] = wt->output[citer + i];
 	}
 
+}
+
+int getCWTScaleLength(int N) {
+	int J;
+	double temp,dj;
+
+	dj = 0.4875;
+
+	temp = (log((double)N / 2.0) / log(2.0)) / dj;
+	J = (int)temp;
+
+	return J;
+}
+
+void setCWTScales(cwt_object wt, double s0, double dj,char *type,int power) {
+	int i;
+	//s0*pow(2.0, (double)(j - 1)*dj);
+	if (!strcmp(wt->type, "pow") || !strcmp(wt->type, "power")) {
+		for (i = 0; i < wt->J; ++i) {
+			wt->scale[i] = s0*pow((double) power, (double)(i)*dj);
+		}
+		wt->sflag = 1;
+		
+	}
+	else if (!strcmp(wt->type, "lin") || !strcmp(wt->type, "linear")) {
+		for (i = 0; i < wt->J; ++i) {
+			wt->scale[i] = s0 + (double)i * dj;
+		}
+		wt->sflag = 1;
+	}
+	else {
+		printf("\n Type accepts only two values : pow and lin\n");
+		exit(-1);
+	}
+	wt->s0 = s0;
+	wt->dj = dj;
+}
+
+void setCWTScaleVector(cwt_object wt, double *scale, int J,double s0,double dj) {
+	int i;
+
+	if (J != wt->J) {
+		printf("\n CWT object is only valid for %d scales\n", wt->J);
+		exit(-1);
+	}
+
+	for (i = 0; i < wt->J; ++i) {
+		wt->scale[i] = scale[i];
+	}
+	wt->dj = dj;
+	wt->s0 = s0;
+	wt->sflag = 1;
+}
+
+void setCWTPadding(cwt_object wt, int pad) {
+	if (pad == 0) {
+		wt->pflag = 0;
+	}
+	else {
+		wt->pflag = 1;
+	}
+}
+
+void cwt(cwt_object wt, double *inp) {
+	int i, N, npad,nj2,j,j2;
+	N = wt->siglength;
+	if (wt->sflag == 0) {
+		for (i = 0; i < wt->J; ++i) {
+			wt->scale[i] = wt->s0*pow(2.0, (double)(i)*wt->dj);
+		}
+		wt->sflag = 1;
+	}
+
+	if (wt->pflag == 0) {
+		npad = N;
+	}
+	else {
+		npad = wt->npad;
+	}
+
+	nj2 = 2 * N * wt->J;
+	j = wt->J;
+	j2 = 2 * j;
+
+	wt->smean = 0.0;
+
+	for (i = 0; i < N; ++i) {
+		wt->smean += inp[i];
+	}
+	wt->smean /= N;
+
+	cwavelet(inp, N, wt->dt, wt->mother, wt->m, wt->s0, wt->dj, wt->J,npad,wt->params, wt->params+nj2, wt->params+nj2+j, wt->params+nj2+j2);
+
+}
+
+void icwt(cwt_object wt, double *cwtop) {
+	double psi, cdel;
+	int real,i,N,nj2;
+
+	N = wt->siglength;
+	nj2 = N * 2 * wt->J;
+
+	psi0(wt->mother, wt->m, &psi, &real);
+	cdel = cdelta(wt->mother, wt->m, psi);
+
+	//printf("\n PSI %g CDEL %g param %g mother %d \n", psi, cdel,wt->m,wt->mother);
+
+	icwavelet(wt->params, N, wt->params+nj2, wt->J, wt->dt, wt->dj, cdel, psi, cwtop);
+	
+	for(i = 0; i < N;++i) {
+		cwtop[i] += wt->smean;
+	}
+	
 }
 
 static void idwt1(wt_object wt,double *temp, double *cA_up,double *cA, int len_cA,double *cD,int len_cD,double *X_lp,double *X_hp,double *X) {
@@ -1562,33 +1765,33 @@ void idwpt(wpt_object wt, double *dwtop) {
 	llb = 1;
 	index2 = xlen / p;
 	indexp = 0;
-	
 	if (wt->basisvector[0] == 1) {
 		for (i = 0; i < wt->siglength; ++i) {
 			dwtop[i] = wt->output[i];
 		}
-		
-	} else {
+
+	}
+	else {
 		for (i = 0; i < J; ++i) {
 			llb *= 2;
 			n1 += llb;
 		}
-	
+
 		for (i = 0; i < xlen; ++i) {
 			X[i] = 0.0;
 		}
-	
+
 		for (i = 0; i < llb; ++i) {
-			prep[i] = (int) wt->basisvector[n1 - llb + i];
+			prep[i] = (int)wt->basisvector[n1 - llb + i];
 			ptemp[i] = 0;
 		}
-	
+
 		if (!strcmp(wt->ext, "per")) {
 			app_len = wt->length[0];
 			det_len = wt->length[1];
 			index = 0;
-	
-	
+
+
 			for (i = 0; i < J; ++i) {
 				p = ipow2(J - i - 1);
 				det_len = wt->length[i + 1];
@@ -1599,15 +1802,15 @@ void idwpt(wpt_object wt, double *dwtop) {
 				n1 -= llb;
 				for (l = 0; l < llb; ++l) {
 					if (ptemp[l] != 2) {
-						prep[l] = (int) wt->basisvector[n1 + l];
+						prep[l] = (int)wt->basisvector[n1 + l];
 					}
 					else {
 						prep[l] = ptemp[l];
 					}
 					ptemp[l] = 0;
 				}
-	
-	
+
+
 				for (l = 0; l < p; ++l) {
 					if (prep[2 * l] == 1 && prep[2 * l + 1] == 1) {
 						for (k = 0; k < det_len; ++k) {
@@ -1669,34 +1872,34 @@ void idwpt(wpt_object wt, double *dwtop) {
 						index3 += index2;
 						index4 += 2 * indexp;
 					}
-	
+
 				}
-	
-	
+
+
 				/*
 				idwt_per(wt, out, det_len, wt->output + iter, det_len, X_lp);
 				for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
-					out[k - lf / 2 + 1] = X_lp[k];
+				out[k - lf / 2 + 1] = X_lp[k];
 				}
-	
+
 				iter += det_len;
 				det_len = wt->length[i + 2];
 				*/
 				llb /= 2;
 				indexp = index2;
 			}
-	
+
 			//free(X_lp);
-	
+
 		}
 		else if (!strcmp(wt->ext, "sym")) {
 			app_len = wt->length[0];
 			det_len = wt->length[1];
 			N = 2 * wt->length[J] - 1;
-	
+
 			//X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
 			index = 0;
-	
+
 			for (i = 0; i < J; ++i) {
 				p = ipow2(J - i - 1);
 				det_len = wt->length[i + 1];
@@ -1707,15 +1910,15 @@ void idwpt(wpt_object wt, double *dwtop) {
 				n1 -= llb;
 				for (l = 0; l < llb; ++l) {
 					if (ptemp[l] != 2) {
-						prep[l] = (int) wt->basisvector[n1 + l];
+						prep[l] = (int)wt->basisvector[n1 + l];
 					}
 					else {
 						prep[l] = ptemp[l];
 					}
 					ptemp[l] = 0;
 				}
-	
-	
+
+
 				for (l = 0; l < p; ++l) {
 					if (prep[2 * l] == 1 && prep[2 * l + 1] == 1) {
 						for (k = 0; k < det_len; ++k) {
@@ -1777,36 +1980,36 @@ void idwpt(wpt_object wt, double *dwtop) {
 						index3 += index2;
 						index4 += 2 * indexp;
 					}
-	
+
 				}
-	
+
 				//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
 				/*
 				idwpt_sym(wt, out, det_len, wt->output + iter, det_len, X_lp);
 				for (k = lf - 2; k < 2 * det_len; ++k) {
-					out[k - lf + 2] = X_lp[k];
+				out[k - lf + 2] = X_lp[k];
 				}
-	
+
 				iter += det_len;
 				det_len = wt->length[i + 2];
 				*/
 				llb /= 2;
 				indexp = index2;
 			}
-	
+
 			//free(X_lp);
-	
+
 		}
 		else {
 			printf("Signal extension can be either per or sym");
 			exit(-1);
 		}
-	
+
 		for (i = 0; i < wt->siglength; ++i) {
 			//printf("%g ", X[i]);
 			dwtop[i] = X[i];
 		}
-	
+
 	}
 
 
@@ -2538,6 +2741,30 @@ void wpt_summary(wpt_object wt) {
 
 }
 
+void cwt_summary(cwt_object wt) {
+
+	printf("\n");
+	printf("Wavelet : %s Parameter %lf \n", wt->wave,wt->m);
+	printf("\n");
+	printf("Length of Input Signal : %d \n", wt->siglength);
+	printf("\n");
+	printf("Sampling Rate : %g \n", wt->dt);
+	printf("\n");
+	printf("Total Number of Scales : %d \n", wt->J);
+	printf("\n");
+	printf("Smallest Scale (s0) : %lf \n", wt->s0);
+	printf("\n");
+	printf("Separation Between Scales (dj) %lf \n", wt->dj);
+	printf("\n");
+	printf("Scale Type %s \n", wt->type);
+	printf("\n");
+	printf("Complex CWT Output Vector is of size %d * %d stored in Row Major format \n",wt->J,wt->siglength);
+	printf("\n");
+	printf("The ith real value can be accessed using wt->output[i].re and imaginary value by wt->output[i].im \n");
+	printf("\n");
+
+}
+
 void wave_free(wave_object object) {
 	free(object);
 }
@@ -2551,5 +2778,9 @@ void wtree_free(wtree_object object) {
 }
 
 void wpt_free(wpt_object object) {
+	free(object);
+}
+
+void cwt_free(cwt_object object) {
 	free(object);
 }

@@ -14,6 +14,16 @@ extern "C" {
 #define fft_type double
 #endif
 
+#ifndef cplx_type
+#define cplx_type double
+#endif
+
+
+typedef struct cplx_t {
+	cplx_type re;
+	cplx_type im;
+} cplx_data;
+
 typedef struct wave_set* wave_object;
 
 wave_object wave_init(char* wname);
@@ -153,6 +163,34 @@ struct wpt_set{
 };
 
 
+typedef struct cwt_set* cwt_object;
+
+cwt_object cwt_init(char* wave, double param, int siglength,double dt, int J);
+
+struct cwt_set{
+	char wave[10];// Wavelet - morl/morlet,paul,dog/dgauss
+	int siglength;// Length of Input Data
+	int J;// Total Number of Scales
+	double s0;// Smallest scale. It depends on the sampling rate. s0 <= 2 * dt for most wavelets
+	double dt;// Sampling Rate
+	double dj;// Separation between scales. eg., scale = s0 * 2 ^ ( [0:N-1] *dj ) or scale = s0 *[0:N-1] * dj
+	char type[10];// Scale Type - Power or Linear
+	int pow;// Base of Power in case type = pow. Typical value is pow = 2
+	int sflag;
+	int pflag;
+	int npad;
+	int mother;
+	double m;// Wavelet parameter param
+	double smean;// Input Signal mean
+
+	cplx_data *output;
+	double *scale;
+	double *period;
+	double *coi;
+	double params[0];
+};
+
+
 void dwt(wt_object wt, double *inp);
 
 void idwt(wt_object wt, double *dwtop);
@@ -189,6 +227,18 @@ int getDWPTNodelength(wpt_object wt, int X);
 
 void getDWPTCoeffs(wpt_object wt, int X, int Y, double *coeffs, int N);
 
+void setCWTScales(cwt_object wt, double s0, double dj, char *type, int power);
+
+void setCWTScaleVector(cwt_object wt, double *scale, int J, double s0, double dj);
+
+void setCWTPadding(cwt_object wt, int pad);
+
+void cwt(cwt_object wt, double *inp);
+
+void icwt(cwt_object wt, double *cwtop);
+
+int getCWTScaleLength(int N);
+
 void wave_summary(wave_object obj);
 
 void wt_summary(wt_object wt);
@@ -197,6 +247,8 @@ void wtree_summary(wtree_object wt);
 
 void wpt_summary(wpt_object wt);
 
+void cwt_summary(cwt_object wt);;
+
 void wave_free(wave_object object);
 
 void wt_free(wt_object object);
@@ -204,6 +256,8 @@ void wt_free(wt_object object);
 void wtree_free(wtree_object object);
 
 void wpt_free(wpt_object object);
+
+void cwt_free(cwt_object object);
 
 
 #ifdef __cplusplus
