@@ -1340,6 +1340,7 @@ void setCWTScales(cwt_object wt, double s0, double dj,char *type,int power) {
 			wt->scale[i] = s0 + (double)i * dj;
 		}
 		wt->sflag = 1;
+		strcpy(wt->type,type);
 	}
 	else {
 		printf("\n Type accepts only two values : pow and lin\n");
