@@ -1334,6 +1334,7 @@ void setCWTScales(cwt_object wt, double s0, double dj,char *type,int power) {
 			wt->scale[i] = s0*pow((double) power, (double)(i)*dj);
 		}
 		wt->sflag = 1;
+		wt->pow = power;
 		
 	}
 	else if (!strcmp(wt->type, "lin") || !strcmp(wt->type, "linear")) {
@@ -1418,7 +1419,7 @@ void icwt(cwt_object wt, double *cwtop) {
 	cdel = cdelta(wt->mother, wt->m, psi);
 
 	//printf("\n PSI %g CDEL %g param %g mother %d \n", psi, cdel,wt->m,wt->mother);
-	if (!strcmp(wt->type, "pow") || !strcmp(wt->type, "power")) {
+	if ((!strcmp(wt->type, "pow") || !strcmp(wt->type, "power")) && wt->pow == 2) {
 		icwavelet(wt->params, N, wt->params+nj2, wt->J, wt->dt, wt->dj, cdel, psi, cwtop);
 	} else {
 		printf("Inverse CWT is only available for power of 2.0 scales \n");
