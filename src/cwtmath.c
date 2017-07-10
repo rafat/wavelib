@@ -155,10 +155,10 @@ int nint(double N) {
 	return i;
 }
 
-double gamma(double x) {
+double cwt_gamma(double x) {
 	/*
 	 * This C program code is based on  W J Cody's fortran code.
-	 * http://www.netlib.org/specfun/gamma
+	 * http://www.netlib.org/specfun/cwt_gamma
 	 * 
 	 * References:
    "An Overview of Software Development for Special Functions",
