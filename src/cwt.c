@@ -119,7 +119,7 @@ static void wave_function(int nk, double dt,int mother, double param,double scal
 		}
 
 
-		norm = sqrt(2.0*pi*scale1 / dt)*sqrt(1.0 / gamma(m + 0.50));
+		norm = sqrt(2.0*pi*scale1 / dt)*sqrt(1.0 / cwt_gamma(m + 0.50));
 		norm *= sign;
 
 		if (re == 1) {
@@ -289,8 +289,8 @@ void psi0(int mother, double param,double *val,int *real) {
 			else {
 				sign = 1;
 			}
-			coeff = sign * pow(2.0, (double)m / 2) / gamma(0.5);
-			*val = coeff * gamma(((double)m + 1.0) / 2.0) / sqrt(gamma(m + 0.50));
+			coeff = sign * pow(2.0, (double)m / 2) / cwt_gamma(0.5);
+			*val = coeff * cwt_gamma(((double)m + 1.0) / 2.0) / sqrt(cwt_gamma(m + 0.50));
 		}
 		else {
 			*val = 0;
