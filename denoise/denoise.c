@@ -26,15 +26,36 @@ double median(double *x, int N) {
 	
 	return sigma;
 }
+
+double mad(double *x, int N) {
+	double sigma;
+	int i;
+	
+	sigma = median(x,N);
+	
+	for(i = 0; i < N;++i) {
+		x[i] = (x[i] - sigma) > 0 ? (x[i] - sigma) : -(x[i] - sigma);
+	}
+	
+	sigma = median(x,N);
+	
+	return sigma;
+}
+
+void visushrink(wave_object wave,double *signal,int N) {
+	int J,filt_len;
+	double sigma;
+	
+	filt_len = wave->filtlength;
+	
+	J = (int) (log((double)N / ((double)filt_len - 1.0)) / log(2.0));
+}
  
 int main(void)
 {
-	int i;
-    double x[10] = { -2.4, 100.9,33 ,34,0,-6, -74.3, 2.9789, 271, 42 };
+    double x[10] = { 1123.78,234,40,-34,-56.89,98,0.2,23.9,-1236.3,3.14};
     
  
-    printf("Median %g \n",median(x,10));
-    for(i = 0; i < 10;++i) {
-		printf("%g ",x[i]);
-	}
+    printf("Mad %g \n",mad(x,10));
+    
 }
