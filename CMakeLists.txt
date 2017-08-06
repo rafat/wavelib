@@ -45,5 +45,6 @@ if(BUILD_UT)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(denoise)
 
 install(DIRECTORY ${WAVELIB_SRC_ROOT}/include/ DESTINATION include FILES_MATCHING PATTERN "*.h")
