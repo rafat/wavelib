@@ -9,6 +9,8 @@ CMakeScripts/
 Makefile/
 cmake_install.cmake
 install_manifest.txt
+CTestTestfile.cmake
+Makefile
 
 #yml
 *.yml
@@ -20,3 +22,14 @@ install_manifest.txt
 *.so
 *.exe
 *.dll
+
+#Eclipse
+.project
+.cproject
+language.settings.xml
+
+#tcl
+*.tcl
+
+#wavelib-specific
+denoised.txt
