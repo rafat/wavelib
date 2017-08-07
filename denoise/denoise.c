@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "../header/wavelib.h"
+
+#include "denoise.h"
 
 int compare_double(const void* a, const void* b)
 {
@@ -143,13 +141,4 @@ void visushrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 
 	wave_free(wave);
 	wt_free(wt);
-}
- 
-int main(void)
-{
-    double x[10] = { 1123.78,234,40,-34,-56.89,98,0.2,23.9,-1236.3,3.14};
-    
- 
-    printf("Mad %g \n",mad(x,10));
-    
 }
