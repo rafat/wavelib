@@ -220,6 +220,12 @@ void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 				td = tv;
 			} else {
 				x_sum = 0.0;
+
+				for(i = 0; i < dlen;++i) {
+					dout[i] = wt->output[len+i];
+				}
+
+				qsort(dout, N, sizeof(double), compare_double);
 				for(i = 0; i < dwt_len;++i) {
 					dout[i] = (dout[i]*dout[i]);
 					x_sum += dout[i];
