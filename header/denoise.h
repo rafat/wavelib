@@ -13,6 +13,8 @@ extern "C" {
 
 void visushrink(double *signal,int N,char *wname,char *method,char *ext,char *thresh,double *denoised);
 
+void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *thresh,double *denoised);
+
 double mad(double *x, int N);
 
 

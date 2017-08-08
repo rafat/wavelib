@@ -39,9 +39,10 @@ int main() {
 		inp[i] = temp[i];
 	}
 
-	visushrink(inp,N,wname,method,ext,thresh,oup);
+	//visushrink(inp,N,wname,method,ext,thresh,oup);
+	sureshrink(inp,N,wname,method,ext,thresh,oup);
 
-	ofp = fopen("denoised.txt", "w");
+	ofp = fopen("denoiseds.txt", "w");
 
 	for(i = 0; i < N;++i) {
 		fprintf(ofp,"%g \n",oup[i]);

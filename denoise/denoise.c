@@ -248,17 +248,17 @@ void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 		if(!strcmp(thresh,"hard")) {
 			for(i = 0; i < dwt_len;++i) {
 				if (fabs(wt->output[len+i]) < td) {
-					wt->output[i] = 0;
+					wt->output[len+i] = 0;
 				}
 			}
 		} else if(!strcmp(thresh,"soft")) {
 			for(i = 0; i < dwt_len;++i) {
 					if (fabs(wt->output[len + i]) < td) {
-						wt->output[i] = 0;
+						wt->output[len+i] = 0;
 					} else {
 						sgn = wt->output[len+i] >= 0 ? 1 : -1;
 						temp = sgn * (fabs(wt->output[len+i]) - td);
-						wt->output[i] = temp;
+						wt->output[len+i] = temp;
 					}
 				}
 		}
