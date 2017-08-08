@@ -101,8 +101,8 @@ void getDWTDetail(wt_object wt, double *detail, int N, int level) {
 	}
 }
 
-void visushrink(double *signal,int N,char *wname,char *method,char *ext,char *thresh,double *denoised) {
-	int J,filt_len,iter,i,dlen,dwt_len,sgn;
+void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised) {
+	int filt_len,iter,i,dlen,dwt_len,sgn, MaxIter;
 	double sigma,td,tmp;
 	wave_object wave;
 	wt_object wt;
@@ -112,10 +112,11 @@ void visushrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 	
 	filt_len = wave->filtlength;
 	
-	J = (int) (log((double)N / ((double)filt_len - 1.0)) / log(2.0));
+	MaxIter = (int) (log((double)N / ((double)filt_len - 1.0)) / log(2.0));
 
-	if (J > 50) {
-		J = 50;
+	if (J > MaxIter) {
+		printf("\n Error - The Signal Can only be iterated %d times using this wavelet. Exiting\n",MaxIter);
+		exit(-1);
 	}
 
 	wt = wt_init(wave,method,N,J);
@@ -168,8 +169,8 @@ void visushrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 	wt_free(wt);
 }
 
-void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *thresh,double *denoised) {
-	int J, filt_len,i,it,len,dlen,dwt_len,min_index,sgn;
+void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised) {
+	int filt_len,i,it,len,dlen,dwt_len,min_index,sgn, MaxIter;
 	double sigma,norm,td,tv,te,ct,thr,temp,x_sum;
 	wave_object wave;
 	wt_object wt;
@@ -179,10 +180,11 @@ void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 
 	filt_len = wave->filtlength;
 
-	J = (int) (log((double)N / ((double)filt_len - 1.0)) / log(2.0));
+	MaxIter = (int) (log((double)N / ((double)filt_len - 1.0)) / log(2.0));
 
-	if (J > 50) {
-		J = 50;
+	if (J > MaxIter) {
+		printf("\n Error - The Signal Can only be iterated %d times using this wavelet. Exiting\n",MaxIter);
+		exit(-1);
 	}
 
 	wt = wt_init(wave,method,N,J);
@@ -248,17 +250,17 @@ void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *th
 		if(!strcmp(thresh,"hard")) {
 			for(i = 0; i < dwt_len;++i) {
 				if (fabs(wt->output[len+i]) < td) {
-					wt->output[i] = 0;
+					wt->output[len+i] = 0;
 				}
 			}
 		} else if(!strcmp(thresh,"soft")) {
 			for(i = 0; i < dwt_len;++i) {
 					if (fabs(wt->output[len + i]) < td) {
-						wt->output[i] = 0;
+						wt->output[len+i] = 0;
 					} else {
 						sgn = wt->output[len+i] >= 0 ? 1 : -1;
 						temp = sgn * (fabs(wt->output[len+i]) - td);
-						wt->output[i] = temp;
+						wt->output[len+i] = temp;
 					}
 				}
 		}

@@ -7,7 +7,7 @@
 int main() {
 	// gcc -Wall -I../header -L../Bin denoisetest.c -o denoise -ldenoiselib -lwavelib -lm
 	double *inp,*oup;
-	int i,N;
+	int i,N,J;
 	FILE *ifp,*ofp;
 	double temp[2400];
 
@@ -31,6 +31,7 @@ int main() {
 	fclose(ifp);
 
 	N = i;
+	J = 5;
 
 	inp = (double*)malloc(sizeof(double)* N);
 	oup = (double*)malloc(sizeof(double)* N);
@@ -39,9 +40,10 @@ int main() {
 		inp[i] = temp[i];
 	}
 
-	visushrink(inp,N,wname,method,ext,thresh,oup);
+	//visushrink(inp,N,wname,method,ext,thresh,oup);
+	sureshrink(inp,N,J,wname,method,ext,thresh,oup);
 
-	ofp = fopen("denoised.txt", "w");
+	ofp = fopen("denoiseds.txt", "w");
 
 	for(i = 0; i < N;++i) {
 		fprintf(ofp,"%g \n",oup[i]);
