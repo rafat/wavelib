@@ -15,6 +15,8 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 
 void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised);
 
+void sureshrink(double *signal,int N,char *wname,char *method,char *ext,char *thresh,double *denoised);
+
 double mad(double *x, int N);
 
 
