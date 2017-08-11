@@ -181,7 +181,7 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	filt_len = wave->filtlength;
 
 	MaxIter = (int) (log((double)N / ((double)filt_len - 1.0)) / log(2.0));
-
+	// Depends on J
 	if (J > MaxIter) {
 		printf("\n Error - The Signal Can only be iterated %d times using this wavelet. Exiting\n",MaxIter);
 		exit(-1);

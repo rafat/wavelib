@@ -15,7 +15,7 @@ Copyright (c) 2017, Rafat Hussain
 extern "C" {
 #endif
 
-
+//depends on J
 void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised);
 
 void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised);

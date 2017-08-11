@@ -40,7 +40,7 @@ int main() {
 	}
 
 	//visushrink(inp,N,wname,method,ext,thresh,oup);
-	sureshrink(inp,N,wname,method,ext,thresh,oup);
+	sureshrink(inp,N,J,wname,method,ext,thresh,oup);
 
 	ofp = fopen("denoiseds.txt", "w");
 
