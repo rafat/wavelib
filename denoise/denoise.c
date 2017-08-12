@@ -192,8 +192,6 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 
 	dwt(wt,signal);
 
-	wt_summary(wt);
-
 	len = wt->length[0];
 	dlen = wt->length[J];
 
@@ -203,7 +201,7 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	for(it = 0; it < J;++it) {
 		dwt_len = wt->length[it+1];
 
-		for(i = 0; i < dlen;++i) {
+		for(i = 0; i < dwt_len;++i) {
 			dout[i] = wt->output[len+i];
 		}
 
@@ -225,11 +223,11 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 			} else {
 				x_sum = 0.0;
 
-				for(i = 0; i < dlen;++i) {
+				for(i = 0; i < dwt_len;++i) {
 					dout[i] = wt->output[len+i];
 				}
 
-				qsort(dout, N, sizeof(double), compare_double);
+				qsort(dout, dwt_len, sizeof(double), compare_double);
 				for(i = 0; i < dwt_len;++i) {
 					dout[i] = (dout[i]*dout[i]);
 					x_sum += dout[i];
