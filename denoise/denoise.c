@@ -192,6 +192,8 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 
 	dwt(wt,signal);
 
+	wt_summary(wt);
+
 	len = wt->length[0];
 	dlen = wt->length[J];
 
