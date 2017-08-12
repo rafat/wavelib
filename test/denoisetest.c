@@ -7,7 +7,7 @@
 int main() {
 	// gcc -Wall -I../header -L../Bin denoisetest.c -o denoise -ldenoiselib -lwavelib -lm
 	double *inp,*oup;
-	int i,N;
+	int i,N,J;
 	FILE *ifp,*ofp;
 	double temp[2400];
 
@@ -16,7 +16,7 @@ int main() {
 	char *ext = "sym";
 	char *thresh = "soft";
 
-	ifp = fopen("noisyheavisine.txt", "r");
+	ifp = fopen("noisybumps.txt", "r");
 	i = 0;
 	if (!ifp) {
 	    printf("Cannot Open File");
@@ -31,6 +31,7 @@ int main() {
 	fclose(ifp);
 
 	N = i;
+	J = 7;
 
 	inp = (double*)malloc(sizeof(double)* N);
 	oup = (double*)malloc(sizeof(double)* N);
