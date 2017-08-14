@@ -1,0 +1,82 @@
+<div class="row marketing">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 col-sm-12">
+        <select class="wide-control form-control default" data-ng-model="selected.wdisplay"
+            data-ng-options="wdisplays.indexOf(e) as e for e in wdisplays" data-ng-change="updateGraph()">
+            <option value=""> Select Outputs </option>
+        </select>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 col-sm-12">
+        <div id="graph1" style="width:100%"></div>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+
+<div class="row marketing">
+    <div class="col-md-6">
+        <select class="wide-control form-control default" data-ng-model="selected.dnmethod"
+            data-ng-options="d.dnmethod for d in dnmethods" required>
+        <option value=""> Denoising Method </option>
+    </select>
+    </div>
+    <div class="col-md-6">
+        <select class="wide-control form-control default" data-ng-model="selected.threshold"
+            data-ng-options="t.threshold for t in thresholds" required>
+        <option value=""> Thresholding Method </option>
+    </select>
+    </div>
+    <div class="col-md-6">
+        <select class="wide-control form-control default" data-ng-model="selected.family"
+            data-ng-options="a.family for a in wavedb" required>
+            <option value=""> Wavelet Family </option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <select class="wide-control form-control default" data-ng-model="selected.wavelet"
+            data-ng-options="b.wavelet for b in selected.family.wavelets" data-ng-change="getMaxIter()" required>
+        <option value=""> Wavelet </option>
+    </select>
+    </div>
+    <div class="col-md-6">
+        <select class="wide-control form-control default" data-ng-model="selected.method"
+            data-ng-options="c.method for c in methods" required>
+        <option value=""> Wavelet Methods </option>
+    </select>
+    </div>
+    <div class="col-md-6">
+        <select class="wide-control form-control default" data-ng-model="selected.level"
+            data-ng-options="e for e in levels" required>
+        <option value=""> Decomposition Levels </option>
+    </select>
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-block" data-ng-click="denoiseSignal()">
+               <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>GO</button>
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary btn-block" id="reportButton" data-ng-click="viewReport()" disabled>
+               <span class="glyphicon glyphicon-share-alt pull-left" data-position="left"></span>View Report</button>
+    </div>
+    <script type="text/ng-template" id="myModalContent2.html">
+        <div class="modal-header">
+            <h3 class="modal-title" style="font-family:Lucida Console;color:black;font-size:large">Wavelet Denoising Output</h3>
+        </div>
+        <div class="modal-body" style="font-family:Lucida Console;color:blue;font-size:small">
+            <p>Method : {{method}} ({{ext}})</p>
+            <p>Wavelet : {{wname}}</p>
+            <p>Denoising : {{dnmethod}}</p>
+            <p>Threshold : {{threshold}}</p>
+            <p>Decomposition level : {{level}}</p>
+            <p>Denoised Signal : [<span data-ng-repeat="a1 in appx track by $index">{{a1}} {{$last ? '' : ', '}}</span>]</p>
+        </div>
+        <div class="modal-footer">
+            <!--button class="btn btn-primary" type="button" ng-click="ok()" disabled>OK</button-->
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+</div>

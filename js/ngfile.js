@@ -11,6 +11,10 @@ app.config(function($routeProvider){
       templateUrl: 'front.html',
       controller: 'mainController'
     })
+    .when('/frdenoise', {
+      templateUrl: 'frdenoise.html',
+      controller: 'mainController'
+    })
     .when('/display', {
       templateUrl: 'display.html',
       controller: 'displayController'
@@ -18,6 +22,10 @@ app.config(function($routeProvider){
     .when('/cdisplay', {
       templateUrl: 'cdisplay.html',
       controller: 'cdisplayController'
+    })
+    .when('/denoise', {
+      templateUrl: 'denoise.html',
+      controller: 'denoiseController'
     })
     .when('/about', {
       templateUrl: 'about.html',
@@ -39,13 +47,18 @@ app.controller('mainController', function ($scope, $http, wave) {
 
         if (value == "Discrete Wavelet Transform") {
             wave.transform = 1;
+            location.href = '#/front';
         } else if (value == "Continuous Wavelet Transform") {
             wave.transform = 2;
+            location.href = '#/front';
         } else if (value == "Wavelet Packet Transform") {
             wave.transform = 3;
+            location.href = '#/front';
+        } else if (value == "Wavelet Denoising" || value == "Wavelet Denoising (BETA)") {
+            wave.transform = 4;
+            location.href = '#/frdenoise';
         }
 
-        location.href = '#/front';
 
     }
 
@@ -83,6 +96,8 @@ app.controller('mainController', function ($scope, $http, wave) {
           location.href = '#/display';
         } else if (wave.transform == 2) {
           location.href = '#/cdisplay';
+        } else if (wave.transform == 4) {
+          location.href = '#/denoise';
         }
     }
 
@@ -147,6 +162,8 @@ app.controller('mainController', function ($scope, $http, wave) {
               location.href = '#/display';
             } else if (wave.transform == 2) {
               location.href = '#/cdisplay';
+            } else if (wave.transform == 4) {
+              location.href = '#/denoise';
             }
         }
 
@@ -171,8 +188,14 @@ app.controller('mainController', function ($scope, $http, wave) {
             urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/piecepoly.txt";
         } else if (value == "Noisy Bumps") {
             urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisybumps.txt";
+        } else if (value == "Noisy Doppler") {
+            urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisydoppler.txt";
         } else if (value == "Noisy Heavisine") {
             urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisyheavisine.txt";
+        } else if (value == "Noisy Piecewise Polynomial") {
+            urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisypiecepoly.txt";
+        } else if (value == "Noisy Piecewise Regular") {
+            urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/noisypieceregular.txt";
         } else if (value == "El Nino Data") {
             urlx = "https://raw.githubusercontent.com/rafat/rafat.github.io/master/sites/wavelib/data/sst_nino3.dat";
         } else {
@@ -217,6 +240,8 @@ app.controller('mainController', function ($scope, $http, wave) {
               location.href = '#/display';
             } else if (wave.transform == 2) {
               location.href = '#/cdisplay';
+            } else if (wave.transform == 4) {
+              location.href = '#/denoise';
             }
         }, function (response) {
             $scope.data = response.data || "Request failed";
@@ -642,6 +667,364 @@ app.controller('reportController', function ($scope, $modalInstance, items, wave
         start = end;
         end = start + $scope.length[j + 2];
         $scope.details.push(det);
+    }
+
+    //console.log($scope.details);
+
+    $scope.items = items;
+    $scope.selected = {
+        item: $scope.items[0]
+    };
+    /*
+    $scope.ok = function () {
+        $modalInstance.close($scope.selected.item);
+    };
+    */
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
+
+app.controller('denoiseController', function ($scope, $http, $modal, wave) {
+    var lbl = [];
+    var sigData = [];
+    $scope.MaxIter = 0;
+    $scope.selected = {};
+    $scope.wdisplays = [];
+    for (var i = 0; i < wave.sigLength; ++i) {
+        lbl[i] = i;
+        sigData[i] = wave.sigData[i];
+    }
+
+    var g = {
+      x: lbl,
+      y: sigData,
+      type: 'scatter'
+    }
+
+    var gdata = [g];
+
+    Plotly.newPlot('graph1',gdata);
+
+    $scope.levels = [];
+
+
+    $scope.getMaxIter = function () {
+        var flength = $scope.selected.wavelet.filtlength;
+        var slength = wave.sigLength;
+        $scope.MaxIter = Math.floor(Math.log(slength / (flength - 1)) / Math.log(2.0));
+
+        $scope.levels = [];
+        for (var i = 0; i < $scope.MaxIter; i++) {
+            $scope.levels[i] = i + 1;
+        }
+    }
+
+    $scope.dnmethods = [
+    {
+        "id": "0",
+        "dnmethod": "Sureshrink"
+    }, {
+        "id": "1",
+        "dnmethod": "Visushrink"
+    }
+    ];
+
+    $scope.thresholds = [
+    {
+        "id": "0",
+        "threshold": "soft"
+    }, {
+        "id": "1",
+        "threshold": "hard"
+    }
+    ];
+
+    $scope.wavedb = [
+        {
+            "id": "0",
+            "family": "haar",
+            "wavelets": [
+                { "wavelet": "haar", "filtlength": "2" }
+            ]
+        }, {
+            "id": "1",
+            "family": "daubechies",
+            "wavelets": [
+                { "wavelet": "db1", "filtlength": "2" },
+                { "wavelet": "db2", "filtlength": "4" },
+                { "wavelet": "db3", "filtlength": "6" },
+                { "wavelet": "db4", "filtlength": "8" },
+                { "wavelet": "db5", "filtlength": "10" },
+                { "wavelet": "db6", "filtlength": "12" },
+                { "wavelet": "db7", "filtlength": "14" },
+                { "wavelet": "db8", "filtlength": "16" },
+                { "wavelet": "db9", "filtlength": "18" },
+                { "wavelet": "db10", "filtlength": "20" },
+                { "wavelet": "db11", "filtlength": "22" },
+                { "wavelet": "db12", "filtlength": "24" },
+                { "wavelet": "db13", "filtlength": "26" },
+                { "wavelet": "db14", "filtlength": "28" },
+                { "wavelet": "db15", "filtlength": "30" }
+            ]
+        }, {
+            "id": "2",
+            "family": "biorthogonal",
+            "wavelets": [
+                { "wavelet": "bior1.1", "filtlength": "2" },
+                { "wavelet": "bior1.3", "filtlength": "6" },
+                { "wavelet": "bior1.5", "filtlength": "10" },
+                { "wavelet": "bior2.2", "filtlength": "6" },
+                { "wavelet": "bior2.4", "filtlength": "10" },
+                { "wavelet": "bior2.6", "filtlength": "14" },
+                { "wavelet": "bior2.8", "filtlength": "18" },
+                { "wavelet": "bior3.1", "filtlength": "4" },
+                { "wavelet": "bior3.3", "filtlength": "8" },
+                { "wavelet": "bior3.5", "filtlength": "12" },
+                { "wavelet": "bior3.7", "filtlength": "16" },
+                { "wavelet": "bior3.9", "filtlength": "20" },
+                { "wavelet": "bior4.4", "filtlength": "10" },
+                { "wavelet": "bior5.5", "filtlength": "12" },
+                { "wavelet": "bior6.8", "filtlength": "18" }
+            ]
+        }, {
+            "id": "3",
+            "family": "coiflets",
+            "wavelets": [
+                { "wavelet": "coif1", "filtlength": "6" },
+                { "wavelet": "coif2", "filtlength": "12" },
+                { "wavelet": "coif3", "filtlength": "18" },
+                { "wavelet": "coif4", "filtlength": "24" },
+                { "wavelet": "coif5", "filtlength": "30" }
+            ]
+        }, {
+            "id": "4",
+            "family": "symmlets",
+            "wavelets": [
+                { "wavelet": "sym2", "filtlength": "4" },
+                { "wavelet": "sym3", "filtlength": "6" },
+                { "wavelet": "sym4", "filtlength": "8" },
+                { "wavelet": "sym5", "filtlength": "10" },
+                { "wavelet": "sym6", "filtlength": "12" },
+                { "wavelet": "sym7", "filtlength": "14" },
+                { "wavelet": "sym8", "filtlength": "16" },
+                { "wavelet": "sym9", "filtlength": "18" },
+                { "wavelet": "sym10", "filtlength": "20" }
+            ]
+        }
+
+    ];
+
+    $scope.methods = [
+    {
+        "id": "0",
+        "method": "DWT (Symmetric)"
+    }, {
+        "id": "1",
+        "method": "DWT (Periodic)"
+    }, {
+        "id": "2",
+        "method": "SWT"
+    }, {
+        "id": "3",
+        "method": "MODWT"
+    }
+    ];
+
+    $scope.denoiseSignal = function () {
+        var method;
+        var ext = "NULL";
+        var dnmethod;
+        var threshold;
+
+        if (typeof $scope.selected.family == 'undefined' || typeof $scope.selected.wavelet == 'undefined' ||
+        typeof $scope.selected.method == 'undefined' || typeof $scope.selected.dnmethod == 'undefined' ||
+        typeof $scope.selected.threshold == 'undefined') {
+            alert("Please Selct All Values : Family, Wavelet, Transform Method, denoising method and Thresholding");
+            return;
+        }
+
+        if ($scope.selected.method.id == "0") {
+            method = "dwt";
+            ext = "sym";
+        } else if ($scope.selected.method.id == "1") {
+            method = "dwt";
+            ext = "per";
+        } else if ($scope.selected.method.id == "2") {
+            method = "swt";
+            ext = "per";
+        } else if ($scope.selected.method.id == "3") {
+            method = "modwt";
+            ext = "per";
+        }
+        //console.log($scope.selected.dnmethod);
+        if ($scope.selected.family.family == "biorthogonal" && method == "modwt") {
+            alert("the Method MODWT is not implemented for biorthogonal wavelets");
+            return;
+        }
+
+        if (method == "swt") {
+            var div = parseInt(Math.pow(2, J));
+            if ((N % div) != 0) {
+                alert("In SWT the data length should be divisible by 2^(Number of Decomposition Levels)");
+                return;
+            }
+        }
+
+        dnmethod = $scope.selected.dnmethod.dnmethod;
+        threshold = $scope.selected.threshold.threshold;
+
+        //console.log(threshold);
+
+        var N = wave.sigLength;
+        var flength = $scope.selected.wavelet.filtlength;
+        var J = $scope.selected.level;
+        //console.log(wave.sigData);
+
+        wave.J = J;
+        wave.method = method;
+        wave.ext = ext;
+        wave.dnmethod = dnmethod;
+        wave.threshold = threshold;
+        //wave.output = [];
+        //wave.filters = [];
+        wave.wname = $scope.selected.wavelet.wavelet;
+
+
+        //console.log(wave.sigData, N, wave.wname, method, J, ext, wave.output, wave.length, wave.lenlength, wave.filters, flength);
+
+
+        var wave_denoise = Module.cwrap('wdenoise', 'null', ['number', 'number', 'number','string','string','string','string','string','number']);
+        //[wave.sigData, N, wave.wname, method, J, ext, wave.output, wave.length, wave.lenlength, wave.filters, flength]);
+        //[wave.sigData,N,J,wave.wname,method,ext,dnmethod.threshold,wave.denoised]
+        //input signal on heap
+        var inpdata = wave.sigLength * wave.sigData.BYTES_PER_ELEMENT;
+        var inpPtr = Module._malloc(inpdata);
+        var inpHeap = new Uint8Array(Module.HEAPU8.buffer, inpPtr, inpdata);
+        inpHeap.set(new Uint8Array(wave.sigData.buffer));
+
+        //output on heap
+        var outdata = wave.sigLength  * wave.sigData.BYTES_PER_ELEMENT;
+        var outPtr = Module._malloc(outdata);
+        var outHeap = new Uint8Array(Module.HEAPU8.buffer, outPtr, outdata);
+        //inpHeap.set(new Uint8Array(wave.sigData.buffer));
+
+        //wave_transform(inpHeap.byteOffset, N, wave.wname, method, J, ext, outHeap.byteOffset, lenHeap.byteOffset, filtHeap.byteOffset);
+        wave_denoise(inpHeap.byteOffset,N,J,dnmethod,wave.wname,method,ext,threshold,outHeap.byteOffset)
+
+        wave.denoised = new Float64Array(outHeap.buffer, outHeap.byteOffset, wave.sigLength);
+        //console.log(wave.filter);
+
+        Module._free(inpHeap.byteOffset);
+        Module._free(outHeap.byteOffset);
+
+        $scope.wdisplays = new Array(3);
+        $scope.wdisplays[0] = "Input Signal";
+        $scope.wdisplays[1] = "Denoised Signal";
+        $scope.wdisplays[2] = "Noise";
+
+        var lbl = [];
+        var sigData = [];
+        for (var i = 0; i < wave.sigLength; ++i) {
+            lbl[i] = i;
+            sigData[i] = wave.denoised[i];
+        }
+
+        var g = {
+          x: lbl,
+          y: sigData,
+          type: 'scatter'
+        }
+
+        var gdata = [g];
+
+        Plotly.newPlot('graph1',gdata);
+/*
+        g = new Dygraph(document.getElementById("graph1"),
+                    lbl,
+                 {
+                     legend: 'always',
+                     color: '#3399ff',
+                     animatedZooms: true,
+                     title: 'Full Decomposition'
+                 }
+        );
+*/
+        document.getElementById("reportButton").disabled = false;
+
+    }
+
+    $scope.updateGraph = function () {
+        //console.log($scope.selected.wdisplay);
+        var lbl = [];
+        var sigData = [];
+        if ($scope.selected.wdisplay == 0) {
+            for (var i = 0; i < wave.sigLength; ++i) {
+                lbl[i] = i ;
+                sigData[i] = wave.sigData[i];
+            }
+        } else if ($scope.selected.wdisplay == 1) {
+            for (var i = 0; i < wave.sigLength; ++i) {
+                lbl[i] = i;
+                sigData[i] = wave.denoised[i];
+            }
+        } else if ($scope.selected.wdisplay == 2) {
+            for (var i = 0; i < wave.sigLength; ++i) {
+                lbl[i] = i;
+                sigData[i] = wave.sigData[i] - wave.denoised[i];
+            }
+        } 
+
+        var g = {
+          x: lbl,
+          y: sigData,
+          type: 'scatter'
+        }
+
+        var gdata = [g];
+
+        Plotly.newPlot('graph1',gdata);
+
+    }
+
+    $scope.items = ['item1', 'item2', 'item3'];
+
+    $scope.viewReport = function () {
+        //window.open('#/report', '_blank');
+        var modalInstance = $modal.open({
+            templateUrl: 'myModalContent2.html',
+            controller: 'dreportController',
+            windowClass: 'large-Modal',
+            resolve: {
+                items: function () {
+                    return $scope.items;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+        });
+
+    }
+
+});
+
+app.controller('dreportController', function ($scope, $modalInstance, items, wave) {
+    //$scope.wname = wave.wname;
+    
+    
+    $scope.length = wave.sigLength;
+    $scope.method = wave.method;
+    $scope.ext = wave.ext;
+    $scope.dnmethod = wave.dnmethod;
+    $scope.threshold = wave.threshold;
+    $scope.wname = wave.wname;
+    $scope.level = wave.J;
+    $scope.appx = [];
+
+    for (var i = 0; i < $scope.length; i++) {
+        $scope.appx[i] = wave.denoised[i];
     }
 
     //console.log($scope.details);
