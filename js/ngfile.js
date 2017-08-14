@@ -863,13 +863,6 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
             return;
         }
 
-        if (method == "swt") {
-            var div = parseInt(Math.pow(2, J));
-            if ((N % div) != 0) {
-                alert("In SWT the data length should be divisible by 2^(Number of Decomposition Levels)");
-                return;
-            }
-        }
 
         dnmethod = $scope.selected.dnmethod.dnmethod;
         threshold = $scope.selected.threshold.threshold;
@@ -880,6 +873,14 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         var flength = $scope.selected.wavelet.filtlength;
         var J = $scope.selected.level;
         //console.log(wave.sigData);
+
+        if (method == "swt") {
+            var div = parseInt(Math.pow(2, J));
+            if ((N % div) != 0) {
+                alert("In SWT the data length should be divisible by 2^(Number of Decomposition Levels)");
+                return;
+            }
+        }
 
         wave.J = J;
         wave.method = method;
