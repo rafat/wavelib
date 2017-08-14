@@ -120,9 +120,16 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	}
 
 	wt = wt_init(wave,method,N,J);
-	setDWTExtension(wt,ext);
-
-	dwt(wt,signal);
+	if(!strcmp(method,"dwt")) {
+		setDWTExtension(wt,ext);
+		dwt(wt,signal);
+	} else if(!strcmp(method,"swt")) {
+		swt(wt,signal);
+	} else if(!strcmp(method,"modwt")) {
+		modwt(wt,signal);
+	} else {
+		printf("Acceptable WT methods are - dwt,swt and modwt\n");
+	}
 
 	//Set sigma
 
@@ -162,7 +169,13 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 			}
 	}
 
-	idwt(wt,denoised);
+	if(!strcmp(method,"dwt")) {
+		idwt(wt,denoised);
+	} else if(!strcmp(method,"swt")) {
+		iswt(wt,denoised);
+	} else if(!strcmp(method,"modwt")) {
+		imodwt(wt,denoised);
+	}
 
 	free(dout);
 	wave_free(wave);
@@ -188,9 +201,17 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	}
 
 	wt = wt_init(wave,method,N,J);
-	setDWTExtension(wt,ext);
 
-	dwt(wt,signal);
+	if(!strcmp(method,"dwt")) {
+		setDWTExtension(wt,ext);
+		dwt(wt,signal);
+	} else if(!strcmp(method,"swt")) {
+		swt(wt,signal);
+	} else if(!strcmp(method,"modwt")) {
+		modwt(wt,signal);
+	} else {
+		printf("Acceptable WT methods are - dwt,swt and modwt\n");
+	}
 
 	len = wt->length[0];
 	dlen = wt->length[J];
@@ -268,7 +289,13 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		len += wt->length[it+1];
 	}
 
-	idwt(wt,denoised);
+	if(!strcmp(method,"dwt")) {
+		idwt(wt,denoised);
+	} else if(!strcmp(method,"swt")) {
+		iswt(wt,denoised);
+	} else if(!strcmp(method,"modwt")) {
+		imodwt(wt,denoised);
+	}
 
 	free(dout);
 	free(risk);

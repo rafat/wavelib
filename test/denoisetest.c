@@ -12,7 +12,7 @@ int main() {
 	double temp[2400];
 
 	char *wname = "sym8";
-	char *method = "dwt";
+	char *method = "swt";
 	char *ext = "sym";
 	char *thresh = "soft";
 
@@ -31,7 +31,7 @@ int main() {
 	fclose(ifp);
 
 	N = i;
-	J = 7;
+	J = 6;
 
 	inp = (double*)malloc(sizeof(double)* N);
 	oup = (double*)malloc(sizeof(double)* N);
