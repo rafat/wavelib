@@ -822,13 +822,14 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
     }, {
         "id": "1",
         "method": "DWT (Periodic)"
-    }, {
-        "id": "2",
-        "method": "SWT"
-    }, {
-        "id": "3",
-        "method": "MODWT"
     }
+    //, {
+    //    "id": "2",
+    //    "method": "SWT"
+    //}, {
+    //    "id": "3",
+    //    "method": "MODWT"
+    //}
     ];
 
     $scope.denoiseSignal = function () {
