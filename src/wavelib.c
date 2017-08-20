@@ -70,11 +70,13 @@ wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
 	}
 	else if (!strcmp(method, "modwt") || !strcmp(method, "MODWT")) {
 
-		if (!strstr(wave->wname,"db")) {
-			if (!strstr(wave->wname, "sym")) {
-				if (!strstr(wave->wname, "coif")) {
-					printf("\n MODWT is only implemented for orthogonal wavelet families - db, sym and coif \n");
-					exit(-1);
+		if (!strstr(wave->wname,"haar")) {
+			if (!strstr(wave->wname,"db")) {
+				if (!strstr(wave->wname, "sym")) {
+					if (!strstr(wave->wname, "coif")) {
+						printf("\n MODWT is only implemented for orthogonal wavelet families - db, sym and coif \n");
+						exit(-1);
+					}
 				}
 			}
 		}
