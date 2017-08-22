@@ -5,7 +5,7 @@
 #include "../header/denoise.h"
 
 int main() {
-	// gcc -Wall -I../header -L../Bin denoisetest.c -o denoise -ldenoiselib -lwavelib -lm
+	// gcc -Wall -I../header -L../Bin denoisetest.c -o denoise -lwauxlib -lwavelib -lm
 	double *inp,*oup;
 	int i,N,J;
 	FILE *ifp,*ofp;
