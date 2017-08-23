@@ -2663,12 +2663,12 @@ void wt_summary(wt_object wt) {
 	printf("Wavelet Coefficients are contained in vector : %s \n", "output");
 	printf("\n");
 	printf("Approximation Coefficients \n");
-	printf("Level %d Access : output[%d] Length : %d \n", 1, 0, wt->length[0]);
+	printf("Level %d Access : output[%d] Length : %d \n", J, 0, wt->length[0]);
 	printf("\n");
 	printf("Detail Coefficients \n");
 	t = wt->length[0];
 	for (i = 0; i < J; ++i) {
-		printf("Level %d Access : output[%d] Length : %d \n", i + 1,t,wt->length[i+1]);
+		printf("Level %d Access : output[%d] Length : %d \n", J - i,t,wt->length[i+1]);
 		t += wt->length[i+1];
 	}
 	printf("\n");
