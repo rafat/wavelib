@@ -135,8 +135,10 @@ void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, 
 			}
 
 			//idwt_per(wt,out, det_len, wt->output + iter, det_len, X_lp);
+			m = -2;
+			n = -1;
 
-			for (i = 0; i < lf + l2 - 1; ++i) {
+			for (i = 0; i < det_len + l2 - 1; ++i) {
 				m += 2;
 				n += 2;
 				X_lp[m] = 0.0;
@@ -181,7 +183,6 @@ void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, 
 
 		X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
 
-
 		for (i = 0; i < det_len; ++i) {
 			out[i] = coeff[i];
 		}
@@ -195,6 +196,7 @@ void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, 
 			} else {
 				filt = lpr;
 			}
+
 			//idwt_sym(wt, out, det_len, wt->output + iter, det_len, X_lp);
 
 			m = -2;
@@ -210,7 +212,7 @@ void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, 
 					t = 2 * l;
 					if ((i - l) >= 0 && (i - l) < det_len) {
 						X_lp[m] += filt[t] * out[i - l];
-						X_lp[n] += filt[t + 1] * out[i - l] + filt[t + 1] * out[i - l];
+						X_lp[n] += filt[t + 1] * out[i - l];
 					}
 				}
 			}

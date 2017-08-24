@@ -32,6 +32,9 @@ void getDWTAppx(wt_object wt, double *appx,int N);
 
 void getDWTDetail(wt_object wt, double *detail, int N, int level);
 
+void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, int J,double *lpr,
+		double *hpr,int lf,int siglength,double *reccoeff);
+
 
 #ifdef __cplusplus
 }

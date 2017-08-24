@@ -16,6 +16,9 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 
 void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised);
 
+void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, int J,double *lpr,
+		double *hpr,int lf,int siglength,double *reccoeff);
+
 double mad(double *x, int N);
 
 
