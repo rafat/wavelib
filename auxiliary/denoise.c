@@ -43,22 +43,23 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	}
 
 	for(i = 0; i < dlen;++i) {
-		dout[i] = wt->output[iter+i];
+		dout[i] = fabs(wt->output[iter+i]);
 	}
 
-	sigma = mad(dout,dlen);
+	sigma = median(dout,dlen);
 	dwt_len = wt->outlength;
 
 	td = sqrt(2.0 * log(dwt_len)) * sigma / 0.6745;
 
+
 	if(!strcmp(thresh,"hard")) {
-		for(i = 0; i < dwt_len;++i) {
+		for(i = wt->length[0]; i < dwt_len;++i) {
 			if (fabs(wt->output[i]) < td) {
 				wt->output[i] = 0;
 			}
 		}
 	} else if(!strcmp(thresh,"soft")) {
-		for(i = 0; i < dwt_len;++i) {
+		for(i = wt->length[0]; i < dwt_len;++i) {
 				if (fabs(wt->output[i]) < td) {
 					wt->output[i] = 0;
 				} else {
@@ -123,10 +124,10 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		dwt_len = wt->length[it+1];
 
 		for(i = 0; i < dwt_len;++i) {
-			dout[i] = wt->output[len+i];
+			dout[i] = fabs(wt->output[len+i]);
 		}
 
-		sigma = mad(dout,dwt_len);
+		sigma = median(dout,dwt_len);
 
 		if ( sigma < 0.00000001) {
 			td = 0;
@@ -169,13 +170,13 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		td = td * sigma / 0.6745;
 
 		if(!strcmp(thresh,"hard")) {
-			for(i = 0; i < dwt_len;++i) {
+			for(i = wt->length[0]; i < dwt_len;++i) {
 				if (fabs(wt->output[len+i]) < td) {
 					wt->output[len+i] = 0;
 				}
 			}
 		} else if(!strcmp(thresh,"soft")) {
-			for(i = 0; i < dwt_len;++i) {
+			for(i = wt->length[0]; i < dwt_len;++i) {
 					if (fabs(wt->output[len + i]) < td) {
 						wt->output[len+i] = 0;
 					} else {
