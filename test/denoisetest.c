@@ -52,10 +52,11 @@ int main() {
 	FILE *ifp,*ofp;
 	double temp[2400];
 
-	char *wname = "sym6";
+	char *wname = "db5";
 	char *method = "dwt";
 	char *ext = "sym";
 	char *thresh = "soft";
+	char *level = "all";
 
 	ifp = fopen("pieceregular1024.txt", "r");
 	i = 0;
@@ -72,7 +73,7 @@ int main() {
 	fclose(ifp);
 
 	N = i;
-	J = 6;
+	J = 4;
 
 	sig = (double*)malloc(sizeof(double)* N);
 	inp = (double*)malloc(sizeof(double)* N);
@@ -99,8 +100,8 @@ int main() {
 	for(i = 0; i < N;++i) {
 		inp[i] = temp[i];
 	}
-	//visushrink(inp,N,J,wname,method,ext,thresh,oup);
-	sureshrink(inp,N,J,wname,method,ext,thresh,oup);
+	visushrink(inp,N,J,wname,method,ext,thresh,level,oup);
+	//sureshrink(inp,N,J,wname,method,ext,thresh,level,oup);
 
 	//ofp = fopen("denoiseds.txt", "w");
 

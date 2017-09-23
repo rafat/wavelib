@@ -1,12 +1,12 @@
 
 #include "denoise.h"
 
-void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised) {
-	int filt_len,iter,i,dlen,dwt_len,sgn, MaxIter;
+void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised) {
+	int filt_len,iter,i,dlen,dwt_len,sgn, MaxIter,it;
 	double sigma,td,tmp;
 	wave_object wave;
 	wt_object wt;
-	double *dout;
+	double *dout,*lnoise;
 
 	wave = wave_init(wname);
 	
@@ -29,7 +29,10 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		modwt(wt,signal);
 	} else {
 		printf("Acceptable WT methods are - dwt,swt and modwt\n");
+		exit(-1);
 	}
+
+	lnoise = (double*)malloc(sizeof(double) * J);
 
 	//Set sigma
 
@@ -38,36 +41,61 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 
 	dout = (double*)malloc(sizeof(double) * dlen);
 
-	for (i = 1; i < J; ++i) {
-		iter += wt->length[i];
-	}
-
-	for(i = 0; i < dlen;++i) {
-		dout[i] = fabs(wt->output[iter+i]);
-	}
-
-	sigma = median(dout,dlen);
-	dwt_len = wt->outlength;
-
-	td = sqrt(2.0 * log(dwt_len)) * sigma / 0.6745;
-
-
-	if(!strcmp(thresh,"hard")) {
-		for(i = wt->length[0]; i < dwt_len;++i) {
-			if (fabs(wt->output[i]) < td) {
-				wt->output[i] = 0;
-			}
+	if(!strcmp(level,"first")) {
+		for (i = 1; i < J; ++i) {
+			iter += wt->length[i];
 		}
-	} else if(!strcmp(thresh,"soft")) {
-		for(i = wt->length[0]; i < dwt_len;++i) {
-				if (fabs(wt->output[i]) < td) {
-					wt->output[i] = 0;
-				} else {
-					sgn = wt->output[i] >= 0 ? 1 : -1;
-					tmp = sgn * (fabs(wt->output[i]) - td);
-					wt->output[i] = tmp;
+
+		for(i = 0; i < dlen;++i) {
+			dout[i] = fabs(wt->output[iter+i]);
+		}
+
+		sigma = median(dout,dlen) / 0.6745;
+		for(it = 0; it < J;++it) {
+			lnoise[it] = sigma;
+		}
+	} else if(!strcmp(level,"all")){
+		for(it = 0; it < J;++it) {
+			dlen = wt->length[it+1];
+			for(i = 0; i < dlen;++i) {
+				dout[i] = fabs(wt->output[iter+i]);
+			}
+			sigma = median(dout,dlen) / 0.6745;
+			lnoise[it] = sigma;
+			iter += dlen;
+		}
+
+	} else {
+		printf("Acceptable Noise estimation level values are - first and all \n");
+		exit(-1);
+	}
+
+	dwt_len = wt->outlength;
+	iter = wt->length[0];
+	for(it = 0; it < J;++it) {
+		sigma = lnoise[it];
+		dlen = wt->length[it+1];
+		td = sqrt(2.0 * log(dwt_len)) * sigma;
+
+		if(!strcmp(thresh,"hard")) {
+			for(i = 0; i < dlen;++i) {
+				if (fabs(wt->output[iter+i]) < td) {
+					wt->output[iter+i] = 0;
 				}
 			}
+		} else if(!strcmp(thresh,"soft")) {
+			for(i = 0; i < dlen;++i) {
+					if (fabs(wt->output[iter + i]) < td) {
+						wt->output[iter+i] = 0;
+					} else {
+						sgn = wt->output[iter+i] >= 0 ? 1 : -1;
+						tmp = sgn * (fabs(wt->output[iter+i]) - td);
+						wt->output[iter+i] = tmp;
+					}
+				}
+		}
+
+		iter += wt->length[it+1];
 	}
 
 	if(!strcmp(method,"dwt")) {
@@ -79,16 +107,17 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	}
 
 	free(dout);
+	free(lnoise);
 	wave_free(wave);
 	wt_free(wt);
 }
 
-void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,double *denoised) {
+void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised) {
 	int filt_len,i,it,len,dlen,dwt_len,min_index,sgn, MaxIter,iter;
 	double sigma,norm,td,tv,te,ct,thr,temp,x_sum;
 	wave_object wave;
 	wt_object wt;
-	double *dout,*risk,*dsum;
+	double *dout,*risk,*dsum,*lnoise;
 
 	wave = wave_init(wname);
 
@@ -108,10 +137,9 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		dwt(wt,signal);
 	} else if(!strcmp(method,"swt")) {
 		swt(wt,signal);
-	} else if(!strcmp(method,"modwt")) {
-		modwt(wt,signal);
 	} else {
-		printf("Acceptable WT methods are - dwt,swt and modwt\n");
+		printf("Acceptable WT methods are - dwt and swt\n");
+		exit(-1);
 	}
 
 	len = wt->length[0];
@@ -120,22 +148,43 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	dout = (double*)malloc(sizeof(double) * dlen);
 	risk = (double*)malloc(sizeof(double) * dlen);
 	dsum = (double*)malloc(sizeof(double) * dlen);
+	lnoise = (double*)malloc(sizeof(double) * J);
 
 	iter = wt->length[0];
 
-	for (i = 1; i < J; ++i) {
-		iter += wt->length[i];
+	if(!strcmp(level,"first")) {
+		for (i = 1; i < J; ++i) {
+			iter += wt->length[i];
+		}
+
+		for(i = 0; i < dlen;++i) {
+			dout[i] = fabs(wt->output[iter+i]);
+		}
+
+		sigma = median(dout,dlen) / 0.6745;
+		for(it = 0; it < J;++it) {
+			lnoise[it] = sigma;
+		}
+	} else if(!strcmp(level,"all")){
+		for(it = 0; it < J;++it) {
+			dlen = wt->length[it+1];
+			for(i = 0; i < dlen;++i) {
+				dout[i] = fabs(wt->output[iter+i]);
+			}
+			sigma = median(dout,dlen) / 0.6745;
+			lnoise[it] = sigma;
+			iter += dlen;
+		}
+
+	} else {
+		printf("Acceptable Noise estimation level values are - first and all \n");
+		exit(-1);
 	}
 
-	for(i = 0; i < dlen;++i) {
-		dout[i] = fabs(wt->output[iter+i]);
-	}
-
-	sigma = median(dout,dlen) / 0.6745;
 
 	for(it = 0; it < J;++it) {
 		dwt_len = wt->length[it+1];
-
+		sigma = lnoise[it];
 
 		if ( sigma < 0.00000001) {
 			td = 0;
@@ -202,13 +251,11 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		idwt(wt,denoised);
 	} else if(!strcmp(method,"swt")) {
 		iswt(wt,denoised);
-	} else if(!strcmp(method,"modwt")) {
-		imodwt(wt,denoised);
 	}
-
 	free(dout);
 	free(dsum);
 	free(risk);
+	free(lnoise);
 	wave_free(wave);
 	wt_free(wt);
 }
