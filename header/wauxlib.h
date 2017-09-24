@@ -1,11 +1,10 @@
 /*
 Copyright (c) 2017, Rafat Hussain
 */
-#ifndef DENOISE_H_
-#define DENOISE_H_
+#ifndef WAUXLIB_H_
+#define WAUXLIB_H_
 
-
-#include "waux.h"
+#include "wavelib.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,10 +42,15 @@ void setDenoiseParameters(denoise_object obj, char *thresh,char *level);
 
 void denoise_free(denoise_object object);
 
+void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, int J,double *lpr,
+		double *hpr,int lf,int siglength,double *reccoeff);
+
+double mad(double *x, int N);
+
 
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif /* DENOISE_H_ */
+#endif /* WAUXLIB_H_ */

@@ -1,6 +1,26 @@
 
 #include "denoise.h"
 
+denoise_object denoise_init(int length, int J,char* wname) {
+	denoise_object obj = NULL;
+
+	obj = (denoise_object)malloc(sizeof(struct denoise_set) +sizeof(double));
+
+	obj->N = length;
+	obj->J = J;
+
+	strcpy(obj->wname,wname);
+
+	//Set Default Values
+	strcpy(obj->dmethod,"sureshrink");
+	strcpy(obj->ext,"sym");
+	strcpy(obj->level,"first");
+	strcpy(obj->thresh,"soft");
+	strcpy(obj->wmethod,"dwt");
+
+	return obj;
+}
+
 void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised) {
 	int filt_len,iter,i,dlen,dwt_len,sgn, MaxIter,it;
 	double sigma,td,tmp;
@@ -25,8 +45,6 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		dwt(wt,signal);
 	} else if(!strcmp(method,"swt")) {
 		swt(wt,signal);
-	} else if(!strcmp(method,"modwt")) {
-		modwt(wt,signal);
 	} else {
 		printf("Acceptable WT methods are - dwt,swt and modwt\n");
 		exit(-1);
@@ -102,8 +120,6 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 		idwt(wt,denoised);
 	} else if(!strcmp(method,"swt")) {
 		iswt(wt,denoised);
-	} else if(!strcmp(method,"modwt")) {
-		imodwt(wt,denoised);
 	}
 
 	free(dout);
@@ -258,4 +274,86 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	free(lnoise);
 	wave_free(wave);
 	wt_free(wt);
+}
+
+void denoise(denoise_object obj, double *signal,double *denoised) {
+	if(!strcmp(obj->dmethod,"sureshrink")) {
+		sureshrink(signal,obj->N,obj->J,obj->wname,obj->wmethod,obj->ext,obj->thresh,obj->level,denoised);
+	} else if(!strcmp(obj->dmethod,"visushrink")) {
+		visushrink(signal,obj->N,obj->J,obj->wname,obj->wmethod,obj->ext,obj->thresh,obj->level,denoised);;
+	} else {
+		printf("Acceptable Denoising methods are - sureshrink and visushrink\n");
+		exit(-1);
+	}
+}
+
+void setDenoiseMethod(denoise_object obj, char *dmethod) {
+	if (!strcmp(dmethod, "sureshrink")) {
+		strcpy(obj->dmethod, "sureshrink");
+	}
+	else if (!strcmp(dmethod, "visushrink")) {
+		strcpy(obj->dmethod, "visushrink");
+	}
+	else {
+		printf("Acceptable Denoising methods are - sureshrink and visushrink\n");
+		exit(-1);
+	}
+}
+
+void setDenoiseWTMethod(denoise_object obj, char *wmethod) {
+	if (!strcmp(wmethod, "dwt")) {
+		strcpy(obj->wmethod, "dwt");
+	}
+	else if (!strcmp(wmethod, "swt")) {
+		strcpy(obj->wmethod, "swt");
+	}
+	else {
+		printf("Wavelet decomposition method can be either dwt or swt");
+		exit(-1);
+	}
+}
+
+void setDenoiseWTExtension(denoise_object obj, char *extension) {
+	if (!strcmp(extension, "sym")) {
+		strcpy(obj->ext, "sym");
+	}
+	else if (!strcmp(extension, "per")) {
+		strcpy(obj->ext, "per");
+	}
+	else {
+		printf("Signal extension can be either per or sym");
+		exit(-1);
+	}
+}
+
+void setDenoiseParameters(denoise_object obj, char *thresh,char *level) {
+
+	//Set thresholding
+	if (!strcmp(thresh, "soft")) {
+		strcpy(obj->thresh, "soft");
+	}
+	else if (!strcmp(thresh, "hard")) {
+		strcpy(obj->thresh, "hard");
+	}
+	else {
+		printf("Thresholding Method - soft or hard");
+		exit(-1);
+	}
+
+	// Set Noise estimation at the first level or at all levels
+
+	if (!strcmp(level, "first")) {
+		strcpy(obj->level, "first");
+	}
+	else if (!strcmp(level, "all")) {
+		strcpy(obj->level, "all");
+	}
+	else {
+		printf("Noise Estimation at level - first or all");
+		exit(-1);
+	}
+}
+
+void denoise_free(denoise_object object) {
+	free(object);
 }

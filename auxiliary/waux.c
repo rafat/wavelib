@@ -11,6 +11,35 @@ int compare_double(const void* a, const void* b)
 
 }
 
+double mean(double* vec, int N) {
+	int i;
+	double m;
+	m = 0.0;
+
+	for (i = 0; i < N; ++i) {
+		m+= vec[i];
+	}
+	m = m / N;
+	return m;
+}
+
+double var(double* vec, int N) {
+	double v,temp,m;
+	int i;
+	v = 0.0;
+	m = mean(vec,N);
+
+	for (i = 0; i < N; ++i) {
+		temp = vec[i] - m;
+		v+= temp*temp;
+	}
+
+	v = v / N;
+
+	return v;
+
+}
+
 double median(double *x, int N) {
 	double sigma;
 
@@ -240,5 +269,54 @@ void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, 
 	}
 
 	free(out);
+
+}
+
+
+void autocovar(double* vec,int N, double* acov,int M) {
+	double m,temp1,temp2;
+	int i,t;
+	m = mean(vec,N);
+
+	if ( M > N) {
+		M = N-1;
+		printf("\n Lag is greater than the length N of the input vector. It is automatically set to length N - 1.\n");
+		printf("\n The Output Vector only contains N calculated values.");
+	} else if ( M < 0) {
+		M = 0;
+	}
+
+	for(i = 0; i < M;i++) {
+		acov[i] = 0.0;
+		for (t = 0; t < N-i;t++) {
+			temp1 = vec[t] - m;
+			temp2 = vec[t+i] - m;
+			acov[i]+= temp1*temp2;
+		}
+		acov[i] = acov[i] / N;
+
+	}
+
+
+}
+
+void autocorr(double* vec,int N,double* acorr, int M) {
+	double var;
+	int i;
+	if (M > N) {
+		M = N - 1;
+		printf("\n Lag is greater than the length N of the input vector. It is automatically set to length N - 1.\n");
+		printf("\n The Output Vector only contains N calculated values.");
+	}
+	else if (M < 0) {
+		M = 0;
+	}
+	autocovar(vec,N,acorr,M);
+	var = acorr[0];
+	acorr[0] = 1.0;
+
+	for(i = 1; i < M; i++) {
+		acorr[i] = acorr[i]/var;
+	}
 
 }

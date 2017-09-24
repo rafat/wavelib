@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../header/denoise.h"
+
+#include "../header/wauxlib.h"
 
 static double rmse(int N,double *x,double *y) {
 	double rms;
@@ -49,7 +50,9 @@ int main() {
 	// gcc -Wall -I../header -L../Bin denoisetest.c -o denoise -lwauxlib -lwavelib -lm
 	double *sig,*inp,*oup;
 	int i,N,J;
-	FILE *ifp,*ofp;
+	FILE *ifp;
+
+	denoise_object obj;
 	double temp[2400];
 
 	char *wname = "db5";
@@ -100,16 +103,23 @@ int main() {
 	for(i = 0; i < N;++i) {
 		inp[i] = temp[i];
 	}
-	visushrink(inp,N,J,wname,method,ext,thresh,level,oup);
+	obj = denoise_init(N,J,wname);
+	setDenoiseMethod(obj,"visushrink");// sureshrink is also the default. The other option is visushrink
+	setDenoiseWTMethod(obj,method);// Default is dwt. the other option is swt
+	setDenoiseWTExtension(obj,ext);// Default is sym. the other option is per
+	setDenoiseParameters(obj,thresh,level);// Default for thresh is soft. Other option is hard
+	// Default for level is first. The other option is all
+
+	denoise(obj,inp,oup);
+
+	// Alternative to denoise_object
+	// Just use visushrink and sureshrink functions
+	//visushrink(inp,N,J,wname,method,ext,thresh,level,oup);
 	//sureshrink(inp,N,J,wname,method,ext,thresh,level,oup);
 
 	//ofp = fopen("denoiseds.txt", "w");
 
-	for(i = 0; i < N;++i) {
-		//fprintf(ofp,"%g \n",oup[i]);
-	}
 
-	//fclose(ofp);
 
 	printf("RMSE %g\n",rmse(N,sig,inp));
 	printf("Corr Coeff %g\n",corrcoef(N,sig,inp));
@@ -119,6 +129,6 @@ int main() {
 
 	free(sig);
 	free(inp);
-	free(oup);
+	denoise_free(obj);
 	return 0;
 }
