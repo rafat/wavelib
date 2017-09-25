@@ -131,5 +131,6 @@ int main() {
 	free(sig);
 	free(inp);
 	denoise_free(obj);
+	free(oup);
 	return 0;
 }
