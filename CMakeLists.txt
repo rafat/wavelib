@@ -46,5 +46,6 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(auxiliary)
+add_subdirectory(test) 
 
 install(DIRECTORY ${WAVELIB_SRC_ROOT}/include/ DESTINATION include FILES_MATCHING PATTERN "*.h")

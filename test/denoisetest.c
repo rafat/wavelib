@@ -120,10 +120,11 @@ int main() {
 	//ofp = fopen("denoiseds.txt", "w");
 
 
-
+	printf("Signal - Noisy Signal Stats \n");
 	printf("RMSE %g\n",rmse(N,sig,inp));
 	printf("Corr Coeff %g\n",corrcoef(N,sig,inp));
 
+	printf("Signal - DeNoised Signal Stats \n");
 	printf("RMSE %g\n",rmse(N,sig,oup));
 		printf("Corr Coeff %g\n",corrcoef(N,sig,oup));
 
