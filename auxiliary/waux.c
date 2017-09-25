@@ -116,6 +116,7 @@ void getDWTDetail(wt_object wt, double *detail, int N, int level) {
 
 	if (level > J || level < 1) {
 		printf("The decomposition only has 1,..,%d levels", J);
+		exit(-1);
 	}
 
 	iter = wt->length[0];

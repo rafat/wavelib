@@ -233,7 +233,6 @@ void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 					risk[i] = ((double)dwt_len - 2 * ((double)i + 1) +dsum[i] +
 							dout[i]*((double)dwt_len - 1 -(double) i))/(double)dwt_len;
 				}
-				printf(" \n");
 				min_index = minindex(risk,dwt_len);
 				thr = sqrt(dout[min_index]);
 				td = thr < tv ? thr : tv;
