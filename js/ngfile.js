@@ -489,35 +489,149 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
         //console.log(wave.length);
 
         Module._free(inpHeap.byteOffset);
-        Module._free(outHeap.byteOffset);
-        Module._free(filtHeap.byteOffset);
-        Module._free(lenHeap.byteOffset);
+        //Module._free(outHeap.byteOffset);
+        //Module._free(filtHeap.byteOffset);
+        //Module._free(lenHeap.byteOffset);
 
-        $scope.wdisplays = new Array(J + 3);
-        $scope.wdisplays[0] = "Input Signal";
-        $scope.wdisplays[1] = "Full Decomposition";
-        $scope.wdisplays[2] = "Approx at Level " + J;
+        $scope.wdisplays = new Array(J + 2);
+        $scope.wdisplays[0] = "Full Decomposition";
+        $scope.wdisplays[1] = "Approx at Level " + J;
 
-        for (var i = 3; i < J + 3; i++) {
-            $scope.wdisplays[i] = "Details at Level " + (J + 3 - i);
+        for (var i = 2; i < J + 2; i++) {
+            $scope.wdisplays[i] = "Details at Level " + (J + 2 - i);
         }
 
+        var trace = [];
         var lbl = [];
-        var sigData = [];
-        for (var i = 0; i < wave.outLength; ++i) {
+       
+
+        for (var i = 0; i < wave.sigLength; ++i) {
             lbl[i] = i;
-            sigData[i] = wave.output[i];
         }
 
-        var g = {
-          x: lbl,
-          y: sigData,
-          type: 'scatter'
+        trace[0] = {
+            x: lbl,
+            y: [].slice.call(wave.sigData),
+            name: 'Signal',
+            yaxis: 'y3',
+            type: 'scatter'
+        };
+
+        var namea = "Apprx "+J;
+
+        if (method == "dwt") {
+            var wreccoeff = Module.cwrap('wreccoeff','number',['string','number','number','string','number','number','number','number','number']);
+
+            var coefflength = (J+1) * wave.sigLength;
+
+            var coeffdata = coefflength * wave.sigData.BYTES_PER_ELEMENT;
+            var coeffPtr = Module._malloc(coeffdata);
+            var coeffHeap = new Uint8Array(Module.HEAPU8.buffer, coeffPtr, coeffdata);
+
+            wreccoeff(method,outHeap.byteOffset, lenHeap.byteOffset,ext,J,filtHeap.byteOffset,flength,N,coeffHeap.byteOffset);
+
+            wave.reccoeff = new Float64Array(coeffHeap.buffer, coeffHeap.byteOffset, coefflength);
+
+            Module._free(outHeap.byteOffset);
+            Module._free(filtHeap.byteOffset);
+            Module._free(lenHeap.byteOffset);
+            Module._free(coeffHeap.byteOffset);
+
+            //console.log(sigAppx);
+
+            trace[1] = {
+                x: lbl,
+                y: [].slice.call(wave.reccoeff.slice(0,wave.sigLength)),
+                name: namea,
+                yaxis: 'y2',
+                type: 'scatter'
+            };
+
+            var iter = wave.sigLength;
+
+            for(var j = J; j > 0;--j) {
+
+                //for (var i = 0; i < wave.sigLength; ++i) {
+                    //sigData[i] = wave.reccoeff[iter+i];
+                //}
+
+                var named = "Detail "+j;
+
+                trace[J-j+2] = {
+                    x: lbl,
+                    y: [].slice.call(wave.reccoeff.slice(iter,iter+wave.sigLength)),
+                    name: named,
+                    yaxis: 'y1',
+                    type: 'scatter'
+                };
+
+                iter += wave.sigLength;;
+            }
+
+    
+        } else {
+
+            Module._free(outHeap.byteOffset);
+            Module._free(filtHeap.byteOffset);
+            Module._free(lenHeap.byteOffset);
+
+            wave.reccoeff = wave.output.slice();
+
+            trace[1] = {
+                x: lbl,
+                y: [].slice.call(wave.output.slice(0,wave.sigLength)),
+                name: namea,
+                yaxis: 'y2',
+                type: 'scatter'
+            };
+
+            var iter = wave.sigLength;
+
+            for(var j = J; j > 0;--j) {
+
+                //for (var i = 0; i < wave.sigLength; ++i) {
+                    //sigData[i] = wave.reccoeff[iter+i];
+                //}
+
+                var named = "Detail "+j;
+
+                trace[J-j+2] = {
+                    x: lbl,
+                    y: [].slice.call(wave.output.slice(iter,iter+wave.sigLength)),
+                    name: named,
+                    yaxis: 'y1',
+                    type: 'scatter'
+                };
+
+                iter += wave.sigLength;;
+            }
         }
 
-        var gdata = [g];
+        var layout = {
+            yaxis3: {domain: [0.7,1],title: 'Signal'},
+            legend: {traceorder: 'reversed'},
+            yaxis2: {domain: [0.35, 0.65],title: 'Approximation'},
+            yaxis1: {domain: [0, 0.3],title: 'Details'}
+        };
 
-        Plotly.newPlot('graph1',gdata);
+        Plotly.newPlot('graph1',trace,layout);
+
+        //var lbl = [];
+        //var sigData = [];
+        //for (var i = 0; i < wave.outLength; ++i) {
+        //    lbl[i] = i;
+        //    sigData[i] = wave.output[i];
+        //}
+
+        //var g = {
+        //  x: lbl,
+        //  y: sigData,
+        //  type: 'scatter'
+        //}
+
+        //var gdata = [g];
+
+        //Plotly.newPlot('graph1',gdata);
 /*
         g = new Dygraph(document.getElementById("graph1"),
                     lbl,
@@ -535,45 +649,148 @@ app.controller('displayController', function ($scope, $http, $modal, wave) {
 
     $scope.updateGraph = function () {
         //console.log($scope.selected.wdisplay);
+        var trace = [];
         var lbl = [];
+       var name1,name2;
+
+        for (var i = 0; i < wave.sigLength; ++i) {
+            lbl[i] = i;
+        }
+
+        trace[0] = {
+            x: lbl,
+            y: [].slice.call(wave.sigData),
+            name: 'Signal',
+            yaxis: 'y3',
+            type: 'scatter'
+        };
         var sigData = [];
         if ($scope.selected.wdisplay == 0) {
-            for (var i = 0; i < wave.sigLength; ++i) {
-                lbl[i] = i ;
-                sigData[i] = wave.sigData[i];
+            name1 = 'Details';
+            name2 = 'Approximation';
+            if (wave.method == "dwt") {
+    
+                trace[1] = {
+                    x: lbl,
+                    y: [].slice.call(wave.reccoeff.slice(0,wave.sigLength)),
+                    name: namea,
+                    yaxis: 'y2',
+                    type: 'scatter'
+                };
+    
+                var iter = wave.sigLength;
+    
+                for(var j = wave.J; j > 0;--j) {
+    
+                    //for (var i = 0; i < wave.sigLength; ++i) {
+                        //sigData[i] = wave.reccoeff[iter+i];
+                    //}
+    
+                    var named = "Detail "+j;
+    
+                    trace[wave.J-j+2] = {
+                        x: lbl,
+                        y: [].slice.call(wave.reccoeff.slice(iter,iter+wave.sigLength)),
+                        name: named,
+                        yaxis: 'y1',
+                        type: 'scatter'
+                    };
+    
+                    iter += wave.sigLength;;
+                }
+    
+        
+            } else {
+    
+                trace[1] = {
+                    x: lbl,
+                    y: [].slice.call(wave.output.slice(0,wave.sigLength)),
+                    name: namea,
+                    yaxis: 'y2',
+                    type: 'scatter'
+                };
+    
+                var iter = wave.sigLength;
+    
+                for(var j = wave.J; j > 0;--j) {
+    
+                    //for (var i = 0; i < wave.sigLength; ++i) {
+                        //sigData[i] = wave.reccoeff[iter+i];
+                    //}
+    
+                    var named = "Detail "+j;
+    
+                    trace[wave.J-j+2] = {
+                        x: lbl,
+                        y: [].slice.call(wave.output.slice(iter,iter+wave.sigLength)),
+                        name: named,
+                        yaxis: 'y1',
+                        type: 'scatter'
+                    };
+    
+                    iter += wave.sigLength;;
+                }
             }
         } else if ($scope.selected.wdisplay == 1) {
-            for (var i = 0; i < wave.outLength; ++i) {
-                lbl[i] = i;
-                sigData[i] = wave.output[i];
-            }
-        } else if ($scope.selected.wdisplay == 2) {
-            for (var i = 0; i < wave.length[0]; ++i) {
-                lbl[i] = i;
-                sigData[i] = wave.output[i];
-            }
+            var namea = "Approx.(Rec)";
+            name2 = namea;
+            trace[1] = {
+                x: lbl,
+                y: [].slice.call(wave.reccoeff.slice(0,wave.sigLength)),
+                name: namea,
+                yaxis: 'y2',
+                type: 'scatter'
+            };
+            namea = "Approx.";
+            name1 = namea;
+            trace[2] = {
+                x: lbl,
+                y: [].slice.call(wave.output.slice(0,wave.length[0])),
+                name: namea,
+                yaxis: 'y1',
+                type: 'scatter'
+            };
+
         } else {
-            var k = parseInt($scope.selected.wdisplay) - 2;
+            var k = parseInt($scope.selected.wdisplay) - 1;
             var start_index = 0;
+            var rstart_index = 0;
             for (var i = 0; i < k; i++) {
                 start_index += wave.length[i];
+                rstart_index += wave.sigLength;
             }
             var end_index = start_index + wave.length[k];
-            for (var i = 0; i < end_index - start_index; ++i) {
-                lbl[i] = i;
-                sigData[i] = wave.output[start_index + i];
-            }
+            var rend_index = rstart_index + wave.sigLength;
+
+            var namea = "Detail(Rec)";
+            name2 = namea;
+            trace[1] = {
+                x: lbl,
+                y: [].slice.call(wave.reccoeff.slice(rstart_index,rend_index)),
+                name: namea,
+                yaxis: 'y2',
+                type: 'scatter'
+            };
+            namea = "Detail";
+            name1 = namea;
+            trace[2] = {
+                x: lbl,
+                y: [].slice.call(wave.output.slice(start_index,end_index)),
+                name: namea,
+                yaxis: 'y1',
+                type: 'scatter'
+            };
+            
         }
 
-        var g = {
-          x: lbl,
-          y: sigData,
-          type: 'scatter'
-        }
+        var layout = {
+            yaxis3: {domain: [0.7,1],title: 'Signal'},
+            legend: {traceorder: 'reversed'},
+            yaxis2: {domain: [0.35, 0.65],title: name2},
+            yaxis1: {domain: [0, 0.3],title: name1}
+        };
 
-        var gdata = [g];
-
-        Plotly.newPlot('graph1',gdata);
+        Plotly.newPlot('graph1',trace,layout);
 /*
         g = new Dygraph(document.getElementById("graph1"),
                     lbl,
@@ -823,18 +1040,16 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         "id": "1",
         "method": "DWT (Periodic)"
     }
-    //, {
-    //    "id": "2",
-    //    "method": "SWT"
-    //}, {
-    //    "id": "3",
-    //    "method": "MODWT"
-    //}
+    , {
+        "id": "2",
+        "method": "SWT"
+    }
     ];
 
     $scope.denoiseSignal = function () {
         var method;
         var ext = "NULL";
+        var noise_level;
         var dnmethod;
         var threshold;
 
@@ -854,10 +1069,8 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         } else if ($scope.selected.method.id == "2") {
             method = "swt";
             ext = "per";
-        } else if ($scope.selected.method.id == "3") {
-            method = "modwt";
-            ext = "per";
         }
+
         //console.log($scope.selected.dnmethod);
         if ($scope.selected.family.family == "biorthogonal" && method == "modwt") {
             alert("the Method MODWT is not implemented for biorthogonal wavelets");
@@ -883,11 +1096,13 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
             }
         }
 
+        noise_level = "first"; //TODO : make it a selectable value - "first" or "all"
         wave.J = J;
         wave.method = method;
         wave.ext = ext;
         wave.dnmethod = dnmethod;
         wave.threshold = threshold;
+        wave.noise_level = noise_level;
         //wave.output = [];
         //wave.filters = [];
         wave.wname = $scope.selected.wavelet.wavelet;
@@ -896,7 +1111,7 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         //console.log(wave.sigData, N, wave.wname, method, J, ext, wave.output, wave.length, wave.lenlength, wave.filters, flength);
 
 
-        var wave_denoise = Module.cwrap('wdenoise', 'null', ['number', 'number', 'number','string','string','string','string','string','number']);
+        var wave_denoise = Module.cwrap('wdenoise', 'null', ['number', 'number', 'number','string','string','string','string','string','string','number']);
         //[wave.sigData, N, wave.wname, method, J, ext, wave.output, wave.length, wave.lenlength, wave.filters, flength]);
         //[wave.sigData,N,J,wave.wname,method,ext,dnmethod.threshold,wave.denoised]
         //input signal on heap
@@ -912,7 +1127,7 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         //inpHeap.set(new Uint8Array(wave.sigData.buffer));
 
         //wave_transform(inpHeap.byteOffset, N, wave.wname, method, J, ext, outHeap.byteOffset, lenHeap.byteOffset, filtHeap.byteOffset);
-        wave_denoise(inpHeap.byteOffset,N,J,dnmethod,wave.wname,method,ext,threshold,outHeap.byteOffset)
+        wave_denoise(inpHeap.byteOffset,N,J,dnmethod,wave.wname,method,ext,threshold,noise_level,outHeap.byteOffset)
 
         wave.denoised = new Float64Array(outHeap.buffer, outHeap.byteOffset, wave.sigLength);
         //console.log(wave.filter);
@@ -920,27 +1135,70 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         Module._free(inpHeap.byteOffset);
         Module._free(outHeap.byteOffset);
 
-        $scope.wdisplays = new Array(3);
-        $scope.wdisplays[0] = "Input Signal";
-        $scope.wdisplays[1] = "Denoised Signal";
-        $scope.wdisplays[2] = "Noise";
+        $scope.wdisplays = new Array(4);
+        $scope.wdisplays[0] = "FULL VIEW";
+        $scope.wdisplays[1] = "Input Signal";
+        $scope.wdisplays[2] = "Denoised Signal";
+        $scope.wdisplays[3] = "Noise";
+        $scope.wdisplays[4] = "Superimposed View";
 
         var lbl = [];
         var sigData = [];
+        var denoised = [];
+        var noise = [];
+        var trace = [];
+
+        var ya = [];
+        
+        for(var i = 1; i < 4;++i) {
+          ya[i-1] = "y"+i;
+        }
+
         for (var i = 0; i < wave.sigLength; ++i) {
             lbl[i] = i;
-            sigData[i] = wave.denoised[i];
+            sigData[i] = wave.sigData[i];
         }
 
-        var g = {
-          x: lbl,
-          y: sigData,
-          type: 'scatter'
+        trace[0] = {
+            x: lbl,
+            y: sigData,
+            name: 'Signal',
+            yaxis: ya[2],
+            type: 'scatter'
+        };
+
+        for (var i = 0; i < wave.sigLength; ++i) {
+            denoised[i] = wave.denoised[i];
         }
 
-        var gdata = [g];
+        trace[1] = {
+            x: lbl,
+            y: denoised,
+            name: 'DeNoised',
+            yaxis: ya[1],
+            type: 'scatter'
+        };
 
-        Plotly.newPlot('graph1',gdata);
+        for (var i = 0; i < wave.sigLength; ++i) {
+            noise[i] = wave.sigData[i] - wave.denoised[i];
+        }
+
+        trace[2] = {
+            x: lbl,
+            y: noise,
+            name: 'Noise',
+            yaxis: ya[0],
+            type: 'scatter'
+        };
+
+        var layout = {
+            yaxis3: {domain: [0.7,1],title: 'Signal'},
+            legend: {traceorder: 'reversed'},
+            yaxis2: {domain: [0.35, 0.65],title: 'DeNoised'},
+            yaxis1: {domain: [0, 0.3],title: 'Noise'}
+          };
+
+        Plotly.newPlot('graph1',trace,layout);
 /*
         g = new Dygraph(document.getElementById("graph1"),
                     lbl,
@@ -961,31 +1219,119 @@ app.controller('denoiseController', function ($scope, $http, $modal, wave) {
         var lbl = [];
         var sigData = [];
         if ($scope.selected.wdisplay == 0) {
+            var denoised = [];
+            var noise = [];
+            var trace = [];
+    
+            var ya = [];
+            
+            for(var i = 1; i < 4;++i) {
+              ya[i-1] = "y"+i;
+            }
+    
             for (var i = 0; i < wave.sigLength; ++i) {
-                lbl[i] = i ;
+                lbl[i] = i;
                 sigData[i] = wave.sigData[i];
             }
-        } else if ($scope.selected.wdisplay == 1) {
+    
+            trace[0] = {
+                x: lbl,
+                y: sigData,
+                name: 'Signal',
+                yaxis: ya[2],
+                type: 'scatter'
+            };
+    
             for (var i = 0; i < wave.sigLength; ++i) {
-                lbl[i] = i;
-                sigData[i] = wave.denoised[i];
+                denoised[i] = wave.denoised[i];
             }
-        } else if ($scope.selected.wdisplay == 2) {
+    
+            trace[1] = {
+                x: lbl,
+                y: denoised,
+                name: 'DeNoised',
+                yaxis: ya[1],
+                type: 'scatter'
+            };
+    
             for (var i = 0; i < wave.sigLength; ++i) {
-                lbl[i] = i;
-                sigData[i] = wave.sigData[i] - wave.denoised[i];
+                noise[i] = wave.sigData[i] - wave.denoised[i];
             }
-        } 
+    
+            trace[2] = {
+                x: lbl,
+                y: noise,
+                name: 'Noise',
+                yaxis: ya[0],
+                type: 'scatter'
+            };
+    
+            var layout = {
+                yaxis3: {domain: [0.7,1],title: 'Signal'},
+                legend: {traceorder: 'reversed'},
+                yaxis2: {domain: [0.35, 0.65],title: 'DeNoised'},
+                yaxis1: {domain: [0, 0.3],title: 'Noise'}
+              };
+    
+            Plotly.newPlot('graph1',trace,layout);
 
-        var g = {
-          x: lbl,
-          y: sigData,
-          type: 'scatter'
+        }  else if ($scope.selected.wdisplay == 4) {
+            var denoised = [];
+    
+            for (var i = 0; i < wave.sigLength; ++i) {
+                lbl[i] = i;
+                sigData[i] = wave.sigData[i];
+            }
+    
+            trace1 = {
+                x: lbl,
+                y: sigData,
+                name: 'Signal',
+                type: 'scatter'
+            };
+    
+            for (var i = 0; i < wave.sigLength; ++i) {
+                denoised[i] = wave.denoised[i];
+            }
+    
+            trace2 = {
+                x: lbl,
+                y: denoised,
+                name: 'DeNoised',
+                type: 'scatter'
+            };
+
+            var gdata = [trace1,trace2];
+
+            Plotly.newPlot('graph1',gdata);
+
+        } else {
+            if ($scope.selected.wdisplay == 1) {
+                for (var i = 0; i < wave.sigLength; ++i) {
+                    lbl[i] = i ;
+                    sigData[i] = wave.sigData[i];
+                }
+            } else if ($scope.selected.wdisplay == 2) {
+                for (var i = 0; i < wave.sigLength; ++i) {
+                    lbl[i] = i;
+                    sigData[i] = wave.denoised[i];
+                }
+            } else if ($scope.selected.wdisplay == 3) {
+                for (var i = 0; i < wave.sigLength; ++i) {
+                    lbl[i] = i;
+                    sigData[i] = wave.sigData[i] - wave.denoised[i];
+                }
+            } 
+            var g = {
+            x: lbl,
+            y: sigData,
+            type: 'scatter'
+            }
+
+            var gdata = [g];
+
+            Plotly.newPlot('graph1',gdata);
         }
-
-        var gdata = [g];
-
-        Plotly.newPlot('graph1',gdata);
 
     }
 
