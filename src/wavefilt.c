@@ -3311,7 +3311,6 @@ void copy_reverse(const double *in, int N,double *out)
 
 void qmf_wrev(const double *in, int N, double *out)
 {
-    int count = 0;
     double *sigOutTemp;
     sigOutTemp = (double*)malloc(N*sizeof(double));
 

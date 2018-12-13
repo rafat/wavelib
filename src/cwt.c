@@ -8,31 +8,6 @@ C. Torrence and G. Compo, and is available at URL: http://atoc.colorado.edu/rese
 
 #include "cwt.h"
 
-static int factorial2(int N) {
-	int factorial,i;
-
-	factorial = 1;
-
-	for (i = 1; i <= N;++i) {
-		factorial *= i;
-	}
-
-	return factorial;
-}
-
-static double factorial3(int N) {
-	int i;
-	double factorial;
-
-	factorial = 1;
-
-	for (i = 1; i <= N; ++i) {
-		factorial *= i;
-	}
-
-	return factorial;
-}
-
 double factorial(int N) {
 	if (N > 40) {
 		printf("This program is only valid for N <= 40 \n");
@@ -366,7 +341,7 @@ double cdelta(int mother, double param, double psi0 ) {
 		scale[i] = s0*pow(2.0, (double)(i)*dj);
 	}
 
-	cwavelet(delta, N, dt, mother, param, s0, dj, jtot, N, wave, scale, period, coi);
+	cwavelet(delta, N, dt, mother, param, jtot, N, wave, scale, period, coi);
 
 	for (i = 0; i < N; ++i) {
 		mval[i] = 0;

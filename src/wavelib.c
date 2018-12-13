@@ -377,7 +377,7 @@ static void wconv(wt_object wt, double *sig, int N, double *filt, int L, double 
 }
 
 
-static void dwt_per(wt_object wt, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void dwt_per(wt_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int l,l2,isodd,i,t,len_avg;
 
 	len_avg = wt->wave->lpd_len;
@@ -433,7 +433,7 @@ static void dwt_per(wt_object wt, double *inp, int N, double *cA, int len_cA, do
 
 }
 
-static void wtree_per(wtree_object wt, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void wtree_per(wtree_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int l, l2, isodd, i, t, len_avg;
 
 	len_avg = wt->wave->lpd_len;
@@ -489,7 +489,7 @@ static void wtree_per(wtree_object wt, double *inp, int N, double *cA, int len_c
 
 }
 
-static void dwpt_per(wpt_object wt, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void dwpt_per(wpt_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int l, l2, isodd, i, t, len_avg;
 
 	len_avg = wt->wave->lpd_len;
@@ -545,7 +545,7 @@ static void dwpt_per(wpt_object wt, double *inp, int N, double *cA, int len_cA, 
 
 }
 
-static void dwt_sym(wt_object wt, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void dwt_sym(wt_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int i,l, t, len_avg;
 
 	len_avg = wt->wave->lpd_len;
@@ -574,7 +574,7 @@ static void dwt_sym(wt_object wt, double *inp, int N, double *cA, int len_cA, do
 
 }
 
-static void wtree_sym(wtree_object wt, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void wtree_sym(wtree_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int i, l, t, len_avg;
 
 	len_avg = wt->wave->lpd_len;
@@ -603,7 +603,7 @@ static void wtree_sym(wtree_object wt, double *inp, int N, double *cA, int len_c
 
 }
 
-static void dwpt_sym(wpt_object wt, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void dwpt_sym(wpt_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int i, l, t, len_avg;
 
 	len_avg = wt->wave->lpd_len;
@@ -632,7 +632,7 @@ static void dwpt_sym(wpt_object wt, double *inp, int N, double *cA, int len_cA, 
 
 }
 
-static void dwt1(wt_object wt,double *sig,int len_sig, double *cA, int len_cA, double *cD, int len_cD) {
+static void dwt1(wt_object wt,double *sig,int len_sig, double *cA, double *cD) {
 	int len_avg,D,lf;
 	double *signal,*cA_undec;
 	len_avg = (wt->wave->lpd_len + wt->wave->hpd_len) / 2;
@@ -760,10 +760,10 @@ void dwt(wt_object wt,const double *inp) {
 			len_cA = wt->length[J - iter];
 			N -= len_cA;
 			if ( !strcmp(wt->cmethod, "fft") || !strcmp(wt->cmethod, "FFT") ) {
-				dwt1(wt, orig, temp_len, orig2, len_cA, wt->params + N, len_cA);
+				dwt1(wt, orig, temp_len, orig2, wt->params + N);
 			}
 			else {
-				dwt_per(wt, orig, temp_len, orig2, len_cA, wt->params + N, len_cA);
+				dwt_per(wt, orig, temp_len, orig2, len_cA, wt->params + N);
 			}
 			temp_len = wt->length[J - iter];
 			if (iter == J - 1) {
@@ -796,10 +796,10 @@ void dwt(wt_object wt,const double *inp) {
 			len_cA = wt->length[J - iter];
 			N -= len_cA;
 			if (!strcmp(wt->cmethod, "fft") || !strcmp(wt->cmethod, "FFT")) {
-				dwt1(wt, orig, temp_len, orig2, len_cA, wt->params + N, len_cA);
+				dwt1(wt, orig, temp_len, orig2, wt->params + N);
 			}
 			else {
-				dwt_sym(wt, orig, temp_len, orig2, len_cA, wt->params + N, len_cA);
+				dwt_sym(wt, orig, temp_len, orig2, len_cA, wt->params + N);
 			}
 			temp_len = wt->length[J - iter];
 
@@ -878,9 +878,9 @@ void wtree(wtree_object wt,const double *inp) {
                         N = N2;
                         for(k = 0; k < p2;++k) {
                             if (iter == 0) {
-                               wtree_per(wt, orig, temp_len, wt->params + N, len_cA, wt->params + N + len_cA, len_cA);
+                               wtree_per(wt, orig, temp_len, wt->params + N, len_cA, wt->params + N + len_cA);
                             } else {
-                                wtree_per(wt, wt->params + Np + k * temp_len, temp_len, wt->params + N, len_cA, wt->params + N + len_cA, len_cA);
+                                wtree_per(wt, wt->params + Np + k * temp_len, temp_len, wt->params + N, len_cA, wt->params + N + len_cA);
                             }
                             N += 2 * len_cA;
                         }
@@ -913,9 +913,9 @@ void wtree(wtree_object wt,const double *inp) {
                         N = N2;
                         for(k = 0; k < p2;++k) {
                             if (iter == 0) {
-                                wtree_sym(wt, orig, temp_len, wt->params + N, len_cA, wt->params + N + len_cA, len_cA);
+                                wtree_sym(wt, orig, temp_len, wt->params + N, len_cA, wt->params + N + len_cA);
                             } else {
-                                wtree_sym(wt, wt->params + Np + k * temp_len, temp_len, wt->params + N, len_cA, wt->params + N + len_cA, len_cA);
+                                wtree_sym(wt, wt->params + Np + k * temp_len, temp_len, wt->params + N, len_cA, wt->params + N + len_cA);
                             }
                             N += 2 * len_cA;
                         }
@@ -1033,10 +1033,10 @@ void dwpt(wpt_object wt, const double *inp) {
 			N = N2;
 			for (k = 0; k < p2; ++k) {
 				if (iter == 0) {
-					dwpt_per(wt, orig, temp_len, tree + N, len_cA, tree + N + len_cA, len_cA);
+					dwpt_per(wt, orig, temp_len, tree + N, len_cA, tree + N + len_cA);
 				}
 				else {
-					dwpt_per(wt, tree + Np + k * temp_len, temp_len, tree + N, len_cA, tree + N + len_cA, len_cA);
+					dwpt_per(wt, tree + Np + k * temp_len, temp_len, tree + N, len_cA, tree + N + len_cA);
 				}
 				wt->costvalues[it2] = costfunc(tree + N, len_cA, wt->entropy, eparam);
 				it2++;
@@ -1073,10 +1073,10 @@ void dwpt(wpt_object wt, const double *inp) {
 			N = N2;
 			for (k = 0; k < p2; ++k) {
 				if (iter == 0) {
-					dwpt_sym(wt, orig, temp_len, tree + N, len_cA, tree + N + len_cA, len_cA);
+					dwpt_sym(wt, orig, temp_len, tree + N, len_cA, tree + N + len_cA);
 				}
 				else {
-					dwpt_sym(wt, tree + Np + k * temp_len, temp_len, tree + N, len_cA, tree + N + len_cA, len_cA);
+					dwpt_sym(wt, tree + Np + k * temp_len, temp_len, tree + N, len_cA, tree + N + len_cA);
 				}
 				wt->costvalues[it2] = costfunc(tree + N, len_cA, wt->entropy, eparam);
 				it2++;
@@ -1413,7 +1413,7 @@ void cwt(cwt_object wt, const double *inp) {
 	}
 	wt->smean /= N;
 
-	cwavelet(inp, N, wt->dt, wt->mother, wt->m, wt->s0, wt->dj, wt->J,npad,wt->params, wt->params+nj2, wt->params+nj2+j, wt->params+nj2+j2);
+	cwavelet(inp, N, wt->dt, wt->mother, wt->m, wt->J,npad,wt->params, wt->params+nj2, wt->params+nj2+j, wt->params+nj2+j2);
 
 }
 
@@ -1484,7 +1484,7 @@ static void idwt1(wt_object wt,double *temp, double *cA_up,double *cA, int len_c
 
 }
 
-static void idwt_per(wt_object wt, double *cA, int len_cA, double *cD, int len_cD,  double *X) {
+static void idwt_per(wt_object wt, double *cA, int len_cA, double *cD, double *X) {
 	int len_avg,i,l,m,n,t,l2;
 
 	len_avg = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
@@ -1515,7 +1515,7 @@ static void idwt_per(wt_object wt, double *cA, int len_cA, double *cD, int len_c
 	}
 }
 
-static void idwt_sym(wt_object wt, double *cA, int len_cA, double *cD, int len_cD, double *X) {
+static void idwt_sym(wt_object wt, double *cA, int len_cA, double *cD, double *X) {
 	int len_avg, i, l, m, n, t, v;
 
 	len_avg = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
@@ -1599,7 +1599,7 @@ void idwt(wt_object wt, double *dwtop) {
 
 			//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
 
-			idwt_per(wt,out, det_len, wt->output + iter, det_len, X_lp);
+			idwt_per(wt,out, det_len, wt->output + iter, X_lp);
 			for (k = lf/2 - 1; k < 2 * det_len + lf/2 - 1; ++k) {
 			out[k - lf/2 + 1] = X_lp[k];
 			}
@@ -1628,7 +1628,7 @@ void idwt(wt_object wt, double *dwtop) {
 
 			//idwt1(wt, temp, cA_up, out, det_len, wt->output + iter, det_len, X_lp, X_hp, out);
 
-			idwt_sym(wt, out, det_len, wt->output + iter, det_len, X_lp);
+			idwt_sym(wt, out, det_len, wt->output + iter, X_lp);
 			for (k = lf-2; k < 2 * det_len; ++k) {
 				out[k - lf + 2] = X_lp[k];
 			}
@@ -1702,7 +1702,7 @@ void idwt(wt_object wt, double *dwtop) {
 
 }
 
-static void idwpt_per(wpt_object wt, double *cA, int len_cA, double *cD, int len_cD, double *X) {
+static void idwpt_per(wpt_object wt, double *cA, int len_cA, double *cD, double *X) {
 	int len_avg, i, l, m, n, t, l2;
 
 	len_avg = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
@@ -1733,7 +1733,7 @@ static void idwpt_per(wpt_object wt, double *cA, int len_cA, double *cD, int len
 	}
 }
 
-static void idwpt_sym(wpt_object wt, double *cA, int len_cA, double *cD, int len_cD, double *X) {
+static void idwpt_sym(wpt_object wt, double *cA, int len_cA, double *cD, double *X) {
 	int len_avg, i, l, m, n, t, v;
 
 	len_avg = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
@@ -1757,13 +1757,12 @@ static void idwpt_sym(wpt_object wt, double *cA, int len_cA, double *cD, int len
 }
 
 void idwpt(wpt_object wt, double *dwtop) {
-	int J, U, i, lf, N, k,p,l;
+	int J, i, lf, k,p,l;
 	int app_len, det_len, index, n1, llb, index2, index3, index4,indexp,xlen;
 	double *X_lp, *X,  *out, *out2;
 	int *prep,*ptemp;
 
 	J = wt->J;
-	U = 2;
 	app_len = wt->length[0];
 	p = ipow2(J);
 	lf = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
@@ -1831,7 +1830,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = wt->output[index + k];
 							out2[k] = wt->output[index + det_len + k];
 						}
-						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_per(wt, out, det_len, out2, X_lp);
 						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
 							X[index3 + k - lf / 2 + 1] = X_lp[k];
 						}
@@ -1846,7 +1845,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = wt->output[index + k];
 							out2[k] = X[index4 + k];
 						}
-						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_per(wt, out, det_len, out2, X_lp);
 						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
 							X[index3 + k - lf / 2 + 1] = X_lp[k];
 						}
@@ -1860,7 +1859,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = X[index4 + k];
 							out2[k] = wt->output[index + k];
 						}
-						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_per(wt, out, det_len, out2, X_lp);
 						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
 							X[index3 + k - lf / 2 + 1] = X_lp[k];
 						}
@@ -1874,7 +1873,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = X[index4 + k];
 							out2[k] = X[index4 + indexp + k];
 						}
-						idwpt_per(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_per(wt, out, det_len, out2, X_lp);
 						for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
 							X[index3 + k - lf / 2 + 1] = X_lp[k];
 						}
@@ -1909,7 +1908,6 @@ void idwpt(wpt_object wt, double *dwtop) {
 		else if (!strcmp(wt->ext, "sym")) {
 			app_len = wt->length[0];
 			det_len = wt->length[1];
-			N = 2 * wt->length[J] - 1;
 
 			//X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
 			index = 0;
@@ -1939,7 +1937,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = wt->output[index + k];
 							out2[k] = wt->output[index + det_len + k];
 						}
-						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_sym(wt, out, det_len, out2, X_lp);
 						for (k = lf - 2; k < 2 * det_len; ++k) {
 							X[index3 + k - lf + 2] = X_lp[k];
 						}
@@ -1954,7 +1952,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = wt->output[index + k];
 							out2[k] = X[index4 + k];
 						}
-						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_sym(wt, out, det_len, out2, X_lp);
 						for (k = lf - 2; k < 2 * det_len; ++k) {
 							X[index3 + k - lf + 2] = X_lp[k];
 						}
@@ -1968,7 +1966,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = X[index4 + k];
 							out2[k] = wt->output[index + k];
 						}
-						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_sym(wt, out, det_len, out2, X_lp);
 						for (k = lf - 2; k < 2 * det_len; ++k) {
 							X[index3 + k - lf + 2] = X_lp[k];
 						}
@@ -1982,7 +1980,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 							out[k] = X[index4 + k];
 							out2[k] = X[index4 + indexp + k];
 						}
-						idwpt_sym(wt, out, det_len, out2, det_len, X_lp);
+						idwpt_sym(wt, out, det_len, out2, X_lp);
 						for (k = lf - 2; k < 2 * det_len; ++k) {
 							X[index3 + k - lf + 2] = X_lp[k];
 						}
@@ -2036,7 +2034,7 @@ void idwpt(wpt_object wt, double *dwtop) {
 }
 
 
-static void swt_per(wt_object wt,int M, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void swt_per(wt_object wt,int M, double *inp, int N, double *cA, int len_cA, double *cD) {
 	int l, l2, isodd, i, t, len_avg,j;
 
 	len_avg = M * wt->wave->lpd_len;
@@ -2172,15 +2170,14 @@ static void swt_fft(wt_object wt, double *inp) {
 }
 
 static void swt_direct(wt_object wt, double *inp) {
-	int i, J, temp_len, iter, M, N;
-	int lenacc, len_filt;
+	int i, J, temp_len, iter, M;
+	int lenacc;
 	double  *cA, *cD;
 
 	temp_len = wt->siglength;
 	J = wt->J;
 	wt->length[0] = wt->length[J] = temp_len;
 	wt->outlength = wt->length[J + 1] = (J + 1) * temp_len;
-	len_filt = wt->wave->filtlength;
 	M = 1;
 	for (iter = 1; iter < J; ++iter) {
 		M = 2 * M;
@@ -2203,13 +2200,11 @@ static void swt_direct(wt_object wt, double *inp) {
 		lenacc -= temp_len;
 		if (iter > 0) {
 			M = 2 * M;
-			N = M * len_filt;
 		}
 		else {
-			N = len_filt;
 		}
 
-		swt_per(wt, M, wt->params, temp_len, cA, temp_len, cD, temp_len);
+		swt_per(wt, M, wt->params, temp_len, cA, temp_len, cD);
 
 
 		for (i = 0; i < temp_len; ++i) {
