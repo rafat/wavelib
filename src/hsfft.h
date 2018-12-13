@@ -12,6 +12,8 @@
 #include <math.h>
 #include <string.h>
 
+#include "wavelib.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,11 +24,6 @@ extern "C" {
 #define fft_type double
 #endif
 
-
-typedef struct fft_t {
-  fft_type re;
-  fft_type im;
-} fft_data;
 /*
 #define SADD(a,b) ((a)+(b))
 
@@ -38,15 +35,6 @@ typedef struct fft_t {
 typedef struct fft_set* fft_object;
 
 fft_object fft_init(int N, int sgn);
-
-struct fft_set{
-	int N;
-	int sgn;
-	int factors[64];
-	int lf;
-	int lt;
-	fft_data twiddle[1];
-};
 
 void fft_exec(fft_object obj,fft_data *inp,fft_data *oup);
 

@@ -11,7 +11,6 @@
 #include "wavelib.h"
 #include "wtmath.h"
 
-
 wave_object wave_init(const char* wname) {
 	wave_object obj = NULL;
 	int retval;

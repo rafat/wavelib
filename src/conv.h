@@ -21,14 +21,6 @@ typedef struct conv_set* conv_object;
 
 conv_object conv_init(int N, int L);
 
-struct conv_set{
-	fft_real_object fobj;
-	fft_real_object iobj;
-	int ilen1;
-	int ilen2;
-	int clen;
-};
-
 int factorf(int M);
 
 int findnext(int M);
