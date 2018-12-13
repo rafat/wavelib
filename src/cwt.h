@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-void cwavelet(double *y, int N, double dt, int mother, double param, double s0, double dj, int jtot, int npad,
+void cwavelet(const double *y, int N, double dt, int mother, double param, int jtot, int npad,
 		double *wave, double *scale, double *period, double *coi);
 
 void psi0(int mother, double param, double *val, int *real);

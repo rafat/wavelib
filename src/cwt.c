@@ -142,7 +142,7 @@ static void wave_function(int nk, double dt,int mother, double param,double scal
 	}
 }
 
-void cwavelet(double *y, int N, double dt, int mother, double param, double s0, double dj, int jtot, int npad,
+void cwavelet(const double *y, int N, double dt, int mother, double param, int jtot, int npad,
 	double *wave, double *scale, double *period, double *coi) {
 
 	int i, j, k, iter;
