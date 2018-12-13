@@ -1,3 +1,4 @@
+#include "wauxlib.h"
 #include "waux.h"
 
 int compare_double(const void* a, const void* b)
@@ -11,7 +12,7 @@ int compare_double(const void* a, const void* b)
 
 }
 
-double mean(double* vec, int N) {
+double mean(const double* vec, int N) {
 	int i;
 	double m;
 	m = 0.0;
@@ -23,7 +24,7 @@ double mean(double* vec, int N) {
 	return m;
 }
 
-double var(double* vec, int N) {
+double var(const double* vec, int N) {
 	double v,temp,m;
 	int i;
 	v = 0.0;
@@ -69,7 +70,7 @@ double mad(double *x, int N) {
 	return sigma;
 }
 
-int minindex(double *arr, int N) {
+int minindex(const double *arr, int N) {
 	double min;
 	int index,i;
 
@@ -130,7 +131,7 @@ void getDWTDetail(wt_object wt, double *detail, int N, int level) {
 	}
 }
 
-void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, int J,double *lpr,
+void getDWTRecCoeff(double *coeff,int *length,const char *ctype,const char *ext, int level, int J,double *lpr,
 		double *hpr,int lf,int siglength,double *reccoeff) {
 
 	int i,j,k,det_len,N,l,m,n,v,t,l2;
@@ -274,7 +275,7 @@ void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, 
 }
 
 
-void autocovar(double* vec,int N, double* acov,int M) {
+void autocovar(const double* vec,int N, double* acov,int M) {
 	double m,temp1,temp2;
 	int i,t;
 	m = mean(vec,N);
@@ -301,7 +302,7 @@ void autocovar(double* vec,int N, double* acov,int M) {
 
 }
 
-void autocorr(double* vec,int N,double* acorr, int M) {
+void autocorr(const double* vec,int N,double* acorr, int M) {
 	double var;
 	int i;
 	if (M > N) {

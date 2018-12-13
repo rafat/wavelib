@@ -21,26 +21,21 @@ extern "C" {
 
 int compare_double(const void* a, const void* b);
 
-double mean(double* vec, int N);
+double mean(const double* vec, int N);
 
-double var(double* vec, int N);
+double var(const double* vec, int N);
 
 double median(double *x, int N);
 
-double mad(double *x, int N);
-
-int minindex(double *arr, int N);
+int minindex(const double *arr, int N);
 
 void getDWTAppx(wt_object wt, double *appx,int N);
 
 void getDWTDetail(wt_object wt, double *detail, int N, int level);
 
-void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, int J,double *lpr,
-		double *hpr,int lf,int siglength,double *reccoeff);
+void autocovar(const double* vec,int N,double* acov, int M);
 
-void autocovar(double* vec,int N,double* acov, int M);
-
-void autocorr(double* vec,int N,double* acorr, int M);
+void autocorr(const double* vec,int N,double* acorr, int M);
 
 
 #ifdef __cplusplus
