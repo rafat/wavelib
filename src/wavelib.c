@@ -2,9 +2,17 @@
   Copyright (c) 2014, Rafat Hussain
 */
 
-#include "wavelib.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-wave_object wave_init(char* wname) {
+#include "cwt.h"
+#include "wavelib.h"
+#include "wtmath.h"
+
+
+wave_object wave_init(const char* wname) {
 	wave_object obj = NULL;
 	int retval;
 	retval = 0;
@@ -30,7 +38,7 @@ wave_object wave_init(char* wname) {
 	return obj;
 }
 
-wt_object wt_init(wave_object wave,char* method, int siglength,int J) {
+wt_object wt_init(wave_object wave,const char* method, int siglength,int J) {
 	int size,i,MaxIter;
 	wt_object obj = NULL;
 
@@ -258,13 +266,13 @@ wpt_object wpt_init(wave_object wave, int siglength, int J) {
 	return obj;
 }
 
-cwt_object cwt_init(char* wave, double param,int siglength, double dt, int J) {
+cwt_object cwt_init(const char* wave, double param,int siglength, double dt, int J) {
 	cwt_object obj = NULL;
 	int N, i,nj2,ibase2,mother;
 	double s0, dj;
 	double t1;
 	int m, odd;
-	char *pdefault = "pow";
+	const char *pdefault = "pow";
 
 	m = (int)param;
 	odd = 1;
@@ -700,7 +708,7 @@ static void dwt1(wt_object wt,double *sig,int len_sig, double *cA, int len_cA, d
 	free(cA_undec);
 }
 
-void dwt(wt_object wt,double *inp) {
+void dwt(wt_object wt,const double *inp) {
 	int i,J,temp_len,iter,N,lp;
 	int len_cA;
 	double *orig,*orig2;
@@ -817,7 +825,7 @@ void dwt(wt_object wt,double *inp) {
 	free(orig2);
 }
 
-void wtree(wtree_object wt,double *inp) {
+void wtree(wtree_object wt,const double *inp) {
 	int i,J,temp_len,iter,N,lp,p2,k,N2,Np;
 	int len_cA,t,t2,it1;
 	double *orig;
@@ -959,7 +967,7 @@ static int ipow2(int n) {
 	return p;
 }
 
-void dwpt(wpt_object wt, double *inp) {
+void dwpt(wpt_object wt, const double *inp) {
 	int i, J, temp_len, iter, N, lp, p2, k, N2, Np;
 	int temp, elength, temp2,size,nodes,llb,n1,j;
 	double eparam,v1,v2;
@@ -1327,7 +1335,7 @@ int getCWTScaleLength(int N) {
 	return J;
 }
 
-void setCWTScales(cwt_object wt, double s0, double dj,char *type,int power) {
+void setCWTScales(cwt_object wt, double s0, double dj,const char *type,int power) {
 	int i;
 	strcpy(wt->type,type);
 	//s0*pow(2.0, (double)(j - 1)*dj);
@@ -1353,7 +1361,7 @@ void setCWTScales(cwt_object wt, double s0, double dj,char *type,int power) {
 	wt->dj = dj;
 }
 
-void setCWTScaleVector(cwt_object wt, double *scale, int J,double s0,double dj) {
+void setCWTScaleVector(cwt_object wt, const double *scale, int J,double s0,double dj) {
 	int i;
 
 	if (J != wt->J) {
@@ -1378,7 +1386,7 @@ void setCWTPadding(cwt_object wt, int pad) {
 	}
 }
 
-void cwt(cwt_object wt, double *inp) {
+void cwt(cwt_object wt, const double *inp) {
 	int i, N, npad,nj2,j,j2;
 	N = wt->siglength;
 	if (wt->sflag == 0) {
@@ -2218,7 +2226,7 @@ static void swt_direct(wt_object wt, double *inp) {
 }
 
 
-void swt(wt_object wt, double *inp) {
+void swt(wt_object wt, const double *inp) {
 	if (!strcmp(wt->method, "swt") && !strcmp(wt->cmethod, "direct") ) {
 		swt_direct(wt,inp);
 	}
@@ -2410,7 +2418,7 @@ static void modwt_per(wt_object wt, int M, double *inp, int N, double *cA, int l
 	free(filt);
 }
 
-void modwt(wt_object wt, double *inp) {
+void modwt(wt_object wt, const double *inp) {
 	int i, J, temp_len, iter, M, N;
 	int lenacc, len_filt;
 	double  *cA, *cD;
@@ -2536,7 +2544,7 @@ void imodwt(wt_object wt, double *dwtop) {
 	free(X);
 }
 
-void setDWTExtension(wt_object wt, char *extension) {
+void setDWTExtension(wt_object wt, const char *extension) {
 	if (!strcmp(extension, "sym")) {
 		strcpy(wt->ext, "sym");
 	}
@@ -2549,7 +2557,7 @@ void setDWTExtension(wt_object wt, char *extension) {
 	}
 }
 
-void setWTREEExtension(wtree_object wt, char *extension) {
+void setWTREEExtension(wtree_object wt, const char *extension) {
 	if (!strcmp(extension, "sym")) {
 		strcpy(wt->ext, "sym");
 	}
@@ -2562,7 +2570,7 @@ void setWTREEExtension(wtree_object wt, char *extension) {
 	}
 }
 
-void setDWPTExtension(wpt_object wt, char *extension) {
+void setDWPTExtension(wpt_object wt, const char *extension) {
 	if (!strcmp(extension, "sym")) {
 		strcpy(wt->ext, "sym");
 	}
@@ -2575,7 +2583,7 @@ void setDWPTExtension(wpt_object wt, char *extension) {
 	}
 }
 
-void setDWPTEntropy(wpt_object wt, char *entropy, double eparam) {
+void setDWPTEntropy(wpt_object wt, const char *entropy, double eparam) {
 	if (!strcmp(entropy, "shannon")) {
 		strcpy(wt->entropy, "shannon");
 	}
@@ -2596,7 +2604,7 @@ void setDWPTEntropy(wpt_object wt, char *entropy, double eparam) {
 	}
 }
 
-void setWTConv(wt_object wt, char *cmethod) {
+void setWTConv(wt_object wt, const char *cmethod) {
 	if (!strcmp(cmethod, "fft") || !strcmp(cmethod, "FFT")) {
 		strcpy(wt->cmethod, "fft");
 	}

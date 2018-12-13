@@ -20,7 +20,6 @@ set(HEADER_FILES    conv.h
 					real.h
 					wavefilt.h
 					wavefunc.h
-					wavelib.h
 					wtmath.h
                     )
 
@@ -28,5 +27,5 @@ add_library(wavelib STATIC ${SOURCE_FILES} ${HEADER_FILES})
         
 set_property(TARGET wavelib PROPERTY FOLDER "lib")
 
-target_include_directories(wavelib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(wavelib PUBLIC ${CMAKE_SOURCE_DIR}/header)
 
