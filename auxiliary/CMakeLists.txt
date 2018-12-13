@@ -4,9 +4,7 @@ set(SOURCE_FILES denoise.c
 				 waux.c
 )
 
-set(HEADER_FILES denoise.h
-				 waux.h
-)
+set(HEADER_FILES waux.h)
 
 add_library(wauxlib STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
