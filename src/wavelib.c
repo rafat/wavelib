@@ -2084,7 +2084,7 @@ static void swt_per(wt_object wt,int M, double *inp, int N, double *cA, int len_
 
 }
 
-static void swt_fft(wt_object wt, double *inp) {
+static void swt_fft(wt_object wt, const double *inp) {
 	int i, J, temp_len, iter, M, N, len_filt;
 	int lenacc;
 	double *low_pass, *high_pass,*sig,*cA,*cD;
@@ -2169,7 +2169,7 @@ static void swt_fft(wt_object wt, double *inp) {
 	free(cD);
 }
 
-static void swt_direct(wt_object wt, double *inp) {
+static void swt_direct(wt_object wt, const double *inp) {
 	int i, J, temp_len, iter, M;
 	int lenacc;
 	double  *cA, *cD;
@@ -2200,8 +2200,6 @@ static void swt_direct(wt_object wt, double *inp) {
 		lenacc -= temp_len;
 		if (iter > 0) {
 			M = 2 * M;
-		}
-		else {
 		}
 
 		swt_per(wt, M, wt->params, temp_len, cA, temp_len, cD);
@@ -2413,15 +2411,14 @@ static void modwt_per(wt_object wt, int M, double *inp, int N, double *cA, int l
 }
 
 void modwt(wt_object wt, const double *inp) {
-	int i, J, temp_len, iter, M, N;
-	int lenacc, len_filt;
+	int i, J, temp_len, iter, M;
+	int lenacc;
 	double  *cA, *cD;
 
 	temp_len = wt->siglength;
 	J = wt->J;
 	wt->length[0] = wt->length[J] = temp_len;
 	wt->outlength = wt->length[J + 1] = (J + 1) * temp_len;
-	len_filt = wt->wave->filtlength;
 	M = 1;
 	for (iter = 1; iter < J; ++iter) {
 		M = 2 * M;
@@ -2444,10 +2441,6 @@ void modwt(wt_object wt, const double *inp) {
 		lenacc -= temp_len;
 		if (iter > 0) {
 			M = 2 * M;
-			N = M * len_filt;
-		}
-		else {
-			N = len_filt;
 		}
 
 		modwt_per(wt, M, wt->params, temp_len, cA, temp_len, cD, temp_len);
@@ -2499,14 +2492,12 @@ static void imodwt_per(wt_object wt,int M, double *cA, int len_cA, double *cD, i
 }
 
 void imodwt(wt_object wt, double *dwtop) {
-	int N, lf, iter, i, J, j, U;
+	int N, iter, i, J, j;
 	int lenacc,M;
 	double *X;
 
 	N = wt->siglength;
 	J = wt->J;
-	U = 2;
-	lf = wt->wave->lpr_len;
 	lenacc = N;
 	M = (int)pow(2.0, (double)J - 1.0);
 	//M = 1;
