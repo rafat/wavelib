@@ -32,8 +32,6 @@ extern "C" {
 #define SMUL(a,b) ((a)*(b))
 */
 
-typedef struct fft_set* fft_object;
-
 fft_object fft_init(int N, int sgn);
 
 void fft_exec(fft_object obj,fft_data *inp,fft_data *oup);

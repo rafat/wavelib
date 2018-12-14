@@ -17,8 +17,6 @@ extern "C" {
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-typedef struct conv_set* conv_object;
-
 conv_object conv_init(int N, int L);
 
 int factorf(int M);
