@@ -12,7 +12,7 @@ extern "C" {
 
 typedef struct denoise_set* denoise_object;
 
-denoise_object denoise_init(int length, int J,char* wname);
+denoise_object denoise_init(int length, int J,const char* wname);
 
 struct denoise_set{
 	int N; //signal length
@@ -26,23 +26,23 @@ struct denoise_set{
 	//double params[0];
 };
 
-void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised);
+void visushrink(double *signal,int N,int J,const char *wname,const char *method,const char *ext,const char *thresh,const char *level,double *denoised);
 
-void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised);
+void sureshrink(double *signal,int N,int J,const char *wname,const char *method,const char *ext,const char *thresh,const char *level,double *denoised);
 
 void denoise(denoise_object obj, double *signal,double *denoised);
 
-void setDenoiseMethod(denoise_object obj, char *dmethod);
+void setDenoiseMethod(denoise_object obj, const char *dmethod);
 
-void setDenoiseWTMethod(denoise_object obj, char *wmethod);
+void setDenoiseWTMethod(denoise_object obj, const char *wmethod);
 
-void setDenoiseWTExtension(denoise_object obj, char *extension);
+void setDenoiseWTExtension(denoise_object obj, const char *extension);
 
-void setDenoiseParameters(denoise_object obj, char *thresh,char *level);
+void setDenoiseParameters(denoise_object obj, const char *thresh,const char *level);
 
 void denoise_free(denoise_object object);
 
-void getDWTRecCoeff(double *coeff,int *length,char *ctype,char *ext, int level, int J,double *lpr,
+void getDWTRecCoeff(double *coeff,int *length,const char *ctype,const char *ext, int level, int J,double *lpr,
 		double *hpr,int lf,int siglength,double *reccoeff);
 
 double mad(double *x, int N);

@@ -1,7 +1,12 @@
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "denoise.h"
+#include "waux.h"
+#include "wauxlib.h"
 
-denoise_object denoise_init(int length, int J,char* wname) {
+denoise_object denoise_init(int length, int J,const char* wname) {
 	denoise_object obj = NULL;
 
 	obj = (denoise_object)malloc(sizeof(struct denoise_set) +sizeof(double));
@@ -21,7 +26,7 @@ denoise_object denoise_init(int length, int J,char* wname) {
 	return obj;
 }
 
-void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised) {
+void visushrink(double *signal,int N,int J,const char *wname,const char *method,const char *ext,const char *thresh,const char *level,double *denoised) {
 	int filt_len,iter,i,dlen,dwt_len,sgn, MaxIter,it;
 	double sigma,td,tmp;
 	wave_object wave;
@@ -128,7 +133,7 @@ void visushrink(double *signal,int N,int J,char *wname,char *method,char *ext,ch
 	wt_free(wt);
 }
 
-void sureshrink(double *signal,int N,int J,char *wname,char *method,char *ext,char *thresh,char *level,double *denoised) {
+void sureshrink(double *signal,int N,int J,const char *wname,const char *method,const char *ext,const char *thresh,const char *level,double *denoised) {
 	int filt_len,i,it,len,dlen,dwt_len,min_index,sgn, MaxIter,iter;
 	double sigma,norm,td,tv,te,ct,thr,temp,x_sum;
 	wave_object wave;
@@ -286,7 +291,7 @@ void denoise(denoise_object obj, double *signal,double *denoised) {
 	}
 }
 
-void setDenoiseMethod(denoise_object obj, char *dmethod) {
+void setDenoiseMethod(denoise_object obj, const char *dmethod) {
 	if (!strcmp(dmethod, "sureshrink")) {
 		strcpy(obj->dmethod, "sureshrink");
 	}
@@ -299,7 +304,7 @@ void setDenoiseMethod(denoise_object obj, char *dmethod) {
 	}
 }
 
-void setDenoiseWTMethod(denoise_object obj, char *wmethod) {
+void setDenoiseWTMethod(denoise_object obj, const char *wmethod) {
 	if (!strcmp(wmethod, "dwt")) {
 		strcpy(obj->wmethod, "dwt");
 	}
@@ -312,7 +317,7 @@ void setDenoiseWTMethod(denoise_object obj, char *wmethod) {
 	}
 }
 
-void setDenoiseWTExtension(denoise_object obj, char *extension) {
+void setDenoiseWTExtension(denoise_object obj, const char *extension) {
 	if (!strcmp(extension, "sym")) {
 		strcpy(obj->ext, "sym");
 	}
@@ -325,7 +330,7 @@ void setDenoiseWTExtension(denoise_object obj, char *extension) {
 	}
 }
 
-void setDenoiseParameters(denoise_object obj, char *thresh,char *level) {
+void setDenoiseParameters(denoise_object obj, const char *thresh,const char *level) {
 
 	//Set thresholding
 	if (!strcmp(thresh, "soft")) {

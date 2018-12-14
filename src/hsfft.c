@@ -18,7 +18,7 @@ fft_object fft_init(int N, int sgn) {
 	if (out == 1) {
 		obj = (fft_object) malloc (sizeof(struct fft_set) + sizeof(fft_data)* (N-1));
 		obj->lf = factors(N,obj->factors);
-		longvectorN(obj->twiddle,N,obj->factors,obj->lf);
+		longvectorN(obj->twiddle,obj->factors,obj->lf);
 		twi_len = N;
 		obj->lt = 0;
 	} else {
@@ -32,7 +32,7 @@ fft_object fft_init(int N, int sgn) {
 		}
 		obj = (fft_object) malloc (sizeof(struct fft_set) + sizeof(fft_data)* (M-1));
 		obj->lf = factors(M,obj->factors);
-		longvectorN(obj->twiddle,M,obj->factors,obj->lf);
+		longvectorN(obj->twiddle,obj->factors,obj->lf);
 		obj->lt = 1;
 		twi_len = M;
 	}
@@ -1831,7 +1831,7 @@ void twiddle(fft_data *vec,int N, int radix) {
 
 }
 
-void longvectorN(fft_data *sig,int N, int *array, int tx) {
+void longvectorN(fft_data *sig, int *array, int tx) {
 	int L,i,Ls,ct,j,k;
 	fft_type theta;
 	L = 1;

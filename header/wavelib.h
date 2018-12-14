@@ -26,7 +26,7 @@ typedef struct cplx_t {
 
 typedef struct wave_set* wave_object;
 
-wave_object wave_init(char* wname);
+wave_object wave_init(const char* wname);
 
 struct wave_set{
 	char wname[50];
@@ -83,7 +83,7 @@ struct conv_set{
 
 typedef struct wt_set* wt_object;
 
-wt_object wt_init(wave_object wave,char* method, int siglength, int J);
+wt_object wt_init(wave_object wave,const char* method, int siglength, int J);
 
 struct wt_set{
 	wave_object wave;
@@ -165,7 +165,7 @@ struct wpt_set{
 
 typedef struct cwt_set* cwt_object;
 
-cwt_object cwt_init(char* wave, double param, int siglength,double dt, int J);
+cwt_object cwt_init(const char* wave, double param, int siglength,double dt, int J);
 
 struct cwt_set{
 	char wave[10];// Wavelet - morl/morlet,paul,dog/dgauss
@@ -191,33 +191,33 @@ struct cwt_set{
 };
 
 
-void dwt(wt_object wt, double *inp);
+void dwt(wt_object wt, const double *inp);
 
 void idwt(wt_object wt, double *dwtop);
 
-void wtree(wtree_object wt, double *inp);
+void wtree(wtree_object wt, const double *inp);
 
-void dwpt(wpt_object wt, double *inp);
+void dwpt(wpt_object wt, const double *inp);
 
 void idwpt(wpt_object wt, double *dwtop);
 
-void swt(wt_object wt, double *inp);
+void swt(wt_object wt, const double *inp);
 
 void iswt(wt_object wt, double *swtop);
 
-void modwt(wt_object wt, double *inp);
+void modwt(wt_object wt, const double *inp);
 
 void imodwt(wt_object wt, double *dwtop);
 
-void setDWTExtension(wt_object wt, char *extension);
+void setDWTExtension(wt_object wt, const char *extension);
 
-void setWTREEExtension(wtree_object wt, char *extension);
+void setWTREEExtension(wtree_object wt, const char *extension);
 
-void setDWPTExtension(wpt_object wt, char *extension);
+void setDWPTExtension(wpt_object wt, const char *extension);
 
-void setDWPTEntropy(wpt_object wt, char *entropy, double eparam);
+void setDWPTEntropy(wpt_object wt, const char *entropy, double eparam);
 
-void setWTConv(wt_object wt, char *cmethod);
+void setWTConv(wt_object wt, const char *cmethod);
 
 int getWTREENodelength(wtree_object wt, int X);
 
@@ -227,13 +227,13 @@ int getDWPTNodelength(wpt_object wt, int X);
 
 void getDWPTCoeffs(wpt_object wt, int X, int Y, double *coeffs, int N);
 
-void setCWTScales(cwt_object wt, double s0, double dj, char *type, int power);
+void setCWTScales(cwt_object wt, double s0, double dj, const char *type, int power);
 
-void setCWTScaleVector(cwt_object wt, double *scale, int J, double s0, double dj);
+void setCWTScaleVector(cwt_object wt, const double *scale, int J, double s0, double dj);
 
 void setCWTPadding(cwt_object wt, int pad);
 
-void cwt(cwt_object wt, double *inp);
+void cwt(cwt_object wt, const double *inp);
 
 void icwt(cwt_object wt, double *cwtop);
 

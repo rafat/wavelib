@@ -9,10 +9,8 @@
 
 fft_real_object fft_real_init(int N, int sgn) {
 	fft_real_object obj = NULL;
-	fft_type PI, theta;
+	fft_type theta;
 	int k;
-	
-	PI = 3.1415926535897932384626433832795;
 	
 	obj = (fft_real_object) malloc (sizeof(struct fft_real_set) + sizeof(fft_data)* (N/2));
 	
@@ -79,10 +77,9 @@ void fft_c2r_exec(fft_real_object obj,fft_data *inp,fft_type *oup) {
 	
 	fft_data* cinp;
 	fft_data* coup;
-	int i,N2,N;
+	int i,N2;
 	fft_type temp1,temp2;
 	N2 = obj->cobj->N;
-	N = N2*2;
 	
 	cinp = (fft_data*) malloc (sizeof(fft_data) * N2);
 	coup = (fft_data*) malloc (sizeof(fft_data) * N2);
