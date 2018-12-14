@@ -2376,7 +2376,7 @@ void iswt(wt_object wt, double *swtop) {
 	free(det2);
 }
 
-static void modwt_per(wt_object wt, int M, double *inp, int N, double *cA, int len_cA, double *cD, int len_cD) {
+static void modwt_per(wt_object wt, int M, double *inp, double *cA, int len_cA, double *cD) {
 	int l, i, t, len_avg;
 	double s;
 	double *filt;
@@ -2443,7 +2443,7 @@ void modwt(wt_object wt, const double *inp) {
 			M = 2 * M;
 		}
 
-		modwt_per(wt, M, wt->params, temp_len, cA, temp_len, cD, temp_len);
+		modwt_per(wt, M, wt->params, cA, temp_len, cD);
 
 
 		for (i = 0; i < temp_len; ++i) {
@@ -2458,7 +2458,7 @@ void modwt(wt_object wt, const double *inp) {
 
 }
 
-static void imodwt_per(wt_object wt,int M, double *cA, int len_cA, double *cD, int len_cD, double *X) {
+static void imodwt_per(wt_object wt,int M, double *cA, int len_cA, double *cD, double *X) {
 	int len_avg, i, l, t;
 	double s;
 	double *filt;
@@ -2511,7 +2511,7 @@ void imodwt(wt_object wt, double *dwtop) {
 		if (iter > 0) {
 			M = M / 2;
 		}
-		imodwt_per(wt, M, dwtop, N, wt->params + lenacc, N, X);
+		imodwt_per(wt, M, dwtop, N, wt->params + lenacc, X);
 		/*
 		for (j = lf - 1; j < N; ++j) {
 			dwtop[j - lf + 1] = X[j];
