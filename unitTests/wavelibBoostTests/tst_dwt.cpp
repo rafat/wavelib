@@ -4,11 +4,12 @@
 
 #include <sstream>
 #include <iostream>
+
+#include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-#include <string>
-#include <cmath>
 #include "wavelib.h"
 
 #include<vector>
@@ -118,7 +119,6 @@ void ReconstructionTest()
 	double *inp,*out;
 	int N, i,J;
     double epsilon = 1e-15;
-    char *type = (char*) "dwt";
 
     N = 79926;
     
@@ -347,10 +347,10 @@ void DWPTReconstructionTest()
 }
 
 void CWTReconstructionTest() {
-	int i, j,N, J,subscale,a0,iter;
+	int i, N, J,subscale,a0;
 	double *inp,*oup;
 	double dt, dj,s0, pi,t;
-	double val, epsilon;
+	double epsilon;
 	int it1,it2;
 	cwt_object wt;
 	
