@@ -1413,7 +1413,7 @@ void cwt(cwt_object wt, const double *inp) {
 	}
 	wt->smean /= N;
 
-	cwavelet(inp, N, wt->dt, wt->mother, wt->m, wt->J,npad,wt->params, wt->params+nj2, wt->params+nj2+j, wt->params+nj2+j2);
+	cwavelet(inp, N, wt->dt, wt->mother, wt->m, wt->s0,wt->dj,wt->J,npad,wt->params, wt->params+nj2, wt->params+nj2+j, wt->params+nj2+j2);
 
 }
 

@@ -118,7 +118,7 @@ static void wave_function(int nk, double dt,int mother, double param,double scal
 	}
 }
 
-void cwavelet(const double *y, int N, double dt, int mother, double param, int jtot, int npad,
+void cwavelet(const double *y, int N, double dt, int mother, double param, double s0, double dj, int jtot, int npad,
 	double *wave, double *scale, double *period, double *coi) {
 
 	int i, j, k, iter;
@@ -128,6 +128,8 @@ void cwavelet(const double *y, int N, double dt, int mother, double param, int j
 	double *kwave;
 	fft_object obj, iobj;
 	fft_data *ypad, *yfft,*daughter;
+
+	(void)s0; (void)dj; /* yes, we need these parameters unused */
 
 	pi = 4.0 * atan(1.0);
 
@@ -342,7 +344,7 @@ double cdelta(int mother, double param, double psi0 ) {
 		scale[i] = s0*pow(2.0, (double)(i)*dj);
 	}
 
-	cwavelet(delta, N, dt, mother, param, jtot, N, wave, scale, period, coi);
+	cwavelet(delta, N, dt, mother, param, s0, dj, jtot, N, wave, scale, period, coi);
 
 	for (i = 0; i < N; ++i) {
 		mval[i] = 0;
