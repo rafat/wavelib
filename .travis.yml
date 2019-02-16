@@ -1,5 +1,5 @@
 sudo: false
-language: cpp
+language: c
 os:
     - linux
     - osx
@@ -11,10 +11,7 @@ compiler:
 addons:
   apt:
     sources:
-        - boost-latest
         - ubuntu-toolchain-r-test
-    packages:
-        - libboost1.55-all-dev
 
 matrix:
   allow_failures:
