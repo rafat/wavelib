@@ -47,21 +47,20 @@ static double corrcoef(int N,double *x,double *y) {
 }
 
 int main() {
-	// gcc -Wall -I../header -L../Bin denoisetest.c -o denoise -lwauxlib -lwavelib -lm
+	// gcc -Wall -I../header -L../Bin modwtdenoisetest.c -o modwtdenoise -lwauxlib -lwavelib -lm
+    /*
+    modwtshrink can also be called from the denoise object. See denoisetest.c for more information
+    */
 	double *sig,*inp,*oup;
 	int i,N,J;
 	FILE *ifp;
 
-	denoise_object obj;
 	double temp[2400];
 
 	char *wname = "db5";
-	char *method = "dwt";// Available - dwt, swt and modwt. modwt works only with modwtshrink. The other two methods work with
-	// visushrink and sureshrink
-	char *ext = "sym";// sym and per work with dwt. swt and modwt only use per extension when called through denoise.
-	// You can use sy extension if you directly call modwtshrink with cmethod set to fft. See modwtdenoisetest.c file 
-	char *thresh = "soft";// soft or hard
-	char *level = "all"; // noise estimation at "first" or "all" levels. modwt only has the option of "all" 
+	char *ext = "per";// The other option sym is only available with "fft" cmethod
+	char *thresh = "soft";
+	char *cmethod = "direct";// The other option is "fft"
 
 	ifp = fopen("pieceregular1024.txt", "r");
 	i = 0;
@@ -105,22 +104,8 @@ int main() {
 	for(i = 0; i < N;++i) {
 		inp[i] = temp[i];
 	}
-	obj = denoise_init(N,J,wname);
-	setDenoiseMethod(obj,"visushrink");// sureshrink is also the default. The other option with dwt and swt is visushrink.
-	// modwt works only with modwtshrink method
-	setDenoiseWTMethod(obj,method);// Default is dwt. the other options are swt and modwt
-	setDenoiseWTExtension(obj,ext);// Default is sym. the other option is per
-	setDenoiseParameters(obj,thresh,level);// Default for thresh is soft. Other option is hard
-	// Default for level is all. The other option is first
-
-	denoise(obj,inp,oup);
-
-	// Alternative to denoise_object
-	// Just use visushrink, modwtshrink and sureshrink functions
-	//visushrink(inp,N,J,wname,method,ext,thresh,level,oup);
-	//sureshrink(inp,N,J,wname,method,ext,thresh,level,oup);
-	// modwtshrink(sig,N,J,wname,cmethod,ext,thresh,oup); See modwtdenoisetest.c
-	//ofp = fopen("denoiseds.txt", "w");
+	
+    modwtshrink(sig,N,J,wname,cmethod,ext,thresh,oup);
 
 
 	printf("Signal - Noisy Signal Stats \n");
@@ -133,7 +118,6 @@ int main() {
 
 	free(sig);
 	free(inp);
-	denoise_free(obj);
 	free(oup);
 	return 0;
 }

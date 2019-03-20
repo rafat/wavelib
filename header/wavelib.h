@@ -90,6 +90,7 @@ struct wt_set{
 	conv_object cobj;
 	char method[10];
 	int siglength;// Length of the original signal.
+	int modwtsiglength; // Modified signal length for MODWT
 	int outlength;// Length of the output DWT vector
 	int lenlength;// Length of the Output Dimension Vector "length"
 	int J; // Number of decomposition Levels

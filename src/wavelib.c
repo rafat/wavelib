@@ -88,13 +88,14 @@ wt_object wt_init(wave_object wave,const char* method, int siglength,int J) {
 			}
 		}
 
-		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * (J + 1)));
+		obj = (wt_object)malloc(sizeof(struct wt_set) + sizeof(double)* (siglength * 2 * (J + 1)));
 		obj->outlength = siglength * (J + 1); // Default
 		strcpy(obj->ext, "per"); // Default
 	}
 
 	obj->wave = wave;
 	obj->siglength = siglength;
+	obj->modwtsiglength = siglength;
 	obj->J = J;
 	obj->MaxIter = MaxIter;
 	strcpy(obj->method, method);
@@ -117,8 +118,13 @@ wt_object wt_init(wave_object wave,const char* method, int siglength,int J) {
 			obj->params[i] = 0.0;
 		}
 	}
-	else if (!strcmp(method, "swt") || !strcmp(method, "SWT") || !strcmp(method, "modwt") || !strcmp(method, "MODWT")) {
+	else if (!strcmp(method, "swt") || !strcmp(method, "SWT")) {
 		for (i = 0; i < siglength * (J + 1); ++i) {
+			obj->params[i] = 0.0;
+		}
+	}
+	else if (!strcmp(method, "modwt") || !strcmp(method, "MODWT")) {
+		for (i = 0; i < siglength * 2 * (J + 1); ++i) {
 			obj->params[i] = 0.0;
 		}
 	}
@@ -2410,10 +2416,16 @@ static void modwt_per(wt_object wt, int M, double *inp, double *cA, int len_cA, 
 	free(filt);
 }
 
-void modwt(wt_object wt, const double *inp) {
+static void modwt_direct(wt_object wt, const double *inp) {
 	int i, J, temp_len, iter, M;
 	int lenacc;
 	double  *cA, *cD;
+
+	if (strcmp(wt->ext, "per")) {
+		printf("MODWT direct method only uses periodic extension per. \n");
+		printf(" Use MODWT fft method for symmetric extension sym \n");
+		exit(-1);
+	}
 
 	temp_len = wt->siglength;
 	J = wt->J;
@@ -2458,6 +2470,270 @@ void modwt(wt_object wt, const double *inp) {
 
 }
 
+static void modwt_fft(wt_object wt, const double *inp) {
+	int i, J, temp_len, iter, M,N, len_avg;
+	int lenacc;
+	double s,tmp1,tmp2;
+	fft_data  *cA, *cD, *low_pass,*high_pass,*sig;
+	int *index;
+	fft_object fft_fd = NULL;
+	fft_object fft_bd = NULL;
+
+	temp_len = wt->siglength;
+	len_avg = wt->wave->lpd_len;
+	if (!strcmp(wt->ext, "sym")) {
+		N = 2 * temp_len;
+	} else if (!strcmp(wt->ext, "per")) {
+		N = temp_len;
+	}
+	J = wt->J;
+	wt->modwtsiglength = N;
+	wt->length[0] = wt->length[J] = N;
+	wt->outlength = wt->length[J + 1] = (J + 1) * N;
+
+	s = sqrt(2.0);
+	for (iter = 1; iter < J; ++iter) {
+		wt->length[iter] = N;
+	}
+
+	fft_fd = fft_init(N, 1);
+	fft_bd = fft_init(N, -1);
+
+	sig = (fft_data*)malloc(sizeof(fft_data)* N);
+	cA = (fft_data*)malloc(sizeof(fft_data)* N);
+	cD = (fft_data*)malloc(sizeof(fft_data)* N);
+	low_pass = (fft_data*)malloc(sizeof(fft_data)* N);
+	high_pass = (fft_data*)malloc(sizeof(fft_data)* N);
+	index = (int*)malloc(sizeof(int)*N);
+
+
+	// N-point FFT of low pass and high pass filters
+
+	// Low Pass Filter
+
+	for(i = 0; i < len_avg;++i) {
+		sig[i].re = (fft_type) wt->wave->lpd[i] / s;
+		sig[i].im = 0.0;
+	}
+	for(i = len_avg; i < N;++i) {
+		sig[i].re = 0.0;
+		sig[i].im = 0.0;
+	}
+
+
+	fft_exec(fft_fd, sig, low_pass);
+
+	// High Pass Filter
+
+	for (i = 0; i < len_avg; ++i) {
+		sig[i].re = (fft_type)wt->wave->hpd[i] / s;
+		sig[i].im = 0.0;
+	}
+	for (i = len_avg; i < N; ++i) {
+		sig[i].re = 0.0;
+		sig[i].im = 0.0;
+	}
+
+	fft_exec(fft_fd, sig, high_pass);
+
+	// symmetric extension
+	for (i = 0; i < temp_len; ++i) {
+		sig[i].re = (fft_type)inp[i];
+		sig[i].im = 0.0;
+	}
+	for (i = temp_len; i < N; ++i) {
+		sig[i].re = (fft_type) inp[N-i-1];
+		sig[i].im = 0.0;
+	}
+
+	// FFT of data
+
+	fft_exec(fft_fd, sig, cA);
+
+	lenacc = wt->outlength;
+
+	M = 1;
+
+	for (iter = 0; iter < J; ++iter) {
+		lenacc -= N;
+
+		for (i = 0; i < N; ++i) {
+			index[i] = (M *i) % N;
+		}
+		
+		for (i = 0; i < N; ++i) {
+			tmp1 = cA[i].re;
+			tmp2 = cA[i].im;
+			cA[i].re = low_pass[index[i]].re*tmp1 - low_pass[index[i]].im*tmp2;
+			cA[i].im = low_pass[index[i]].re*tmp2 + low_pass[index[i]].im*tmp1;
+
+			cD[i].re = high_pass[index[i]].re*tmp1 - high_pass[index[i]].im*tmp2;
+			cD[i].im = high_pass[index[i]].re*tmp2 + high_pass[index[i]].im*tmp1;
+		}
+
+		fft_exec(fft_bd, cD, sig);
+
+		for (i = 0; i < N; ++i) {
+			wt->params[lenacc + i] = sig[i].re/N;
+		}
+
+		M *= 2;
+	}
+
+	fft_exec(fft_bd, cA, sig);
+
+	for (i = 0; i < N; ++i) {
+		wt->params[i] = sig[i].re/N;
+	}
+
+	free(sig);
+	free(cA);
+	free(cD);
+	free(low_pass);
+	free(high_pass);
+	free_fft(fft_fd);
+	free_fft(fft_bd);
+}
+
+void modwt(wt_object wt, const double *inp) {
+	if (!strcmp(wt->cmethod, "direct")) {
+		modwt_direct(wt, inp);
+	}
+	else if (!strcmp(wt->cmethod, "fft")) {
+		modwt_fft(wt, inp);
+	}
+	else {
+		printf("Error- Available Choices for this method are - direct and fft \n");
+		exit(-1);
+	}
+}
+
+static void conj_complex(fft_data *x, int N) {
+	int i;
+
+	for (i = 0; i < N; ++i) {
+		x[i].im *= (-1.0);
+	}
+}
+
+void imodwt_fft(wt_object wt, double *oup) {
+	int i, J, temp_len, iter, M, N, len_avg;
+	int lenacc;
+	double s, tmp1, tmp2;
+	fft_data  *cA, *cD, *low_pass, *high_pass, *sig;
+	int *index;
+	fft_object fft_fd = NULL;
+	fft_object fft_bd = NULL;
+
+	N = wt->modwtsiglength;
+	len_avg = wt->wave->lpd_len;
+	if (!strcmp(wt->ext, "sym")) {
+		temp_len = N/2;
+	}
+	else if (!strcmp(wt->ext, "per")) {
+		temp_len = N;
+	}
+	J = wt->J;
+
+	s = sqrt(2.0);
+	fft_fd = fft_init(N, 1);
+	fft_bd = fft_init(N, -1);
+
+	sig = (fft_data*)malloc(sizeof(fft_data)* N);
+	cA = (fft_data*)malloc(sizeof(fft_data)* N);
+	cD = (fft_data*)malloc(sizeof(fft_data)* N);
+	low_pass = (fft_data*)malloc(sizeof(fft_data)* N);
+	high_pass = (fft_data*)malloc(sizeof(fft_data)* N);
+	index = (int*)malloc(sizeof(int)*N);
+	
+
+	// N-point FFT of low pass and high pass filters
+
+	// Low Pass Filter
+
+	for (i = 0; i < len_avg; ++i) {
+		sig[i].re = (fft_type)wt->wave->lpd[i] / s;
+		sig[i].im = 0.0;
+	}
+	for (i = len_avg; i < N; ++i) {
+		sig[i].re = 0.0;
+		sig[i].im = 0.0;
+	}
+
+
+	fft_exec(fft_fd, sig, low_pass);
+
+	// High Pass Filter
+
+	for (i = 0; i < len_avg; ++i) {
+		sig[i].re = (fft_type)wt->wave->hpd[i] / s;
+		sig[i].im = 0.0;
+	}
+	for (i = len_avg; i < N; ++i) {
+		sig[i].re = 0.0;
+		sig[i].im = 0.0;
+	}
+
+	fft_exec(fft_fd, sig, high_pass);
+
+
+	// Complex conjugate of the two filters
+
+	conj_complex(low_pass, N);
+	conj_complex(high_pass, N);
+
+	M = (int)pow(2.0, (double)J - 1.0);
+	lenacc = N;
+
+	// 
+	for (i = 0; i < N; ++i) {
+		sig[i].re = (fft_type)wt->output[i];
+		sig[i].im = 0.0;
+	}
+
+	for (iter = 0; iter < J; ++iter) {
+		fft_exec(fft_fd, sig, cA);
+		for (i = 0; i < N; ++i) {
+			sig[i].re = wt->output[lenacc+i];
+			sig[i].im = 0.0;
+		}
+		fft_exec(fft_fd, sig, cD);
+
+		for (i = 0; i < N; ++i) {
+			index[i] = (M *i) % N;
+		}
+
+		for (i = 0; i < N; ++i) {
+			tmp1 = cA[i].re;
+			tmp2 = cA[i].im;
+			cA[i].re = low_pass[index[i]].re*tmp1 - low_pass[index[i]].im*tmp2 + high_pass[index[i]].re*cD[i].re - high_pass[index[i]].im*cD[i].im;
+			cA[i].im = low_pass[index[i]].re*tmp2 + low_pass[index[i]].im*tmp1 + high_pass[index[i]].re*cD[i].im + high_pass[index[i]].im*cD[i].re;
+		}
+
+		fft_exec(fft_bd, cA, sig);
+
+		for (i = 0; i < N; ++i) {
+			sig[i].re /= N;
+			sig[i].im /= N;
+		}
+		M /= 2;
+		lenacc += N;
+	}
+
+	for (i = 0; i < wt->siglength; ++i) {
+		oup[i] = sig[i].re;
+	}
+
+	free(sig);
+	free(cA);
+	free(cD);
+	free(low_pass);
+	free(high_pass);
+	free_fft(fft_fd);
+	free_fft(fft_bd);
+}
+
+
 static void imodwt_per(wt_object wt,int M, double *cA, int len_cA, double *cD, double *X) {
 	int len_avg, i, l, t;
 	double s;
@@ -2491,7 +2767,7 @@ static void imodwt_per(wt_object wt,int M, double *cA, int len_cA, double *cD, d
 	free(filt);
 }
 
-void imodwt(wt_object wt, double *dwtop) {
+static void imodwt_direct(wt_object wt, double *dwtop) {
 	int N, iter, i, J, j;
 	int lenacc,M;
 	double *X;
@@ -2528,6 +2804,20 @@ void imodwt(wt_object wt, double *dwtop) {
 	}
 	free(X);
 }
+
+void imodwt(wt_object wt, double *oup) {
+	if (!strcmp(wt->cmethod, "direct")) {
+		imodwt_direct(wt, oup);
+	}
+	else if (!strcmp(wt->cmethod, "fft")) {
+		imodwt_fft(wt, oup);
+	}
+	else {
+		printf("Error- Available Choices for this method are - direct and fft \n");
+		exit(-1);
+	}
+}
+
 
 void setDWTExtension(wt_object wt, const char *extension) {
 	if (!strcmp(extension, "sym")) {

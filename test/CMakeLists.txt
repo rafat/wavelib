@@ -26,6 +26,10 @@ add_executable(denoisetest denoisetest.c)
 
 target_link_libraries(denoisetest wauxlib wavelib)
 
+add_executable(modwtdenoisetest modwtdenoisetest.c)
+
+target_link_libraries(modwtdenoisetest wauxlib wavelib)
+
 if(UNIX)
 	target_link_libraries(cwttest m)
 	target_link_libraries(dwttest m)
@@ -34,9 +38,10 @@ if(UNIX)
 	target_link_libraries(dwpttest m)
 	target_link_libraries(wtreetest m)
 	target_link_libraries(denoisetest m)
+	target_link_libraries(modwtdenoisetest m)
 endif()
 
-set_target_properties(cwttest dwttest swttest modwttest dwpttest wtreetest denoisetest
+set_target_properties(cwttest dwttest swttest modwttest dwpttest wtreetest denoisetest modwtdenoisetest
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
         )
