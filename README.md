@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rafat/wavelib.svg?branch=master)](https://travis-ci.org/rafat/wavelib)
+
 wavelib
 =======
 
