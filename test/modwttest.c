@@ -42,6 +42,8 @@ int main() {
 		i++;
 	}
 	N = 177;
+	
+	fclose(ifp);
 
 	inp = (double*)malloc(sizeof(double)* N);
 	out = (double*)malloc(sizeof(double)* N);
