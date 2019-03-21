@@ -41,7 +41,7 @@ int main() {
 		i++;
 	}
 	N = 256;
-
+	fclose(ifp);
 	inp = (double*)malloc(sizeof(double)* N);
 	out = (double*)malloc(sizeof(double)* N);
 	diff = (double*)malloc(sizeof(double)* N);
