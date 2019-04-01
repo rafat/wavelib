@@ -196,6 +196,8 @@ void dwt(wt_object wt, const double *inp);
 
 void idwt(wt_object wt, double *dwtop);
 
+double *getDWTmra(wt_object wt, double *wavecoeffs);
+
 void wtree(wtree_object wt, const double *inp);
 
 void dwpt(wpt_object wt, const double *inp);
@@ -206,9 +208,13 @@ void swt(wt_object wt, const double *inp);
 
 void iswt(wt_object wt, double *swtop);
 
+double *getSWTmra(wt_object wt, double *wavecoeffs);
+
 void modwt(wt_object wt, const double *inp);
 
 void imodwt(wt_object wt, double *dwtop);
+
+double* getMODWTmra(wt_object wt, double *wavecoeffs);
 
 void setDWTExtension(wt_object wt, const char *extension);
 

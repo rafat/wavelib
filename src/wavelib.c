@@ -384,58 +384,8 @@ static void wconv(wt_object wt, double *sig, int N, double *filt, int L, double 
 
 
 static void dwt_per(wt_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
-	int l,l2,isodd,i,t,len_avg;
 
-	len_avg = wt->wave->lpd_len;
-	l2 = len_avg / 2;
-	isodd = N % 2;
-
-	for (i = 0; i < len_cA; ++i) {
-		t = 2 * i + l2;
-		cA[i] = 0.0;
-		cD[i] = 0.0;
-		for (l = 0; l < len_avg; ++l) {
-			if ((t - l) >= l2 && (t - l) < N) {
-				cA[i] += wt->wave->lpd[l] * inp[t - l];
-				cD[i] += wt->wave->hpd[l] * inp[t - l];
-			}
-			else if ((t - l) < l2 && (t - l) >= 0) {
-				cA[i] += wt->wave->lpd[l] * inp[t - l];
-				cD[i] += wt->wave->hpd[l] * inp[t - l];
-			}
-			else if ((t - l) < 0 && isodd == 0) {
-				cA[i] += wt->wave->lpd[l] * inp[t - l + N];
-				cD[i] += wt->wave->hpd[l] * inp[t - l + N];
-			}
-			else if ((t - l) < 0 && isodd == 1) {
-				if ((t - l) != -1) {
-					cA[i] += wt->wave->lpd[l] * inp[t - l + N + 1];
-					cD[i] += wt->wave->hpd[l] * inp[t - l + N + 1];
-				}
-				else {
-					cA[i] += wt->wave->lpd[l] * inp[N - 1];
-					cD[i] += wt->wave->hpd[l] * inp[N - 1];
-				}
-			}
-			else if ((t - l) >= N && isodd == 0) {
-				cA[i] += wt->wave->lpd[l] * inp[t - l - N];
-				cD[i] += wt->wave->hpd[l] * inp[t - l - N];
-			}
-			else if ((t - l) >= N && isodd == 1) {
-				if (t - l != N) {
-					cA[i] += wt->wave->lpd[l] * inp[t - l - (N + 1)];
-					cD[i] += wt->wave->hpd[l] * inp[t - l - (N + 1)];
-				}
-				else {
-					cA[i] += wt->wave->lpd[l] * inp[N - 1];
-					cD[i] += wt->wave->hpd[l] * inp[N - 1];
-				}
-			}
-
-		}
-	}
-
-
+	dwt_per_stride(inp,N,wt->wave->lpd,wt->wave->hpd,wt->wave->lpd_len,cA,len_cA,cD,1,1);
 
 }
 
@@ -552,32 +502,8 @@ static void dwpt_per(wpt_object wt, double *inp, int N, double *cA, int len_cA, 
 }
 
 static void dwt_sym(wt_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
-	int i,l, t, len_avg;
 
-	len_avg = wt->wave->lpd_len;
-
-	for (i = 0; i < len_cA; ++i) {
-		t = 2 * i + 1;
-		cA[i] = 0.0;
-		cD[i] = 0.0;
-		for (l = 0; l < len_avg; ++l) {
-			if ((t - l) >= 0 && (t - l) < N) {
-				cA[i] += wt->wave->lpd[l] * inp[t - l];
-				cD[i] += wt->wave->hpd[l] * inp[t - l];
-			}
-			else if ((t - l) < 0) {
-				cA[i] += wt->wave->lpd[l] * inp[-t + l - 1];
-				cD[i] += wt->wave->hpd[l] * inp[-t + l - 1];
-			}
-			else if ((t - l) >= N) {
-				cA[i] += wt->wave->lpd[l] * inp[2 * N - t + l - 1];
-				cD[i] += wt->wave->hpd[l] * inp[2 * N - t + l - 1];
-			}
-
-		}
-	}
-
-
+	dwt_sym_stride(inp,N,wt->wave->lpd,wt->wave->hpd,wt->wave->lpd_len,cA,len_cA,cD,1,1);
 }
 
 static void wtree_sym(wtree_object wt, double *inp, int N, double *cA, int len_cA, double *cD) {
@@ -828,6 +754,169 @@ void dwt(wt_object wt,const double *inp) {
 
 	free(orig);
 	free(orig2);
+}
+
+static void getDWTRecCoeff(double *coeff, int *length, const char *ctype, const char *ext, int level, int J, double *lpr,
+	double *hpr, int lf, int siglength, double *reccoeff) {
+
+	int i, j, k, det_len, N, l, m, n, v, t, l2;
+	double *out, *X_lp, *filt;
+	out = (double*)malloc(sizeof(double)* (siglength + 1));
+	l2 = lf / 2;
+	m = -2;
+	n = -1;
+	if (!strcmp(ext, "per")) {
+		if (!strcmp((ctype), "appx")) {
+			det_len = length[0];
+		}
+		else {
+			det_len = length[J - level + 1];
+		}
+
+		N = 2 * length[J];
+
+		X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
+
+		for (i = 0; i < det_len; ++i) {
+			out[i] = coeff[i];
+		}
+
+		for (j = level; j > 0; --j) {
+
+			if (!strcmp((ctype), "det") && j == level) {
+				filt = hpr;
+			}
+			else {
+				filt = lpr;
+			}
+
+			m = -2;
+			n = -1;
+
+			for (i = 0; i < det_len + l2 - 1; ++i) {
+				m += 2;
+				n += 2;
+				X_lp[m] = 0.0;
+				X_lp[n] = 0.0;
+				for (l = 0; l < l2; ++l) {
+					t = 2 * l;
+					if ((i - l) >= 0 && (i - l) < det_len) {
+						X_lp[m] += filt[t] * out[i - l];
+						X_lp[n] += filt[t + 1] * out[i - l];
+					}
+					else if ((i - l) >= det_len && (i - l) < det_len + lf - 1) {
+						X_lp[m] += filt[t] * out[i - l - det_len];
+						X_lp[n] += filt[t + 1] * out[i - l - det_len];
+					}
+					else if ((i - l) < 0 && (i - l) > -l2) {
+						X_lp[m] += filt[t] * out[det_len + i - l];
+						X_lp[n] += filt[t + 1] * out[det_len + i - l];
+					}
+				}
+			}
+
+			for (k = lf / 2 - 1; k < 2 * det_len + lf / 2 - 1; ++k) {
+				out[k - lf / 2 + 1] = X_lp[k];
+			}
+
+			if (j != 1) {
+				det_len = length[J - j + 2];
+			}
+		}
+
+		free(X_lp);
+
+	}
+	else if (!strcmp(ext, "sym")) {
+		if (!strcmp((ctype), "appx")) {
+			det_len = length[0];
+		}
+		else {
+			det_len = length[J - level + 1];
+		}
+
+		N = 2 * length[J] - 1;
+
+		X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
+
+		for (i = 0; i < det_len; ++i) {
+			out[i] = coeff[i];
+		}
+
+		for (j = level; j > 0; --j) {
+
+			if (!strcmp((ctype), "det") && j == level) {
+				filt = hpr;
+			}
+			else {
+				filt = lpr;
+			}
+
+			m = -2;
+			n = -1;
+
+			for (v = 0; v < det_len; ++v) {
+				i = v;
+				m += 2;
+				n += 2;
+				X_lp[m] = 0.0;
+				X_lp[n] = 0.0;
+				for (l = 0; l < lf / 2; ++l) {
+					t = 2 * l;
+					if ((i - l) >= 0 && (i - l) < det_len) {
+						X_lp[m] += filt[t] * out[i - l];
+						X_lp[n] += filt[t + 1] * out[i - l];
+					}
+				}
+			}
+
+			for (k = lf - 2; k < 2 * det_len; ++k) {
+				out[k - lf + 2] = X_lp[k];
+			}
+
+
+			if (j != 1) {
+				det_len = length[J - j + 2];
+			}
+		}
+
+		free(X_lp);
+
+	}
+	else {
+		printf("Signal extension can be either per or sym");
+		exit(-1);
+	}
+
+	for (i = 0; i < siglength; ++i) {
+		reccoeff[i] = out[i];
+	}
+
+	free(out);
+
+}
+
+
+double *getDWTmra(wt_object wt, double *wavecoeffs) {
+	int i, J, access,N;
+	double *mra;
+	J = wt->J;
+	mra = (double*)malloc(sizeof(double)* wt->siglength*(J + 1));
+	access = 0;
+	
+
+	// Approximation MRA
+	getDWTRecCoeff(wt->output + access, wt->length, "appx", wt->ext, J, J, wt->wave->lpr, wt->wave->hpr, wt->wave->lpr_len, wt->siglength, mra);
+
+	// Details MRA
+	N = wt->siglength;
+	for (i = J; i > 0; --i) {
+		access += wt->length[J - i];
+		getDWTRecCoeff(wt->output + access, wt->length, "det", wt->ext, i, J, wt->wave->lpr, wt->wave->hpr, wt->wave->lpr_len, wt->siglength, mra+N);
+		N += wt->siglength;
+	}
+	
+	return mra;
 }
 
 void wtree(wtree_object wt,const double *inp) {
@@ -1491,57 +1580,11 @@ static void idwt1(wt_object wt,double *temp, double *cA_up,double *cA, int len_c
 }
 
 static void idwt_per(wt_object wt, double *cA, int len_cA, double *cD, double *X) {
-	int len_avg,i,l,m,n,t,l2;
-
-	len_avg = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
-	l2 = len_avg / 2;
-	m = -2;
-	n = -1;
-
-	for (i = 0; i < len_cA + l2 - 1; ++i) {
-		m += 2;
-		n += 2;
-		X[m] = 0.0;
-		X[n] = 0.0;
-		for (l = 0; l < l2; ++l) {
-			t = 2 * l;
-			if ((i - l) >= 0 && (i - l) < len_cA) {
-				X[m] += wt->wave->lpr[t] * cA[i - l] + wt->wave->hpr[t] * cD[i - l];
-				X[n] += wt->wave->lpr[t + 1] * cA[i - l] + wt->wave->hpr[t + 1] * cD[i - l];
-			}
-			else if ((i - l) >= len_cA && (i-l) < len_cA + len_avg - 1) {
-				X[m] += wt->wave->lpr[t] * cA[i - l - len_cA] + wt->wave->hpr[t] * cD[i - l - len_cA];
-				X[n] += wt->wave->lpr[t + 1] * cA[i - l - len_cA] + wt->wave->hpr[t + 1] * cD[i - l - len_cA];
-			}
-			else if ((i - l) < 0 && (i-l) > -l2) {
-				X[m] += wt->wave->lpr[t] * cA[len_cA + i - l] + wt->wave->hpr[t] * cD[len_cA + i - l];
-				X[n] += wt->wave->lpr[t + 1] * cA[len_cA + i - l] + wt->wave->hpr[t + 1] * cD[len_cA + i - l];
-			}
-		}
-	}
+	idwt_per_stride(cA,len_cA,cD, wt->wave->lpr, wt->wave->hpr, wt->wave->lpr_len, X,1,1);
 }
 
 static void idwt_sym(wt_object wt, double *cA, int len_cA, double *cD, double *X) {
-	int len_avg, i, l, m, n, t, v;
-
-	len_avg = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
-	m = -2;
-	n = -1;
-
-	for (v = 0; v < len_cA; ++v) {
-		i = v;
-		m += 2;
-		n += 2;
-		X[m] = 0.0;
-		X[n] = 0.0;
-		for (l = 0; l < len_avg / 2; ++l) {
-			t = 2 * l;
-			if ((i - l) >= 0 && (i - l) < len_cA) {
-				X[m] += wt->wave->lpr[t] * cA[i - l] + wt->wave->hpr[t] * cD[i - l];
-				X[n] += wt->wave->lpr[t + 1] * cA[i - l] + wt->wave->hpr[t + 1] * cD[i - l];
-			}
-		}
-	}
+	idwt_sym_stride(cA,len_cA,cD, wt->wave->lpr, wt->wave->hpr, wt->wave->lpr_len, X,1,1);
 }
 
 
@@ -2041,53 +2084,8 @@ void idwpt(wpt_object wt, double *dwtop) {
 
 
 static void swt_per(wt_object wt,int M, double *inp, int N, double *cA, int len_cA, double *cD) {
-	int l, l2, isodd, i, t, len_avg,j;
 
-	len_avg = M * wt->wave->lpd_len;
-	l2 = len_avg / 2;
-	isodd = N % 2;
-
-	for (i = 0; i < len_cA; ++i) {
-		t = i + l2;
-		cA[i] = 0.0;
-		cD[i] = 0.0;
-		l = -1;
-		for (j = 0; j < len_avg; j+=M) {
-			l++;
-			while (j >= len_cA) {
-				j -= len_cA;
-			}
-			if ((t - j) >= l2 && (t -j) < N) {
-				cA[i] += wt->wave->lpd[l] * inp[t - j];
-				cD[i] += wt->wave->hpd[l] * inp[t - j];
-			}
-			else if ((t - j) < l2 && (t - j) >= 0) {
-				cA[i] += wt->wave->lpd[l] * inp[t - j];
-				cD[i] += wt->wave->hpd[l] * inp[t - j];
-			}
-			else if ((t - j) < 0) {
-				cA[i] += wt->wave->lpd[l] * inp[t - j + N];
-				cD[i] += wt->wave->hpd[l] * inp[t - j + N];
-			}
-			else if ((t - j) >= N && isodd == 0) {
-				cA[i] += wt->wave->lpd[l] * inp[t - j - N];
-				cD[i] += wt->wave->hpd[l] * inp[t - j - N];
-			}
-			else if ((t - j) >= N && isodd == 1) {
-				if (t - l != N) {
-					cA[i] += wt->wave->lpd[l] * inp[t - j - (N + 1)];
-					cD[i] += wt->wave->hpd[l] * inp[t - j - (N + 1)];
-				}
-				else {
-					cA[i] += wt->wave->lpd[l] * inp[N - 1];
-					cD[i] += wt->wave->hpd[l] * inp[N - 1];
-				}
-			}
-
-		}
-	}
-
-
+	swt_per_stride(M,inp,N,wt->wave->lpd,wt->wave->hpd, wt->wave->lpd_len, cA,len_cA,cD,1,1);
 }
 
 static void swt_fft(wt_object wt, const double *inp) {
@@ -2235,6 +2233,172 @@ void swt(wt_object wt, const double *inp) {
 		printf("SWT Only accepts two methods - direct and fft");
 		exit(-1);
 	}
+}
+
+static void getSWTRecCoeff(double *coeff, int *length, const char *ctype, int level, int J, double *lpr,
+	double *hpr, int lf, int siglength, double *swtop) {
+	int N, iter, i, index, value, count, len;
+	int index_shift, len0, U, N1, index2;
+	double *appx1, *det1, *appx_sig, *det_sig, *cL0, *cH0, *tempx, *oup00L, *oup00H, *oup00, *oup01, *appx2, *det2;
+
+	N = siglength;
+	U = 2;
+
+	appx_sig = (double*)malloc(sizeof(double)* N);
+	det_sig = (double*)malloc(sizeof(double)* N);
+	appx1 = (double*)malloc(sizeof(double)* N);
+	det1 = (double*)malloc(sizeof(double)* N);
+	appx2 = (double*)malloc(sizeof(double)* N);
+	det2 = (double*)malloc(sizeof(double)* N);
+	tempx = (double*)malloc(sizeof(double)* N);
+	cL0 = (double*)malloc(sizeof(double)* (N + (N % 2) + lf));
+	cH0 = (double*)malloc(sizeof(double)* (N + (N % 2) + lf));
+	oup00L = (double*)malloc(sizeof(double)* (N + 2 * lf));
+	oup00H = (double*)malloc(sizeof(double)* (N + 2 * lf));
+	oup00 = (double*)malloc(sizeof(double)* N);
+	oup01 = (double*)malloc(sizeof(double)* N);
+
+
+
+	for (iter = J-level; iter < J; ++iter) {
+		for (i = 0; i < N; ++i) {
+			swtop[i] = 0.0;
+		}
+		if (!strcmp((ctype), "appx") && (iter == (J-level))) {
+			for (i = 0; i < N; ++i) {
+				appx_sig[i] = coeff[i];
+				det_sig[i] = 0.0;
+			}
+		}
+		else if (!strcmp((ctype), "det") && (iter == (J-level))) {
+			for (i = 0; i < N; ++i) {
+				det_sig[i] = coeff[i];
+				appx_sig[i] = 0.0;
+			}
+		}
+		else {
+			for (i = 0; i < N; ++i) {
+				det_sig[i] = 0.0;
+			}
+		}
+
+		value = (int)pow(2.0, (double)(J - 1 - iter));
+
+		for (count = 0; count < value; count++) {
+			len = 0;
+			for (index = count; index < N; index += value) {
+				appx1[len] = appx_sig[index];
+				det1[len] = det_sig[index];
+				len++;
+			}
+
+
+			//SHIFT 0
+			len0 = 0;
+
+			for (index_shift = 0; index_shift < len; index_shift += 2) {
+				appx2[len0] = appx1[index_shift];
+				det2[len0] = det1[index_shift];
+				len0++;
+			}
+			upsamp2(appx2, len0, U, tempx);
+			per_ext(tempx, 2 * len0, lf / 2, cL0);
+
+			upsamp2(det2, len0, U, tempx);
+			per_ext(tempx, 2 * len0, lf / 2, cH0);
+
+			N1 = 2 * len0 + lf;
+
+
+			
+			conv_direct(cL0, N1, lpr, lf, oup00L);
+
+			
+			conv_direct(cH0, N1, hpr, lf, oup00H);
+
+			for (i = lf - 1; i < 2 * len0 + lf - 1; ++i) {
+				oup00[i - lf + 1] = oup00L[i] + oup00H[i];
+			}
+
+			//SHIFT 1
+
+			len0 = 0;
+
+			for (index_shift = 1; index_shift < len; index_shift += 2) {
+				appx2[len0] = appx1[index_shift];
+				det2[len0] = det1[index_shift];
+				len0++;
+			}
+
+			upsamp2(appx2, len0, U, tempx);
+			per_ext(tempx, 2 * len0, lf / 2, cL0);
+
+			upsamp2(det2, len0, U, tempx);
+			per_ext(tempx, 2 * len0, lf / 2, cH0);
+
+			N1 = 2 * len0 + lf;
+
+			conv_direct(cL0, N1, lpr, lf, oup00L);
+
+			conv_direct(cH0, N1, hpr, lf, oup00H);
+
+			for (i = lf - 1; i < 2 * len0 + lf - 1; ++i) {
+				oup01[i - lf + 1] = oup00L[i] + oup00H[i];
+			}
+
+			circshift(oup01, 2 * len0, -1);
+
+			index2 = 0;
+
+			for (index = count; index < N; index += value) {
+				swtop[index] = (oup00[index2] + oup01[index2]) / 2.0;
+				index2++;
+			}
+
+		}
+		for (i = 0; i < N; ++i) {
+			appx_sig[i] = swtop[i];
+		}
+
+	}
+
+
+
+	free(appx_sig);
+	free(det_sig);
+	free(appx1);
+	free(det1);
+	free(tempx);
+	free(cL0);
+	free(cH0);
+	free(oup00L);
+	free(oup00H);
+	free(oup00);
+	free(oup01);
+	free(appx2);
+	free(det2);
+}
+
+double *getSWTmra(wt_object wt, double *wavecoeffs) {
+	int i, J, access, N;
+	double *mra;
+	J = wt->J;
+	mra = (double*)malloc(sizeof(double)* wt->siglength*(J + 1));
+	access = 0;
+
+
+	// Approximation MRA
+	getSWTRecCoeff(wt->output + access, wt->length, "appx", J, J, wt->wave->lpr, wt->wave->hpr, wt->wave->lpr_len, wt->siglength, mra);
+	// Details MRA
+	N = wt->siglength;
+	
+	for (i = J; i > 0; --i) {
+		access += wt->length[J - i];
+		getSWTRecCoeff(wt->output + access, wt->length, "det", i, J, wt->wave->lpr, wt->wave->hpr, wt->wave->lpr_len, wt->siglength, mra+N);
+		N += wt->siglength;
+	}
+	
+	return mra;
 }
 
 void iswt(wt_object wt, double *swtop) {
@@ -2614,6 +2778,196 @@ static void conj_complex(fft_data *x, int N) {
 	for (i = 0; i < N; ++i) {
 		x[i].im *= (-1.0);
 	}
+}
+
+static void getMODWTRecCoeff(fft_object fft_fd, fft_object fft_bd, fft_data* appx,fft_data *det, fft_data* cA,fft_data *cD, int *index, const char *ctype, int level, 
+	int J, fft_data *low_pass, fft_data *high_pass, int N) {
+
+	int iter,M,i;
+	fft_type tmp1, tmp2;
+
+	M = (int)pow(2.0, (double)level - 1.0);
+
+	if (!strcmp((ctype), "appx")) {
+		for (iter = 0; iter < level; ++iter)  {
+			fft_exec(fft_fd, appx, cA);
+			fft_exec(fft_fd, det, cD);
+
+			for (i = 0; i < N; ++i) {
+				index[i] = (M *i) % N;
+			}
+
+			for (i = 0; i < N; ++i) {
+				tmp1 = cA[i].re;
+				tmp2 = cA[i].im;
+				cA[i].re = low_pass[index[i]].re*tmp1 - low_pass[index[i]].im*tmp2 + high_pass[index[i]].re*cD[i].re - high_pass[index[i]].im*cD[i].im;
+				cA[i].im = low_pass[index[i]].re*tmp2 + low_pass[index[i]].im*tmp1 + high_pass[index[i]].re*cD[i].im + high_pass[index[i]].im*cD[i].re;
+			}
+
+			fft_exec(fft_bd, cA, appx);
+
+			for (i = 0; i < N; ++i) {
+				appx[i].re /= N;
+				appx[i].im /= N;
+			}
+			
+			M /= 2;
+		}
+	}
+	else if (!strcmp(ctype, "det")) {
+		for (iter = 0; iter < level; ++iter)  {
+			fft_exec(fft_fd, appx, cA);
+			fft_exec(fft_fd, det, cD);
+
+			for (i = 0; i < N; ++i) {
+				index[i] = (M *i) % N;
+			}
+
+			for (i = 0; i < N; ++i) {
+				tmp1 = cA[i].re;
+				tmp2 = cA[i].im;
+				cA[i].re = low_pass[index[i]].re*tmp1 - low_pass[index[i]].im*tmp2 + high_pass[index[i]].re*cD[i].re - high_pass[index[i]].im*cD[i].im;
+				cA[i].im = low_pass[index[i]].re*tmp2 + low_pass[index[i]].im*tmp1 + high_pass[index[i]].re*cD[i].im + high_pass[index[i]].im*cD[i].re;
+			}
+
+			fft_exec(fft_bd, cA, appx);
+
+			for (i = 0; i < N; ++i) {
+				appx[i].re /= N;
+				appx[i].im /= N;
+				det[i].re = 0.0;
+				det[i].im = 0.0;
+			}
+
+			M /= 2;
+		}
+	}
+	else {
+		printf("ctype can only be one of appx or det \n");
+		exit(-1);
+	}
+
+	
+}
+
+double* getMODWTmra(wt_object wt, double *wavecoeffs) {
+	double *mra;
+	int i, J, temp_len, iter, M, N, len_avg,lmra;
+	int lenacc;
+	double s;
+	fft_data  *cA, *cD, *low_pass, *high_pass, *sig,*ninp;
+	int *index;
+	fft_object fft_fd = NULL;
+	fft_object fft_bd = NULL;
+
+	N = wt->modwtsiglength;
+	len_avg = wt->wave->lpd_len;
+	if (!strcmp(wt->ext, "sym")) {
+		temp_len = N / 2;
+	}
+	else if (!strcmp(wt->ext, "per")) {
+		temp_len = N;
+	}
+	J = wt->J;
+
+	s = sqrt(2.0);
+	fft_fd = fft_init(N, 1);
+	fft_bd = fft_init(N, -1);
+
+	sig = (fft_data*)malloc(sizeof(fft_data)* N);
+	cA = (fft_data*)malloc(sizeof(fft_data)* N);
+	cD = (fft_data*)malloc(sizeof(fft_data)* N);
+	ninp = (fft_data*)malloc(sizeof(fft_data)* N);
+	low_pass = (fft_data*)malloc(sizeof(fft_data)* N);
+	high_pass = (fft_data*)malloc(sizeof(fft_data)* N);
+	index = (int*)malloc(sizeof(int)*N);
+	mra = (double*)malloc(sizeof(double)*temp_len*(J + 1));
+
+	// N-point FFT of low pass and high pass filters
+
+	// Low Pass Filter
+
+	for (i = 0; i < len_avg; ++i) {
+		sig[i].re = (fft_type)wt->wave->lpd[i] / s;
+		sig[i].im = 0.0;
+	}
+	for (i = len_avg; i < N; ++i) {
+		sig[i].re = 0.0;
+		sig[i].im = 0.0;
+	}
+
+
+	fft_exec(fft_fd, sig, low_pass);
+
+	// High Pass Filter
+
+	for (i = 0; i < len_avg; ++i) {
+		sig[i].re = (fft_type)wt->wave->hpd[i] / s;
+		sig[i].im = 0.0;
+	}
+	for (i = len_avg; i < N; ++i) {
+		sig[i].re = 0.0;
+		sig[i].im = 0.0;
+	}
+
+	fft_exec(fft_fd, sig, high_pass);
+
+
+	// Complex conjugate of the two filters
+
+	conj_complex(low_pass, N);
+	conj_complex(high_pass, N);
+
+	M = (int)pow(2.0, (double)J - 1.0);
+	lenacc = N;
+
+	// 
+	for (i = 0; i < N; ++i) {
+		sig[i].re = (fft_type)wt->output[i];
+		sig[i].im = 0.0;
+		ninp[i].re = 0.0;
+		ninp[i].im = 0.0;
+	}
+
+	// Find Approximation MRA
+
+	getMODWTRecCoeff(fft_fd,fft_bd,sig,ninp,cA,cD,index,"appx",J,J,low_pass,high_pass,N);
+
+	for (i = 0; i < wt->siglength; ++i) {
+		mra[i] = sig[i].re;
+	}
+	lmra = wt->siglength;
+	// Find Details MRA
+
+	for (iter = 0; iter < J; ++iter) {
+		for (i = 0; i < N; ++i) {
+			sig[i].re = (fft_type)wt->output[lenacc+i];
+			sig[i].im = 0.0;
+			ninp[i].re = 0.0;
+			ninp[i].im = 0.0;
+		}
+
+		getMODWTRecCoeff(fft_fd, fft_bd, sig, ninp,cA, cD, index, "det", J-iter, J, low_pass, high_pass, N);
+
+		for (i = 0; i < wt->siglength; ++i) {
+			mra[lmra+i] = sig[i].re;
+		}
+
+		lenacc += N;
+		lmra += wt->siglength;
+	}
+
+	free(ninp);
+	free(index);
+	free(sig);
+	free(cA);
+	free(cD);
+	free(low_pass);
+	free(high_pass);
+	free_fft(fft_fd);
+	free_fft(fft_bd);
+
+	return mra;
 }
 
 void imodwt_fft(wt_object wt, double *oup) {

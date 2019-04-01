@@ -1,6 +1,7 @@
 #Folders Ignore
 Bin/
 Testing/
+.vscode/
 
 #cmake ignore
 CMakeCache.txt

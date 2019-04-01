@@ -10,6 +10,27 @@ Copyright (c) 2014, Rafat Hussain
 extern "C" {
 #endif
 
+void dwt_per_stride(double *inp, int N, double *lpd,double*hpd,int lpd_len,
+double *cA, int len_cA, double *cD, int istride, int ostride);
+
+void dwt_sym_stride(double *inp, int N, double *lpd, double*hpd, int lpd_len,
+double *cA, int len_cA, double *cD, int istride, int ostride);
+
+void modwt_per_stride(int M, double *inp, int N, double *filt, int lpd_len, 
+double *cA, int len_cA, double *cD, int istride, int ostride);
+
+void swt_per_stride(int M, double *inp, int N, double *lpd, double*hpd, int lpd_len, 
+double *cA, int len_cA, double *cD, int istride, int ostride);
+
+void idwt_per_stride(double *cA, int len_cA, double *cD, double *lpr, double *hpr, 
+int lpr_len, double *X, int istride, int ostride);
+
+void idwt_sym_stride(double *cA, int len_cA, double *cD, double *lpr, double *hpr, 
+int lpr_len, double *X, int istride, int ostride);
+
+void imodwt_per_stride(int M, double *cA, int len_cA, double *cD, double *filt,
+int lf,double *X,int istride, int ostride);
+
 int upsamp(double *x, int lenx, int M, double *y);
 
 int upsamp2(double *x, int lenx, int M, double *y);
