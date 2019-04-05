@@ -276,6 +276,79 @@ void imodwt_per_stride(int M, double *cA, int len_cA, double *cD, double *filt,i
 
 }
 
+void idwt2_shift(int shift, int rows, int cols, double *lpr, double *hpr, int lf, double *A,double *H, double *V,double *D, double *oup) {
+	int i, k, N, ir, ic, J, dim1, dim2;
+	int istride, ostride;
+	double *cL, *cH, *X_lp;
+
+
+	N = rows > cols ? 2 * rows : 2 * cols;
+
+	J = 1;
+	dim1 = 2 * rows;
+	dim2 = 2 * cols;
+
+	X_lp = (double*)malloc(sizeof(double)* (N + 2 * lf - 1));
+	cL = (double*)calloc(dim1*dim2, sizeof(double));
+	cH = (double*)calloc(dim1*dim2, sizeof(double));
+
+	ir = rows;
+	ic = cols;
+	istride = ic;
+	ostride = 1;
+	for (i = 0; i < ic; ++i) {
+		idwt_per_stride(A+i, ir, H+i, lpr, hpr, lf, X_lp, istride, ostride);
+
+		for (k = lf / 2 - 1; k < 2 * ir + lf / 2 - 1; ++k) {
+			cL[(k - lf / 2 + 1)*ic + i] = X_lp[k];
+		}
+
+		idwt_per_stride(V+i, ir, D+i, lpr, hpr, lf, X_lp, istride, ostride);
+
+		for (k = lf / 2 - 1; k < 2 * ir + lf / 2 - 1; ++k) {
+			cH[(k - lf / 2 + 1)*ic + i] = X_lp[k];
+		}
+	}
+	ir *= 2;
+	istride = 1;
+	ostride = 1;
+
+	for (i = 0; i < ir; ++i) {
+		idwt_per_stride(cL + i*ic, ic, cH + i*ic, lpr, hpr, lf, X_lp, istride, ostride);
+
+		for (k = lf / 2 - 1; k < 2 * ic + lf / 2 - 1; ++k) {
+			oup[(k - lf / 2 + 1) + i*ic * 2] = X_lp[k];
+		}
+	}
+	ic *= 2;
+
+
+	if (shift == -1) {
+		//Save the last column
+		for (i = 0; i < ir; ++i) {
+			cL[i] = oup[(i + 1)*ic - 1];
+		}
+		// Save the last row
+		memcpy(cH, oup + (ir - 1)*ic, sizeof(double)*ic);
+		for (i = ir - 1; i > 0; --i) {
+			memcpy(oup + i*ic + 1, oup + (i - 1)*ic, sizeof(double)*(ic - 1));
+		}
+		oup[0] = cL[ir - 1];
+		for (i = 1; i < ir; ++i) {
+			oup[i*ic] = cL[i - 1];
+		}
+
+		for (i = 1; i < ic; ++i) {
+			oup[i] = cH[i - 1];
+		}
+	}
+
+
+	free(X_lp);
+	free(cL);
+	free(cH);
+
+}
 
 int upsamp(double *x, int lenx, int M, double *y) {
 	int N, i, j, k;

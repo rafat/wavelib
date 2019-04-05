@@ -191,6 +191,26 @@ struct cwt_set{
 	double params[0];
 };
 
+typedef struct wt2_set* wt2_object;
+
+wt2_object wt2_init(wave_object wave, const char* method, int rows, int cols, int J);
+
+struct wt2_set{
+	wave_object wave;
+	char method[10];
+	int rows;// Matrix Number of rows
+	int cols; // Matrix Number of columns
+	int outlength;// Length of the output DWT vector
+	int J; // Number of decomposition Levels
+	int MaxIter;// Maximum Iterations J <= MaxIter
+	char ext[10];// Type of Extension used - "per" or "sym"
+	int coeffaccesslength;
+
+	int N; //
+	int *dimensions;
+	int *coeffaccess;
+	int params[0];
+};
 
 void dwt(wt_object wt, const double *inp);
 
@@ -222,6 +242,8 @@ void setWTREEExtension(wtree_object wt, const char *extension);
 
 void setDWPTExtension(wpt_object wt, const char *extension);
 
+void setDWT2Extension(wt2_object wt, const char *extension);
+
 void setDWPTEntropy(wpt_object wt, const char *entropy, double eparam);
 
 void setWTConv(wt_object wt, const char *cmethod);
@@ -246,6 +268,22 @@ void icwt(cwt_object wt, double *cwtop);
 
 int getCWTScaleLength(int N);
 
+double* dwt2(wt2_object wt, double *inp);
+
+void idwt2(wt2_object wt,double *wavecoeff, double *oup);
+
+double* swt2(wt2_object wt, double *inp);
+
+void iswt2(wt2_object wt, double *wavecoeffs, double *oup);
+
+double* modwt2(wt2_object wt, double *inp);
+
+void imodwt2(wt2_object wt, double *wavecoeff, double *oup);
+
+double* getWT2Coeffs(wt2_object wt,double* wcoeffs, int level,char *type, int *rows, int *cols);
+
+void dispWT2Coeffs(double *A, int row, int col);
+
 void wave_summary(wave_object obj);
 
 void wt_summary(wt_object wt);
@@ -254,7 +292,9 @@ void wtree_summary(wtree_object wt);
 
 void wpt_summary(wpt_object wt);
 
-void cwt_summary(cwt_object wt);;
+void cwt_summary(cwt_object wt);
+
+void wt2_summary(wt2_object wt);
 
 void wave_free(wave_object object);
 
@@ -265,6 +305,8 @@ void wtree_free(wtree_object object);
 void wpt_free(wpt_object object);
 
 void cwt_free(cwt_object object);
+
+void wt2_free(wt2_object wt);
 
 
 #ifdef __cplusplus

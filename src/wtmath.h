@@ -31,6 +31,9 @@ int lpr_len, double *X, int istride, int ostride);
 void imodwt_per_stride(int M, double *cA, int len_cA, double *cD, double *filt,
 int lf,double *X,int istride, int ostride);
 
+void idwt2_shift(int shift, int rows, int cols, double *lpr, double *hpr, int lf, 
+double *A,double *H, double *V,double *D, double *oup);
+
 int upsamp(double *x, int lenx, int M, double *y);
 
 int upsamp2(double *x, int lenx, int M, double *y);
