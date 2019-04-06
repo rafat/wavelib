@@ -111,6 +111,14 @@ double REL_Error(double *data, double *rec, int N) {
     return sqrt(sum1)/sqrt(sum2);
 }
 
+double generate_rnd() {
+	double rnd;
+
+	rnd = (double) (rand() % 100 + 1);
+
+	return rnd;
+}
+
 void DWTReconstructionTest()
 {
 
@@ -229,6 +237,124 @@ void DWTReconstructionTest()
     free(inp);
 }
 
+void DWT2ReconstructionTest()
+{
+    wave_object obj;
+	wt2_object wt;
+	int i, k, J, N, rows, cols;
+	double *inp, *wavecoeffs,*out;
+    double epsilon;
+
+    rows = 1024;
+    cols = 1000;
+
+    N = rows*cols;
+
+    inp = (double*)malloc(sizeof(double)* N);
+	out = (double*)malloc(sizeof(double)* N);
+
+    std::vector<std::string > waveletNames;
+
+    for (unsigned int j = 0; j < 15; j++)
+    {
+        waveletNames.push_back(std::string("db") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 0; j < 5; j++)
+    {
+        waveletNames.push_back(std::string("coif") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 1; j < 10; j++)
+    {
+        waveletNames.push_back(std::string("sym") + patch::to_string(j + 1));
+    }
+    
+    waveletNames.push_back("bior1.1");
+    waveletNames.push_back("bior1.3");
+    waveletNames.push_back("bior1.5");
+    waveletNames.push_back("bior2.2");
+    waveletNames.push_back("bior2.4");
+    waveletNames.push_back("bior2.6");
+    waveletNames.push_back("bior2.8");
+    waveletNames.push_back("bior3.1");
+    waveletNames.push_back("bior3.3");
+    waveletNames.push_back("bior3.5");
+    waveletNames.push_back("bior3.7");
+    waveletNames.push_back("bior3.9");
+    waveletNames.push_back("bior4.4");
+    waveletNames.push_back("bior5.5");
+    waveletNames.push_back("bior6.8");
+    
+    waveletNames.push_back("rbior1.1");
+    waveletNames.push_back("rbior1.3");
+    waveletNames.push_back("rbior1.5");
+    waveletNames.push_back("rbior2.2");
+    waveletNames.push_back("rbior2.4");
+    waveletNames.push_back("rbior2.6");
+    waveletNames.push_back("rbior2.8");
+    waveletNames.push_back("rbior3.1");
+    waveletNames.push_back("rbior3.3");
+    waveletNames.push_back("rbior3.5");
+    waveletNames.push_back("rbior3.7");
+    waveletNames.push_back("rbior3.9");
+    waveletNames.push_back("rbior4.4");
+    waveletNames.push_back("rbior5.5");
+    waveletNames.push_back("rbior6.8");
+
+    for (i = 0; i < rows; ++i) {
+		for (k = 0; k < cols; ++k) {
+			//inp[i*cols + k] = i*cols + k;
+			inp[i*cols + k] = generate_rnd();
+			out[i*cols + k] = 0.0;
+		}
+	}
+
+    for (unsigned int direct_fft = 0; direct_fft < 1; direct_fft++)
+    {
+        for (unsigned int sym_per = 0; sym_per < 2; sym_per++)
+        {
+            for (unsigned int j = 0; j < waveletNames.size(); j++)
+            {
+                char * name = new char[waveletNames[j].size() + 1];
+                memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+                obj = wave_init(name);// Initialize the wavelet
+                for (J = 1; J < 3; J++)
+                {
+                    //J = 3;
+
+                    wt = wt2_init(obj,(char*) "dwt", rows,cols, J);// Initialize the wavelet transform object
+                    if (sym_per == 0)
+                        setDWT2Extension(wt, (char*) "sym");// Options are "per" and "sym". Symmetric is the default option
+                    else
+                        setDWT2Extension(wt, (char*) "per");
+
+                    wavecoeffs = dwt2(wt, inp);// Perform DWT
+
+                    idwt2(wt, wavecoeffs, out);// Perform IDWT (if needed)
+                    // Test Reconstruction
+
+                    if (direct_fft == 0)
+                        epsilon = 1e-8;
+                    else
+                        epsilon = 1e-10;
+                    //BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
+                    
+					//printf("%g ",RMS_Error(out, inp, wt->siglength));
+					if (RMS_Error(out, inp, N) > epsilon) {
+						printf("\n ERROR : DWT2 Reconstruction Unit Test Failed. Exiting. \n");
+						exit(-1);
+					}
+                    wt2_free(wt);
+                }
+                wave_free(obj);
+                delete[] name;
+            }
+        }
+    }
+
+    free(inp);
+    free(out);
+}
+
 void MODWTReconstructionTest()
 {
 
@@ -320,6 +446,91 @@ void MODWTReconstructionTest()
     
     free(out);
     free(inp);
+}
+
+void MODWT2ReconstructionTest()
+{
+    wave_object obj;
+	wt2_object wt;
+	int i, k, J, N, rows, cols;
+	double *inp, *wavecoeffs,*out;
+    double epsilon;
+
+    rows = 1024;
+    cols = 1000;
+
+    N = rows*cols;
+
+    inp = (double*)malloc(sizeof(double)* N);
+	out = (double*)malloc(sizeof(double)* N);
+
+    std::vector<std::string > waveletNames;
+
+    for (unsigned int j = 0; j < 15; j++)
+    {
+        waveletNames.push_back(std::string("db") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 0; j < 5; j++)
+    {
+        waveletNames.push_back(std::string("coif") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 1; j < 10; j++)
+    {
+        waveletNames.push_back(std::string("sym") + patch::to_string(j + 1));
+    }
+    
+
+    for (i = 0; i < rows; ++i) {
+		for (k = 0; k < cols; ++k) {
+			//inp[i*cols + k] = i*cols + k;
+			inp[i*cols + k] = generate_rnd();
+			out[i*cols + k] = 0.0;
+		}
+	}
+
+    for (unsigned int direct_fft = 0; direct_fft < 1; direct_fft++)
+    {
+        for (unsigned int sym_per = 0; sym_per < 1; sym_per++)
+        {
+            for (unsigned int j = 0; j < waveletNames.size(); j++)
+            {
+                char * name = new char[waveletNames[j].size() + 1];
+                memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+                obj = wave_init(name);// Initialize the wavelet
+                for (J = 1; J < 3; J++)
+                {
+                    //J = 3;
+
+                    wt = wt2_init(obj,(char*) "modwt", rows,cols, J);// Initialize the wavelet transform object
+                    if (sym_per == 0)
+                        setDWT2Extension(wt, (char*) "per");// Options are "per"
+
+                    wavecoeffs = modwt2(wt, inp);// Perform DWT
+
+                    imodwt2(wt, wavecoeffs, out);// Perform IDWT (if needed)
+                    // Test Reconstruction
+
+                    if (direct_fft == 0)
+                        epsilon = 1e-8;
+                    else
+                        epsilon = 1e-10;
+                    //BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
+                    
+					//printf("%g ",RMS_Error(out, inp, wt->siglength));
+					if (RMS_Error(out, inp, N) > epsilon) {
+						printf("\n ERROR : MODWT2 Reconstruction Unit Test Failed. Exiting. \n");
+						exit(-1);
+					}
+                    wt2_free(wt);
+                }
+                wave_free(obj);
+                delete[] name;
+            }
+        }
+    }
+
+    free(inp);
+    free(out);
 }
 
 void SWTReconstructionTest()
@@ -444,6 +655,122 @@ void SWTReconstructionTest()
     
     free(out);
     free(inp);
+}
+
+void SWT2ReconstructionTest()
+{
+    wave_object obj;
+	wt2_object wt;
+	int i, k, J, N, rows, cols;
+	double *inp, *wavecoeffs,*out;
+    double epsilon;
+
+    rows = 1024;
+    cols = 1000;
+
+    N = rows*cols;
+
+    inp = (double*)malloc(sizeof(double)* N);
+	out = (double*)malloc(sizeof(double)* N);
+
+    std::vector<std::string > waveletNames;
+
+    for (unsigned int j = 0; j < 15; j++)
+    {
+        waveletNames.push_back(std::string("db") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 0; j < 5; j++)
+    {
+        waveletNames.push_back(std::string("coif") + patch::to_string(j + 1));
+    }
+    for (unsigned int j = 1; j < 10; j++)
+    {
+        waveletNames.push_back(std::string("sym") + patch::to_string(j + 1));
+    }
+    
+    waveletNames.push_back("bior1.1");
+    waveletNames.push_back("bior1.3");
+    waveletNames.push_back("bior1.5");
+    waveletNames.push_back("bior2.2");
+    waveletNames.push_back("bior2.4");
+    waveletNames.push_back("bior2.6");
+    waveletNames.push_back("bior2.8");
+    waveletNames.push_back("bior3.1");
+    waveletNames.push_back("bior3.3");
+    waveletNames.push_back("bior3.5");
+    waveletNames.push_back("bior3.7");
+    waveletNames.push_back("bior3.9");
+    waveletNames.push_back("bior4.4");
+    waveletNames.push_back("bior5.5");
+    waveletNames.push_back("bior6.8");
+    
+    waveletNames.push_back("rbior1.1");
+    waveletNames.push_back("rbior1.3");
+    waveletNames.push_back("rbior1.5");
+    waveletNames.push_back("rbior2.2");
+    waveletNames.push_back("rbior2.4");
+    waveletNames.push_back("rbior2.6");
+    waveletNames.push_back("rbior2.8");
+    waveletNames.push_back("rbior3.1");
+    waveletNames.push_back("rbior3.3");
+    waveletNames.push_back("rbior3.5");
+    waveletNames.push_back("rbior3.7");
+    waveletNames.push_back("rbior3.9");
+    waveletNames.push_back("rbior4.4");
+    waveletNames.push_back("rbior5.5");
+    waveletNames.push_back("rbior6.8");
+
+    for (i = 0; i < rows; ++i) {
+		for (k = 0; k < cols; ++k) {
+			//inp[i*cols + k] = i*cols + k;
+			inp[i*cols + k] = generate_rnd();
+			out[i*cols + k] = 0.0;
+		}
+	}
+
+    for (unsigned int direct_fft = 0; direct_fft < 1; direct_fft++)
+    {
+        for (unsigned int sym_per = 0; sym_per < 1; sym_per++)
+        {
+            for (unsigned int j = 0; j < waveletNames.size(); j++)
+            {
+                char * name = new char[waveletNames[j].size() + 1];
+                memcpy(name, waveletNames[j].c_str(), waveletNames[j].size() + 1);
+                obj = wave_init(name);// Initialize the wavelet
+                for (J = 1; J < 3; J++)
+                {
+                    //J = 3;
+
+                    wt = wt2_init(obj,(char*) "swt", rows,cols, J);// Initialize the wavelet transform object
+                    if (sym_per == 0)
+                        setDWT2Extension(wt, (char*) "per");// Options are "per"
+
+                    wavecoeffs = swt2(wt, inp);// Perform DWT
+
+                    iswt2(wt, wavecoeffs, out);// Perform IDWT (if needed)
+                    // Test Reconstruction
+
+                    if (direct_fft == 0)
+                        epsilon = 1e-8;
+                    else
+                        epsilon = 1e-10;
+                    //BOOST_CHECK_SMALL(RMS_Error(out, inp, wt->siglength), epsilon); // If Reconstruction succeeded then the output should be a small value.
+                    
+					//printf("%g ",RMS_Error(out, inp, wt->siglength));
+					if (RMS_Error(out, inp, N) > epsilon) {
+						printf("\n ERROR : SWT2 Reconstruction Unit Test Failed. Exiting. \n");
+						exit(-1);
+					}
+                    wt2_free(wt);
+                }
+                wave_free(obj);
+                delete[] name;
+            }
+        }
+    }
+
+    free(inp);
+    free(out);
 }
 
 void DWPTReconstructionTest()
@@ -877,6 +1204,15 @@ int main() {
 	printf("DONE \n");
 	printf("Running CWT ReconstructionTests ... ");
 	CWTReconstructionTest();
+	printf("DONE \n");
+    printf("Running DWT2 ReconstructionTests ... ");
+	DWT2ReconstructionTest();
+	printf("DONE \n");
+    printf("Running MODWT2 ReconstructionTests ... ");
+	MODWT2ReconstructionTest();
+	printf("DONE \n");
+    printf("Running SWT2 ReconstructionTests ... ");
+	SWT2ReconstructionTest();
 	printf("DONE \n");
 	printf("\n\nUnit Tests Successful\n\n");
 	return 0;
