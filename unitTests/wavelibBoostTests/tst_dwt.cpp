@@ -344,6 +344,7 @@ void DWT2ReconstructionTest()
 						exit(-1);
 					}
                     wt2_free(wt);
+                    free(wavecoeffs);
                 }
                 wave_free(obj);
                 delete[] name;
@@ -522,6 +523,7 @@ void MODWT2ReconstructionTest()
 						exit(-1);
 					}
                     wt2_free(wt);
+                    free(wavecoeffs);
                 }
                 wave_free(obj);
                 delete[] name;
@@ -762,6 +764,7 @@ void SWT2ReconstructionTest()
 						exit(-1);
 					}
                     wt2_free(wt);
+                    free(wavecoeffs);
                 }
                 wave_free(obj);
                 delete[] name;
