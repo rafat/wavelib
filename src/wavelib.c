@@ -4250,7 +4250,7 @@ void wt2_summary(wt2_object wt) {
 		t += 1;
 		printf("Vertical Coefficients access at wt->coeffaccess[%d]=%d, Vector size:%d \n", t, wt->coeffaccess[t], vsize);
 		t += 1;
-		printf("Detail Coefficients access at wt->coeffaccess[%d]=%d, Vector size:%d \n\n", t, wt->coeffaccess[t], vsize);
+		printf("Diagonal Coefficients access at wt->coeffaccess[%d]=%d, Vector size:%d \n\n", t, wt->coeffaccess[t], vsize);
 	}
 
 }
