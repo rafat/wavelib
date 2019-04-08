@@ -393,9 +393,9 @@ void MODWTReconstructionTest()
     }
     
 
-    for (unsigned int direct_fft = 0; direct_fft < 2; direct_fft++)
+    for (unsigned int direct_fft = 0; direct_fft < 1; direct_fft++)
     {
-        for (unsigned int sym_per = 0; sym_per < 2; sym_per++)
+        for (unsigned int sym_per = 0; sym_per < 1; sym_per++)
         {
             for (unsigned int j = 0; j < waveletNames.size(); j++)
             {
