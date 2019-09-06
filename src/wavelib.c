@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "cwt.h"
-#include "wavelib.h"
+#include "../header/wavelib.h"
 #include "wtmath.h"
 
 wave_object wave_init(const char* wname) {

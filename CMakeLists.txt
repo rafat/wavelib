@@ -30,7 +30,7 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # make include globaly visible
-set(PROJECT_WIDE_INCLUDE ${WAVELIB_SRC_ROOT}/include)
+set(PROJECT_WIDE_INCLUDE ${WAVELIB_SRC_ROOT}/header)
 include_directories(${PROJECT_WIDE_INCLUDE})
 
 

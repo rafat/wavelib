@@ -16,7 +16,7 @@ add_dependencies(wavelibLibTests wavelib)
 target_link_libraries(wavelibLibTests wavelib)
 
 target_include_directories(wavelibLibTests PUBLIC
-							${CMAKE_SOURCE_DIR}/../../header
+							${CMAKE_CURRENT_SOURCE_DIR}/../../header
                             )
                             
 

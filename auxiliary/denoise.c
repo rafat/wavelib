@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "waux.h"
-#include "wauxlib.h"
+#include "../header/wauxlib.h"
 
 denoise_object denoise_init(int length, int J,const char* wname) {
 	denoise_object obj = NULL;

@@ -12,7 +12,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "wavelib.h"
+#include "../header/wavelib.h"
 
 #ifdef __cplusplus
 extern "C" {
