@@ -3628,7 +3628,7 @@ void idwt2(wt2_object wt, double *wavecoeff, double *oup) {
 					cL[(k - lf + 2)*ic + i] = X_lp[k];
 				}
 
-				idwt_per_stride(wavecoeff + aHL + i, ir, wavecoeff + aHH + i, wt->wave->lpr, wt->wave->hpr, lf, X_lp, istride, ostride);
+				idwt_sym_stride(wavecoeff + aHL + i, ir, wavecoeff + aHH + i, wt->wave->lpr, wt->wave->hpr, lf, X_lp, istride, ostride);
 
 				for (k = lf - 2; k < 2 * ir; ++k) {
 					cH[(k - lf + 2)*ic + i] = X_lp[k];
@@ -3640,7 +3640,7 @@ void idwt2(wt2_object wt, double *wavecoeff, double *oup) {
 			ostride = 1;
 
 			for (i = 0; i < ir; ++i) {
-				idwt_per_stride(cL + i*ic, ic, cH + i*ic, wt->wave->lpr, wt->wave->hpr, lf, X_lp, istride, ostride);
+				idwt_sym_stride(cL + i*ic, ic, cH + i*ic, wt->wave->lpr, wt->wave->hpr, lf, X_lp, istride, ostride);
 
 				for (k = lf - 2; k < 2 * ic; ++k) {
 					out[(k - lf + 2) + i*ic * 2] = X_lp[k];
