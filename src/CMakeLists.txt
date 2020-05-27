@@ -27,5 +27,14 @@ add_library(wavelib STATIC ${SOURCE_FILES} ${HEADER_FILES})
         
 set_property(TARGET wavelib PROPERTY FOLDER "lib")
 
-target_include_directories(wavelib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}../header)
+target_include_directories(wavelib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}../header)
 
+install(TARGETS wavelib
+    EXPORT wavelib-targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT wavelib-targets
+    FILE wavelib-config.cmake
+    NAMESPACE wavelib::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wavelib)
