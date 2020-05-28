@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
 set(PROJECT_NAME wavelib)
-project(${PROJECT_NAME} CXX C)
+project(${PROJECT_NAME} C)
 
+include(GNUInstallDirs)
 
 # src root path
 set(WAVELIB_SRC_ROOT ${PROJECT_SOURCE_DIR} CACHE PATH "Wavelib source root")
@@ -41,6 +42,7 @@ include_directories(${COMMON_BIN_PATH})
 if(BUILD_UT)
     include(CTest)
     enable_testing()
+    enable_language(CXX)
     add_subdirectory(unitTests)
 endif()
 
@@ -48,4 +50,6 @@ add_subdirectory(src)
 add_subdirectory(auxiliary)
 add_subdirectory(test) 
 
-install(DIRECTORY ${WAVELIB_SRC_ROOT}/include/ DESTINATION include FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${WAVELIB_SRC_ROOT}/header/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.h")
