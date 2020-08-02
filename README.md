@@ -23,7 +23,7 @@ CWT/ICWT C translation ( with some modifications) of Continuous Wavelet  Transfo
 
 Documentation Available at - https://github.com/rafat/wavelib/wiki
 
-Live Demo (Emscripten) - http://rafat.github.io/wavelib/
+Live Demo of 1D DWT and 1D CWT (Emscripten) - http://rafat.github.io/wavelib/
 
 License - BSD 3-Clause
 
