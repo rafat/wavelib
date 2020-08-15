@@ -127,76 +127,75 @@ app.controller('mainController', function ($scope, $http, wave) {
             return;
         }
 
+        function parseTextData(inputText) {
+            var x = inputText.split(/[\s,;\t\r\n]+/);
 
-      function parseTextData(inputText) {
-        var x = inputText.split(/[\s,;\t\r\n]+/);
+            var j = 0;
 
-        var j = 0;
+            for (var i = 0; i < x.length; i++) {
+                if (!isNaN(parseFloat(x[i]))) {
+                    j = j + 1;
+                }
+            }
 
-        for (var i = 0; i < x.length; i++) {
-          if (!isNaN(parseFloat(x[i]))) {
-            j = j + 1;
-          }
+            wave.sigLength = j;
+            wave.sigData = new Float64Array(j);
+
+            j = 0;
+
+            for (var i = 0; i < x.length; i++) {
+                temp = parseFloat(x[i]);
+                if (!isNaN(temp)) {
+                    wave.sigData[j] = temp;
+                    j = j + 1;
+                }
+            }
+
+            /*
+            var rm = x.length - j;
+            if (rm > 0) {
+            wave.sigData.splice(j, rm);
+            }
+            */
         }
 
-        wave.sigLength = j;
-        wave.sigData = new Float64Array(j);
+        async function parseAudioData(inputBuffer) {
+            console.log("Converting a", inputBuffer.byteLength,
+                "bytes audio buffer to linear PCM");
 
-        j = 0;
+            var audioCtx = new AudioContext({ sampleRate: 44100 });
+            var pcmData = await audioCtx.decodeAudioData(inputBuffer);
+            var pcmSamples = pcmData.getChannelData(0); // Float32Array
 
-        for (var i = 0; i < x.length; i++) {
-          temp = parseFloat(x[i]);
-          if (!isNaN(temp)) {
-            wave.sigData[j] = temp;
-            j = j + 1;
-          }
+            wave.sigData = new Float64Array(pcmSamples);
+            wave.sigLength = pcmSamples.length;
         }
 
-        /*
-        var rm = x.length - j;
-        if (rm > 0) {
-        wave.sigData.splice(j, rm);
+        reader.onload = async function (e) {
+            var input = reader.result;
+
+            if (input instanceof ArrayBuffer)
+                await parseAudioData(input);
+            else
+                parseTextData(input);
+
+            console.log("Input wave:", wave.sigLength, "samples");
+
+            if (wave.transform == 1) {
+                location.href = '#/display';
+            } else if (wave.transform == 2) {
+                location.href = '#/cdisplay';
+            } else if (wave.transform == 4) {
+                location.href = '#/denoise';
+            } else {
+                location.href = '#/cdisplay';
+            }
         }
-        */
-      }
 
-      async function parseAudioData(inputBuffer) {
-        console.log("Converting a", inputBuffer.byteLength,
-          "bytes audio buffer to linear PCM");
-
-        var audioCtx = new AudioContext({ sampleRate: 44100 });
-        var pcmData = await audioCtx.decodeAudioData(inputBuffer);
-        var pcmSamples = pcmData.getChannelData(0); // Float32Array
-
-        wave.sigData = new Float64Array(pcmSamples);
-        wave.sigLength = pcmSamples.length;
-      }
-
-      reader.onload = async function (e) {
-        var input = reader.result;
-
-        if (input instanceof ArrayBuffer)
-          await parseAudioData(input);
+        if (finp1.type == "audio/mpeg")
+            reader.readAsArrayBuffer(finp1);
         else
-          parseTextData(input);
-
-        console.log("Input wave:", wave.sigLength, "samples");
-
-        if (wave.transform == 1) {
-          location.href = '#/display';
-        } else if (wave.transform == 2) {
-          location.href = '#/cdisplay';
-        } else if (wave.transform == 4) {
-          location.href = '#/denoise';
-        } else {
-          location.href = '#/cdisplay';
-        }
-      }
-
-      if (finp1.type == "audio/mpeg")
-        reader.readAsArrayBuffer(finp1);
-      else
-        reader.readAsText(finp1);
+            reader.readAsText(finp1);
     }
 
     $scope.testInput = function () {
