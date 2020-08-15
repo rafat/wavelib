@@ -127,9 +127,8 @@ app.controller('mainController', function ($scope, $http, wave) {
             return;
         }
 
-
-        reader.onload = function (e) {
-            var x = reader.result.split(/[\s,;\t\r\n]+/);
+        function parseTextData(inputText) {
+            var x = inputText.split(/[\s,;\t\r\n]+/);
 
             var j = 0;
 
@@ -158,16 +157,45 @@ app.controller('mainController', function ($scope, $http, wave) {
             wave.sigData.splice(j, rm);
             }
             */
+        }
+
+        async function parseAudioData(inputBuffer) {
+            console.log("Converting a", inputBuffer.byteLength,
+                "bytes audio buffer to linear PCM");
+
+            var audioCtx = new AudioContext({ sampleRate: 44100 });
+            var pcmData = await audioCtx.decodeAudioData(inputBuffer);
+            var pcmSamples = pcmData.getChannelData(0); // Float32Array
+
+            wave.sigData = new Float64Array(pcmSamples);
+            wave.sigLength = pcmSamples.length;
+        }
+
+        reader.onload = async function (e) {
+            var input = reader.result;
+
+            if (input instanceof ArrayBuffer)
+                await parseAudioData(input);
+            else
+                parseTextData(input);
+
+            console.log("Input wave:", wave.sigLength, "samples");
+
             if (wave.transform == 1) {
-              location.href = '#/display';
+                location.href = '#/display';
             } else if (wave.transform == 2) {
-              location.href = '#/cdisplay';
+                location.href = '#/cdisplay';
             } else if (wave.transform == 4) {
-              location.href = '#/denoise';
+                location.href = '#/denoise';
+            } else {
+                location.href = '#/cdisplay';
             }
         }
 
-        reader.readAsText(finp1);
+        if (finp1.type == "audio/mpeg")
+            reader.readAsArrayBuffer(finp1);
+        else
+            reader.readAsText(finp1);
     }
 
     $scope.testInput = function () {
