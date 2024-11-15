@@ -321,6 +321,9 @@ double cdelta(int mother, double param, double psi0 ) {
 			s0 = dt / 16.0;
 			N = 2048;
 		}
+	} else {
+		printf("Mother only takes 0,1 or 2 as values");
+		exit(-1);
 	}
 
 	dj = 1.0 / subscale;

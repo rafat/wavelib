@@ -2933,7 +2933,7 @@ static void getMODWTRecCoeff(fft_object fft_fd, fft_object fft_bd, fft_data* app
 
 double* getMODWTmra(wt_object wt, double *wavecoeffs) {
 	double *mra;
-	int i, J, temp_len, iter, M, N, len_avg,lmra;
+	int i, J, temp_len, iter, N, len_avg,lmra;
 	int lenacc;
 	double s;
 	fft_data  *cA, *cD, *low_pass, *high_pass, *sig,*ninp;
@@ -2999,7 +2999,7 @@ double* getMODWTmra(wt_object wt, double *wavecoeffs) {
 	conj_complex(low_pass, N);
 	conj_complex(high_pass, N);
 
-	M = (int)pow(2.0, (double)J - 1.0);
+	//M = (int)pow(2.0, (double)J - 1.0);
 	lenacc = N;
 
 	// 
@@ -3052,7 +3052,7 @@ double* getMODWTmra(wt_object wt, double *wavecoeffs) {
 }
 
 void imodwt_fft(wt_object wt, double *oup) {
-	int i, J, temp_len, iter, M, N, len_avg;
+	int i, J, iter, M, N, len_avg;
 	int lenacc;
 	double s, tmp1, tmp2;
 	fft_data  *cA, *cD, *low_pass, *high_pass, *sig;
@@ -3062,12 +3062,7 @@ void imodwt_fft(wt_object wt, double *oup) {
 
 	N = wt->modwtsiglength;
 	len_avg = wt->wave->lpd_len;
-	if (!strcmp(wt->ext, "sym")) {
-		temp_len = N/2;
-	}
-	else if (!strcmp(wt->ext, "per")) {
-		temp_len = N;
-	}
+	
 	J = wt->J;
 
 	s = sqrt(2.0);
@@ -3931,7 +3926,7 @@ double* modwt2(wt2_object wt, double *inp) {
 }
 
 void imodwt2(wt2_object wt, double *wavecoeff, double *oup) {
-	int i, rows, cols, M, N, ir, ic, lf;
+	int i, rows, cols, M, ir, ic, lf;
 	int istride, ostride, iter, J;
 	int aLL, aLH, aHL, aHH;
 	double *cL, *cH, *orig,*filt;
@@ -3943,7 +3938,6 @@ void imodwt2(wt2_object wt, double *wavecoeff, double *oup) {
 
 
 	M = (int)pow(2.0, (double)J - 1.0);
-	N = rows > cols ? rows : cols;
 	lf = (wt->wave->lpr_len + wt->wave->hpr_len) / 2;
 
 	filt = (double*)malloc(sizeof(double)* 2 * lf);
