@@ -56,11 +56,14 @@ fft_object fft_init(int N, int sgn) {
 static void mixed_radix_dit_rec(fft_data *op,fft_data *ip,const fft_object obj, int sgn, int N,int l,int inc) {
 
 	int radix,m,ll;
+
+    // init to some value for compiler
+    radix = 0;
+
 	if (N > 1) {
 		radix = obj->factors[inc];
 		//printf("%d \n",radix);
 	}
-
 	if (N == 1) {
 
 		op[0].re = ip[0].re;

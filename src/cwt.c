@@ -131,6 +131,10 @@ void cwavelet(const double *y, int N, double dt, int mother, double param, doubl
 
 	(void)s0; (void)dj; /* yes, we need these parameters unused */
 
+    // init with some value to avoid compilation warnings
+    period1 = 0;
+    coil1 = 0;
+
 	pi = 4.0 * atan(1.0);
 
 	if (npad < N) {
