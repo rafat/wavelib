@@ -279,6 +279,11 @@ cwt_object cwt_init(const char* wave, double param,int siglength, double dt, int
 	int m, odd;
 	const char *pdefault = "pow";
 
+    // init to avoid compiler warnings
+    mother = 0;
+    s0 = 0.0;
+    dj = 0.0;
+
 	m = (int)param;
 	odd = 1;
 	if (2 * (m / 2) == m) {
@@ -2730,7 +2735,10 @@ static void modwt_fft(wt_object wt, const double *inp) {
 		N = 2 * temp_len;
 	} else if (!strcmp(wt->ext, "per")) {
 		N = temp_len;
-	}
+	} else {
+        printf("Allowed only 'sym' or 'per' ext\n");
+        exit(-1);
+    }
 	J = wt->J;
 	wt->modwtsiglength = N;
 	wt->length[0] = wt->length[J] = N;
@@ -2948,7 +2956,10 @@ double* getMODWTmra(wt_object wt, double *wavecoeffs) {
 	}
 	else if (!strcmp(wt->ext, "per")) {
 		temp_len = N;
-	}
+	} else {
+        printf("Allowed only 'sym' or 'per' ext\n");
+        exit(-1);
+    }
 	J = wt->J;
 
 	s = sqrt(2.0);
