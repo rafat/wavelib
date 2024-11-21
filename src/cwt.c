@@ -133,7 +133,7 @@ void cwavelet(const double *y, int N, double dt, int mother, double param, doubl
 
     // init with some value to avoid compilation warnings
     period1 = 0;
-    coil1 = 0;
+    coi1 = 0;
 
 	pi = 4.0 * atan(1.0);
 
