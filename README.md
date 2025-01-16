@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/rafat/wavelib.svg?branch=master)](https://travis-ci.org/rafat/wavelib)
 
 wavelib
 =======
@@ -22,6 +21,8 @@ DWPT/IDWPT Is a derivative of WTREE method which retains coefficients based on e
 CWT/ICWT C translation ( with some modifications) of Continuous Wavelet  Transform Software provided by C. Torrence and G. Compo, and is available at URL: http://atoc.colorado.edu/research/wavelets/'. A generalized Inverse Transform with approximate reconstruction is also added.
 
 Documentation Available at - https://github.com/rafat/wavelib/wiki
+
+Javascript/Typescript Users : Check out the wasmlet npm package built on wavelib here -> https://github.com/flatironinstitute/wasmlets
 
 Live Demo of 1D DWT and 1D CWT (Emscripten) - http://rafat.github.io/wavelib/
 
