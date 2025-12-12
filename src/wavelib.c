@@ -2844,6 +2844,7 @@ static void modwt_fft(wt_object wt, const double *inp) {
 	free(cD);
 	free(low_pass);
 	free(high_pass);
+	free(index);
 	free_fft(fft_fd);
 	free_fft(fft_bd);
 }
